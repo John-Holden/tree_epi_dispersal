@@ -10,7 +10,8 @@ from ensemble_methods import runVel_ensemble, mk_new_dir
 job_id = sys.argv[1:][0]
 date = datetime.datetime.today().strftime('%Y-%m-%d')
 ens_name = date+'-hpc-vel-ens'
-ens_name = mk_new_dir(ens_name)
+if job_id == '1':
+    ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
 rhos = np.linspace(0.01, 0.05, 5)

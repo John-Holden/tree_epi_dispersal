@@ -15,7 +15,7 @@ def mk_new_dir(name):
         os.mkdir('./ensemble_dat/'+name+'/info')
         return name
     else:
-        os.mkdir('./ensemble_dat/'+name+'-{}'.format(c))
+        os.mkdir(os.getcwd()+'/ensemble_dat/'+name+'-{}'.format(c))
         os.mkdir('./ensemble_dat/'+name+'-{}/vel'.format(c))
         os.mkdir('./ensemble_dat/'+name+'-{}/perc'.format(c))
         os.mkdir('./ensemble_dat/'+name+'-{}/info'.format(c))

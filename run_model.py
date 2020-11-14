@@ -81,8 +81,8 @@ def run_lcl_ens():
     import datetime
     from ensemble_methods import runVel_ensemble, mk_new_dir
     rhos = np.linspace(0.0, 0.10, 10)
-    betas = [0.020]
-    repeats = 1
+    betas = [0.020, 0.03]
+    repeats = 2
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-lcl-vel-ens'
     ens_name = mk_new_dir(ens_name)
