@@ -1,0 +1,10 @@
+______Simulation Parameters_______
+model : gaussian
+alpha : 5(m)
+ell : 25(m)
+L : 400X400
+rhos : [0.0, 0.1] | 10
+betas : [0.02, 0.02] | 1
+core repeats : 1
+percolation boundary : True
+Notes : '...' 
