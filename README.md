@@ -1,4 +1,4 @@
-# tree_epi_dispersalA 
+# tree_epi_dispersal
 A modelling approach to tree epidemiology: a wind-borne dispersal model.
 
 A three parameter model of disease spread: tree density (\rho), dipersal distance (\ell), dispersal shape (infectivty) (\beta).
