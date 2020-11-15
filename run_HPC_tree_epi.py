@@ -14,9 +14,9 @@ if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
-rhos = np.linspace(0.01, 0.10, 10)
-betas = [0.020, 0.030]
-repeats = 2
+rhos = np.linspace(0.01, 0.10, 50)
+betas = np.linspace(0.002, 0.020, 5)
+repeats = 5
 result = getPspace(runVel_ensemble, repeats, rhos, betas, ens_name, job_id)
 print('...'+result)
 sys.exit()
