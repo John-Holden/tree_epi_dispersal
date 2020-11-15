@@ -64,6 +64,7 @@ def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Succes
     :param betas: float, infectivity constant
     """
     from ensemble_methods import saveFunc
+
     vel_results = np.zeros(shape=(len(betas), len(rhos), N))
     perc_results = np.zeros(shape=(len(betas), len(rhos), N))
     print('Running @GetPspace...')
@@ -79,14 +80,17 @@ def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Succes
 
 def run_lcl_ens():
     import datetime
+    from timeit import default_timer as timer
     from ensemble_methods import runVel_ensemble, mk_new_dir
-    rhos = np.linspace(0.0, 0.05, 10)
-    betas = [0.020, 0.03]
-    repeats = 2
+    rhos = np.linspace(0.04, 0.04, 1)
+    betas = np.linspace(0.3, 0.3, 1)
+    repeats = 1
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-lcl-vel-ens'
     ens_name = mk_new_dir(ens_name)
+    st = timer()
     getPspace(runVel_ensemble, repeats, rhos, betas, ens_name, jobId='')
+    print('\t Took: {} (s)'.format(timer() - st))
 
 
 if __name__ == '__main__':
