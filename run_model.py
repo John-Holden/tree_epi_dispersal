@@ -80,7 +80,7 @@ def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Succes
 def run_lcl_ens():
     import datetime
     from ensemble_methods import runVel_ensemble, mk_new_dir
-    rhos = np.linspace(0.0, 0.10, 10)
+    rhos = np.linspace(0.0, 0.05, 10)
     betas = [0.020, 0.03]
     repeats = 2
     date = datetime.datetime.today().strftime('%Y-%m-%d')
@@ -91,8 +91,8 @@ def run_lcl_ens():
 
 if __name__ == '__main__':
     import sys
-    # run_lcl_ens()
-    singleSim(rho=0.1, beta=0.1)
+    run_lcl_ens()
+    # singleSim(rho=0.1, beta=0.1)
     sys.exit()
 
 

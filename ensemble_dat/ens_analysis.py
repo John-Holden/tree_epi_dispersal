@@ -13,23 +13,21 @@ def plot1D_mean(rhos, betas, vel_ens_mean, perc_ens_mean):
     plt.show()
     return "SUCCESS"
 
-def collect_data(name):
-    vlist = sorted(os.listdir(name+'/vel/'))
-    plist = sorted(os.listdir(name+'/vel/'))
-    assert len(vlist) == len(plist)
-    shape = np.load(name+'/vel/'+vlist[0])
-    print(shape)
-    for file in vlist:
+def collect_data(name, field) -> 'ensemble average of field f':
+    f_list = sorted(os.listdir(name+'/'+field+'/'))
+    dat = np.load(name+'/'+field+'/'+f_list[0])
+    print('\t @collecting data: field {}'.format(field))
+    for file in f_list[1:]:
         print(file)
-    sys.exit()
+        dat += np.load(name+'/'+field+'/'+file)
+    dat = dat / len(f_list)
+    return dat.mean(axis=2)
 
-ens_name = os.getcwd()+'/2020-11-14-hpc-vel-ens'
-collect_data(ens_name)
-sys.exit()
-perc_ens_dat = np.load(ens_name+'/perc/perc_ensemble_.npy')
+ens_name = os.getcwd()+'/2020-11-15-hpc-vel-ens'
 rhos = np.load(ens_name+'/info/rhos.npy')
 betas = np.load(ens_name+'/info/betas.npy')
-vel_ens_mean = vel_ens_dat.mean(axis=2)
-perc_ens_mean = perc_ens_dat.mean(axis=2)
+vel_ens_mean = collect_data(ens_name, 'vel')
+perc_ens_mean = collect_data(ens_name, 'perc')
+
 plot1D_mean(rhos, betas, vel_ens_mean, perc_ens_mean)
 sys.exit()
