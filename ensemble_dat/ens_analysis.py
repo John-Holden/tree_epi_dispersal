@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,9 +13,19 @@ def plot1D_mean(rhos, betas, vel_ens_mean, perc_ens_mean):
     plt.show()
     return "SUCCESS"
 
-# ens_name = './2020-11-14-hpc-vel-ens'
-ens_name = './2020-11-14-lcl-vel-ens-1'
-vel_ens_dat = np.load(ens_name+'/vel/vel_ensemble_.npy')
+def collect_data(name):
+    vlist = sorted(os.listdir(name+'/vel/'))
+    plist = sorted(os.listdir(name+'/vel/'))
+    assert len(vlist) == len(plist)
+    shape = np.load(name+'/vel/'+vlist[0])
+    print(shape)
+    for file in vlist:
+        print(file)
+    sys.exit()
+
+ens_name = os.getcwd()+'/2020-11-14-hpc-vel-ens'
+collect_data(ens_name)
+sys.exit()
 perc_ens_dat = np.load(ens_name+'/perc/perc_ensemble_.npy')
 rhos = np.load(ens_name+'/info/rhos.npy')
 betas = np.load(ens_name+'/info/betas.npy')
