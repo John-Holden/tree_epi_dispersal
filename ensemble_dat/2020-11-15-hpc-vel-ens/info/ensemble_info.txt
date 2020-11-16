@@ -3,8 +3,8 @@ model : gaussian
 alpha : 5(m)
 ell : 25(m)
 L : 400X400
-rhos : [0.01, 0.10000000000000001] | 50
-betas : [0.002, 0.02] | 5
-core repeats : 5
+rhos : [0.0, 0.10000000000000001] | 51
+betas : [0.0, 0.02] | 11
+core repeats : 4
 percolation boundary : True
 Notes : '...' 
