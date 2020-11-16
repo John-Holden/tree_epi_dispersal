@@ -21,5 +21,5 @@ repeats = 4
 st = timer()
 result = getPspace(runVel_ensemble, repeats, rhos, betas, ens_name, job_id)
 print('...'+result)
-print('\t Took: {} (s)'.format(timer() - st))
+print('\t Took: {} (hrs)'.format(round((timer() - st)/(60*60), 2)))
 sys.exit()

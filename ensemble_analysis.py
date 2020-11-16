@@ -24,7 +24,7 @@ def collect_data(name, field) -> 'ensemble average of field f':
     print('\t -> ensemble size = {} '.format(dat.shape[2] * len(f_list)))
     return dat.mean(axis=2)
 
-ens_name = os.getcwd()+'/2020-11-15-hpc-vel-ens-test-dat'
+ens_name = os.getcwd()+'/data_store/2020-11-15-hpc-vel-ens'
 rhos = np.load(ens_name+'/info/rhos.npy')
 betas = np.load(ens_name+'/info/betas.npy')
 vel_ens_mean = collect_data(ens_name, 'vel')
