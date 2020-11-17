@@ -34,7 +34,7 @@ def saveFunc(vel_ens_dat, perc_ens_dat, rhos, betas, mPs, sts, ensName, jobId):
                      "ell":str(mPs.ell)+'(m)', "L":str(mPs.L)+'X'+str(mPs.L),
                      "rhos":str([rhos[0], rhos[-1]])+' | '+str(len(rhos)),
                      "betas":str([betas[0], betas[-1]])+' | '+str(len(betas)),
-                     "core repeats":vel_ens_dat.shape[2],
+                     "core repeats":vel_ens_dat.shape[2], "initial epi r": str(mPs.r),
                      "percolation boundary": sts.boundary}
         with open(save_name + "/info/ensemble_info.txt", "w+") as info_file:
             info_file.write("______Simulation Parameters_______" + "\n")
