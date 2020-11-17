@@ -1,0 +1,12 @@
+## Running job 3116937.23 on host dc2s0b3b.arc3.leeds.ac.uk
+##
+## Resources granted:
+##
+## h_vmem = 1G
+## h_rt   = 48:00:00
+## disk   = 1G
+
+Running @GetPspace...
+....@GetPspace: DONE
+...Success
+	 Took: 3.46 (hrs)
