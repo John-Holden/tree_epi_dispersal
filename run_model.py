@@ -23,7 +23,7 @@ class ModelParam:  # Simulation setup + model parameters
         else:
             self.I[self.epiC-self.r:self.epiC+self.r,self.epiC-self.r:self.epiC+self.r] = 2
         self.S[np.where(self.I)] = 0
-        self.model = ['exp', 'gaussian'][1]
+        self.model = ['exp', 'gaussian'][0]
 
 class Settings:  # Simulation setup
     def __init__(self):
