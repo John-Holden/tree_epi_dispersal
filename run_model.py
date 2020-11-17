@@ -14,10 +14,10 @@ class ModelParam:  # Simulation setup + model parameters
         self.tend = 31 * 4 # (day) final end time
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
-        self.ell = 25  # (m) dispersal co``````````nstant
+        self.ell = 20  # (m) dispersal co``````````nstant
         self.epiC = int(self.L/2)
         self.S = self.randGen(self.L, self.rho)
-        self.r = 0 # epicenter radius
+        self.r = 5 # epicenter radius
         if self.r == 0:
             self.I[self.epiC,self.epiC] = 1
         else:
@@ -27,14 +27,14 @@ class ModelParam:  # Simulation setup + model parameters
 
 class Settings:  # Simulation setup
     def __init__(self):
-        self.plot = False
+        self.plot = True
         self.show = True
         self.anim = True
         self.pltFreq = 31
         self.verbose1 = False
         self.verbose2 = False
         self.ext='.png'
-        self.boundary = True
+        self.boundary = False
 
 class Metrics:
     def __init__(self):
@@ -95,8 +95,8 @@ def run_lcl_ens():
 
 if __name__ == '__main__':
     import sys
-    run_lcl_ens()
-    # singleSim(rho=0.1, beta=0.1)
+    # run_lcl_ens()
+    singleSim(rho=0.01, beta=0.2)
     sys.exit()
 
 
