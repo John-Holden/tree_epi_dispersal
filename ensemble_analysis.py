@@ -24,10 +24,17 @@ def collect_data(name, field) -> 'ensemble average of field f':
     print('\t -> ensemble size = {} '.format(dat.shape[2] * len(f_list)))
     return dat.mean(axis=2)
 
+def run_plot(name):
+    rhos = np.load(name + '/info/rhos.npy')
+    betas = np.load(name + '/info/betas.npy')
+    vel_ens_mean = collect_data(name, 'vel')
+    perc_ens_mean = collect_data(name, 'perc')
+    plot1D_mean(rhos, betas, vel_ens_mean, perc_ens_mean)
+    return
+
 ens_name = os.getcwd()+'/data_store/2020-11-15-hpc-vel-ens'
-rhos = np.load(ens_name+'/info/rhos.npy')
-betas = np.load(ens_name+'/info/betas.npy')
-vel_ens_mean = collect_data(ens_name, 'vel')
-perc_ens_mean = collect_data(ens_name, 'perc')
-plot1D_mean(rhos, betas, vel_ens_mean, perc_ens_mean)
+run_plot(ens_name)
+ens_name = os.getcwd()+'/data_store/2020-11-16-hpc-vel-ens'
+run_plot(ens_name)
+
 sys.exit()

@@ -41,7 +41,7 @@ def pltMaxD(maxD, dt):
     plt.show()
 
 def pltSim(S, I, R, t, anim, show):  # plot simulation time-steps
-    pixSz = 15
+    pixSz = 5
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.scatter(np.where(I)[1], np.where(I)[0], s=pixSz, c='red')
     ax.scatter(np.where(S)[1], np.where(S)[0], s=pixSz, c='green')

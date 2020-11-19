@@ -10,7 +10,9 @@ def prDispersal(S_ind, I_ind, alpha, ell, L, model) -> 'Pr(S_x-> I_x| I_y)':
     """
     prS_S = np.ones_like(S_ind[0])
     for i in range(len(I_ind[0])):
-        distance = ijDistance(i=[I_ind[0][i], I_ind[1][i]], j=S_ind) * alpha  # (m)
+        # for each infected site, find Pr of infecting S neighbours
+        infected_site = [I_ind[0][i], I_ind[1][i]]
+        distance = ijDistance(i=infected_site, j=S_ind) * alpha  # (m)
         exponent = modelSelector(m=model, exponent=(distance/ell))  # d/ell (dimensionless)
         prS_I = np.exp(-exponent)  # Gaussian or exponential dispersal
         prS_S = prS_S * ( 1 - prS_I)
@@ -20,7 +22,7 @@ def prDispersal(S_ind, I_ind, alpha, ell, L, model) -> 'Pr(S_x-> I_x| I_y)':
     prDisp[S_ind] = prS_I
     return prDisp
 
-def findR0(pc, numR, settings) -> 'R0':
+def findR0(pc, numR, settings) -> 'R0_max':
     """
     Simulate number of secondary infections due to one infectious case
     :return:
@@ -67,8 +69,8 @@ def runSim(pc, metrics, settings) -> return_:
         metrics.numR[t] = len(R_[0])
         if metrics.numI[t] == 0:  # BCD 1
             break
-        metrics.maxD[t] = ijDistance(i=[pc.epiC, pc.epiC], j=I_).max() * pc.alpha
 
+        metrics.maxD[t] = ijDistance(i=[pc.epiC, pc.epiC], j=I_).max() * pc.alpha
         if settings.boundary:
             if metrics.maxD.max() >= (pc.L/2 - 10) * pc.alpha:
                 metrics.percolation = True

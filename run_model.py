@@ -5,16 +5,16 @@ class ModelParam:  # Simulation setup + model parameters
     # randGen: random numbers, compare to a value and return array type int
     def __init__(self, rho, beta):
         self.randGen = lambda L, comp: np.array(np.random.uniform(low=0, high=1, size=(L, L)) < comp).astype(int)
-        self.L = 400
+        self.L = 1000
         self.S = np.zeros(shape=(self.L, self.L)).astype(int)
         self.I = np.zeros_like(self.S)
         self.R = np.zeros_like(self.S)
         self.alpha = 5  # (m) lattice scale parameter
         self.infLT = 100 # (day) infectious life-time
-        self.tend = 31 * 4 # (day) final end time
+        self.tend = 31 * 1 # (day) final end time
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
-        self.ell = 20  # (m) dispersal co``````````nstant
+        self.ell = 100  # (m) dispersal co``````````nstant
         self.epiC = int(self.L/2)
         self.S = self.randGen(self.L, self.rho)
         self.r = 5 # epicenter radius
@@ -30,7 +30,7 @@ class Settings:  # Simulation setup
         self.plot = True
         self.show = True
         self.anim = True
-        self.pltFreq = 31
+        self.pltFreq = 10
         self.verbose1 = False
         self.verbose2 = False
         self.ext='.png'
@@ -52,7 +52,7 @@ def singleSim(rho, beta):
     from plots.plotLib import pltSIR
     print('Running @ singleSim...')
     [modelParam, metrics] = model.runSim(pc=ModelParam(rho, beta), metrics=Metrics(), settings=Settings())
-    pltSIR(S=metrics.numS, I=metrics.numI, R=metrics.numR, dt=1)
+    # pltSIR(S=metrics.numS, I=metrics.numI, R=metrics.numR, dt=1)
     print('....@ singleSim: DONE')
     return "Success"
 
@@ -96,7 +96,7 @@ def run_lcl_ens():
 if __name__ == '__main__':
     import sys
     # run_lcl_ens()
-    singleSim(rho=0.01, beta=0.2)
+    singleSim(rho=0.01, beta=0.001)
     sys.exit()
 
 
