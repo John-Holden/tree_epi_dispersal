@@ -56,7 +56,7 @@ def runSim(pc, metrics, settings) -> return_:
     """
     if settings.plot:
         from plots.plotLib import pltSim
-
+    pc.setField
     for t in range(pc.tend):
         if settings.verbose2:
             printStep(t, freq=10)
@@ -68,17 +68,22 @@ def runSim(pc, metrics, settings) -> return_:
         metrics.numI[t] = len(I_[0])
         metrics.numR[t] = len(R_[0])
         if metrics.numI[t] == 0:  # BCD 1
+            metrics.extinction = True
+            metrics.extinctionT = t
             break
 
         metrics.maxD[t] = ijDistance(i=[pc.epiC, pc.epiC], j=I_).max() * pc.alpha
-        if settings.boundary:
-            if metrics.maxD.max() >= (pc.L/2 - 10) * pc.alpha:
-                metrics.percolation = True
-                break
 
+        if not metrics.percolation:
+            if metrics.maxD.max() >= (pc.L/2 - 10) * pc.alpha:
+                metrics.percT = t
+                metrics.percolation = True
+
+        if settings.boundary and metrics.percolation:
+            break
         # update fields S, I, R
         prS_I = pc.beta * prDispersal(S_, I_, pc.alpha, pc.ell, pc.L, pc.model)
-        newI = pc.randGen(L=pc.L, comp=prS_I)
+        newI = pc.randGen(L=pc.L, thresh=prS_I)
         pc.S[np.where(newI)] = 0
         pc.I = pc.I + (pc.I > 1) + newI * 2  # increment infected count
         newR = np.where(pc.I == pc.infLT + 1)
@@ -95,6 +100,8 @@ def runSim(pc, metrics, settings) -> return_:
     metrics.numI = metrics.numI[:t]
     metrics.numR = metrics.numR[:t]
     metrics.maxD = metrics.maxD[:t]
+    metrics.R0 = metrics.numI[1:]/metrics.numI[:-1]
+    metrics.mortality_ratio = (metrics.numR[-1] + metrics.numI[-1]) / (pc.rho * pc.L**2)
     if settings.plot:
         pltSim(S=pc.S, I=pc.I, R=pc.R, t=t, anim=settings.anim, show=settings.show)
     return pc, metrics

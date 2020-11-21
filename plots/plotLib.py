@@ -28,6 +28,20 @@ def pltSIR(S, I, R, dt):
     plt.legend()
     plt.show()
 
+def pltR0(R0, perc, percT, dt):
+    t = np.arange(0, len(R0)) * dt
+    plt.plot(t, R0)
+    plt.scatter(t, R0, s=1)
+    # if perc:
+    #     plt.plot([percT, percT], [1, R0[percT - 2]], label='T @ percolation')
+    plt.plot([0, len(R0)], [R0.mean(), R0.mean()], label=r'$R_0$ = {}'.format(round(R0.mean(), 3)))
+    plt.plot([0, len(R0)], [1, 1], label=r'$R_0$ = 1', c='r', alpha=0.50, ls='--')
+    plt.legend()
+    plt.xlabel('Time')
+    plt.ylabel(r'$R_0^\prime$')
+    plt.savefig('example_1.pdf')
+    plt.show()
+
 def pltLG(S, I, R, dt):
     t = np.arange(0, len(S)) * dt
     plt.plot(t, S, c='green', label='S')
@@ -46,7 +60,7 @@ def pltSim(S, I, R, t, anim, show):  # plot simulation time-steps
     ax.scatter(np.where(I)[1], np.where(I)[0], s=pixSz, c='red')
     ax.scatter(np.where(S)[1], np.where(S)[0], s=pixSz, c='green')
     ax.scatter(np.where(R)[1], np.where(R)[0], s=pixSz, c='lightgray')
-    ax.set_title( r'$t \approx ${} Months'.format(round(t/31, 3)), size=20)
+    ax.set_title( r'$t \approx ${} Days'.format(round(t, 3)), size=20)
     if anim:
         plt.savefig('./anim_dat/temp_frames/%s'%(frameLabel(step=t)))
     if show:
