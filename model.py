@@ -12,7 +12,7 @@ def set_R0trace(I_ind, R0_trace):
         R0_trace[site] = [0, 0]
     return
 
-def update_R0trace(R0_trace, new_trace, site) -> '{ [ site ] : [R0, generation]}':
+def update_R0trace(R0_trace, new_trace, site) -> '{ site : [R0, generation]}':
     R0_trace[str(site[0]) + str(site[1])][0] += len(new_trace[0])
     gen = R0_trace[str(site[0]) + str(site[1])][1] + 1
     for i in range(len(new_trace[0])):
@@ -99,7 +99,11 @@ def runSim(pc, metrics, settings) -> return_:
     metrics.numR = metrics.numR[:t]
     metrics.maxD = metrics.maxD[:t]
     metrics.R0 = metrics.numI[1:]/metrics.numI[:-1]
-    metrics.mortality_ratio = (metrics.numR[-1] + metrics.numI[-1]) / (pc.rho * pc.L**2)
+    if pc.rho == 0:
+        metrics.mortality_ratio = 0
+    else:
+        metrics.mortality_ratio = (metrics.numR[-1] + metrics.numI[-1]) / (pc.rho * pc.L**2)
+
     if settings.plot:
         pltSim(S=pc.S, I=pc.I, R=pc.R, t=t, anim=settings.anim, show=settings.show)
     return pc, metrics

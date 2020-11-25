@@ -28,11 +28,10 @@ def pltSIR(S, I, R, dt):
     plt.legend()
     plt.show()
 
-def pltR0(R0_v_gen):
+def pltR0(R0_v_gen, save=False):
     print(R0_v_gen, '<- R0 v Gen')
     if len(R0_v_gen) == 0:
         plt.plot([0, 1],  [0, 0], c='r', ls='--', label='Below threshold')
-
     else:
         t = np.arange(0, len(R0_v_gen), 1)
         plt.plot(t, R0_v_gen)
@@ -40,11 +39,11 @@ def pltR0(R0_v_gen):
         plt.plot([0, t[-1]], [1, 1], c='r', ls='--')
         plt.plot([0, t[-1]], [R0_v_gen.mean(), R0_v_gen.mean()],
                  c='g', ls='--', label=r'$R_0$ | gen = {}'.format(round(R0_v_gen.mean(),2)))
-
     plt.ylabel(r'$\overline{R}_0$')
     plt.xlabel('generation')
     plt.legend()
-    plt.savefig('r0_gen.pdf')
+    if save:
+        plt.savefig('r0_gen.pdf')
     plt.show()
 
 

@@ -1,5 +1,6 @@
 import math
-
+import sys
+import numpy as np
 
 def timerPrint(seconds):
     dc = round(seconds - math.floor(seconds), 2)
@@ -15,7 +16,7 @@ def timerPrint(seconds):
         return '{} (Hrs): {} (mins): {} (s)'.format(hrs, mns%60, secs)
 
 
-def R0_history_sort(R0_trace):
+def R0_generation_mean(R0_trace) -> 'mean(R0) | gen':
     import numpy as np
     R0_count = np.zeros(10**4)
     num_trees_in_gen = np.zeros_like(R0_count)
@@ -26,9 +27,8 @@ def R0_history_sort(R0_trace):
         num_trees_in_gen[inf_hist[1]] += 1
         if inf_hist[1] > max_gen_in_sim:
             max_gen_in_sim = inf_hist[1]
-    plt_maxGenn = max_gen_in_sim
-    print('\n Max gen in sim {}'.format(max_gen_in_sim))
-    R0_count = R0_count[:plt_maxGenn]
-    num_trees_in_gen = num_trees_in_gen[:plt_maxGenn]
+
+    R0_count = R0_count[:max_gen_in_sim]
+    num_trees_in_gen = num_trees_in_gen[:max_gen_in_sim]
     mean_R0_for_gen = R0_count / num_trees_in_gen
     return mean_R0_for_gen
