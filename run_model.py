@@ -1,21 +1,24 @@
 import model
 import numpy as np
+import datetime
+from timeit import default_timer as timer
 import sys
+
 
 class ModelParamSet:  # Set model parameter and simulation fields
     def __init__(self, rho, beta):
         self.alpha = 5  # (m) lattice scale parameter
-        self.L = 1200  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
+        self.L = 100  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
         self.S = []
         self.I = []
         self.R = []
         self.infLT = 10 # (day) infectious life-time
-        self.tend = 200 # (day) final end time
+        self.tend = 1000 # (day) final end time
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
-        self.ell = 1600  # (m) dispersal
+        self.ell = 100  # (m) dispersal
         self.epiC = int(self.L/2)
-        self.r = 1 # epicenter radius
+        self.r = 0 # epicenter radius
         self.model = ['exp', 'gaussian'][1]
         self.randGen = lambda L, thresh: np.array(np.random.uniform(low=0, high=1, size=(L, L)) < thresh).astype(int)
         self.setField(epiLoc=['centralised', 'distributed'][1])  # Init SIR fields & epicenter
@@ -27,7 +30,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
         if epiLoc == 'centralised':
             self.setEpi()
         elif epiLoc == 'distributed':
-            self.setRandEpi(n=10)
+            self.setRandEpi()
 
     def setEpi(self):
         if self.r == 0:
@@ -36,7 +39,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
             self.I[self.epiC-self.r:self.epiC+self.r, self.epiC-self.r:self.epiC+self.r] = 2
         self.S[np.where(self.I)] = 0
 
-    def setRandEpi(self, n):
+    def setRandEpi(self, n=10):
         randRow = np.array(np.random.randint(1, self.I.shape[0], size=n))
         randCol = np.array(np.random.randint(1, self.I.shape[0], size=n))
         randInf = tuple([randRow, randCol])
@@ -45,12 +48,11 @@ class ModelParamSet:  # Set model parameter and simulation fields
 
 class Settings:  # Simulation setup
     def __init__(self):
-        self.plot = True
+        self.plot = False
         self.show = True
         self.anim = True
-        self.pltFreq = 33
-        self.verbose1 = False
-        self.verbose2 = False
+        self.pltFreq = 50
+        self.verbose = True
         self.ext='.png'
         self.boundary = False
 
@@ -63,6 +65,7 @@ class Metrics:
         self.percolation = False
         self.mortality_ratio = 0
         self.R0 = np.zeros(3000)
+        self.R0_trace = {}
         self.maxD = np.zeros(3000)
         self.numI = np.zeros(3000)
         self.numS = np.zeros(3000)
@@ -72,17 +75,20 @@ def singleSim(rho, beta):
     """
     Run a single instance of the model.
     """
-    from plots.plotLib import pltSIR, pltR0
+    from helper_functions import timerPrint, R0_history_sort
+    from plots.plotLib import pltR0
+    start = timer()
     print('Running @ singleSim...')
     [modelParam, metrics] = model.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics(), settings=Settings())
-    print('...Mean R0 = {}'.format(round(metrics.R0.mean(), 3)))
-    print('...Time elapsed = {}'.format(metrics.endT))
+    meanR0_vs_gen = R0_history_sort(metrics.R0_trace)
+    print('\n...Time elapsed = {}'.format(metrics.endT))
     print('...Percolation = {} @ time = {}'.format(metrics.percolation, metrics.percT))
     print('...Extinction = {} @ time = {}'.format(metrics.extinction, metrics.extinctionT))
     print('...Mortality Ratio = {} '.format(metrics.mortality_ratio))
-    print('@ singleSim: DONE')
-    # pltSIR(S=metrics.numS, I=metrics.numI, R=metrics.numR, dt=1)
-    pltR0(R0=metrics.R0, perc=metrics.percolation, percT=metrics.percT, dt=1)
+    print('...Tot Number Removed = {} '.format(metrics.numR[-1]))
+    elapsed = round(timer() - start, 2)
+    print('\n@ singleSim DONE | {}'.format(timerPrint(elapsed)))
+    pltR0(meanR0_vs_gen)
     return "Success"
 
 def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Success":
@@ -93,7 +99,6 @@ def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Succes
     :param betas: float, infectivity constant
     """
     from ensemble_methods import saveFunc
-
     vel_results = np.zeros(shape=(len(betas), len(rhos), N))
     perc_results = np.zeros(shape=(len(betas), len(rhos), N))
     print('Running @GetPspace...')
@@ -108,25 +113,25 @@ def getPspace(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Succes
     return "Success"
 
 def run_lcl_ens():
-    import datetime
-    from timeit import default_timer as timer
-    from ensemble_methods import runVel_ensemble, mk_new_dir
-    rhos = np.linspace(0.04, 0.04, 1)
-    betas = np.linspace(0.3, 0.3, 1)
+    import sys
+    from ensemble_methods import runR0_ensemble, runVel_ensemble, mk_new_dir
+    from helper_functions import timerPrint, R0_history_sort
+    rhos = np.linspace(0.01, 0.01, 1)
+    betas = np.linspace(0.03, 0.03, 1)
     repeats = 1
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-lcl-vel-ens'
     ens_name = mk_new_dir(ens_name)
-    st = timer()
-    getPspace(runVel_ensemble, repeats, rhos, betas, ens_name, jobId='')
-    print('\t Took: {} (s)'.format(timer() - st))
+    start = timer()
+    getPspace(runR0_ensemble, repeats, rhos, betas, ens_name, jobId='')
+    elapsed = round(timer() - start, 2)
+    print('\n@ singleSim DONE | {}'.format(timerPrint(elapsed)))
 
 
 if __name__ == '__main__':
     import sys
-    # run_lcl_ens()
-    for i in range(1):
-        singleSim(rho=.01, beta=.00005)
+    run_lcl_ens()
+    # singleSim(rho=.01, beta=.00005)
     sys.exit()
 
 

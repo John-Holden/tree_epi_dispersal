@@ -1,6 +1,8 @@
 import model
 import sys
+import math
 perc = lambda p: 1 if p else 0
+
 
 def mk_new_dir(name):
     import os
@@ -75,17 +77,37 @@ def runVel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolat
     ensemble_perc = np.zeros(runs)
     sts = Sts()
     for N in range(runs):
-        if sts.verbose2:
+        if sts.verbose:
             print('Repeat : {}'.format(N))
         [out_mPrm, out_mts] = model.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
         ensemble_vel[N] = out_mts.maxD.max()/out_mts.endT
         ensemble_perc[N] = perc(out_mts.percolation)
-        if sts.verbose2:
+        if sts.verbose:
             print("\t Percolation : {} @ t = {} (days)".format(out_mts.percolation, out_mts.endT))
             print('\t Max Distance : {} (m)'.format(round(out_mts.maxD.max(), 3)))
             print('\t ~ Spread Vel : {} (m/day)'.format(round(out_mts.maxD.max()/out_mts.endT, 3)))
             print('\t ~ Spread Vel: {} (km/ry)'.format(round((out_mts.maxD.max()*365)/(out_mts.endT*1000), 3)))
     return ensemble_vel, ensemble_perc
+
+
+def runR0_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[R0]':
+    import numpy as np
+    ensemble_R0 = np.zeros(runs)
+    sts = Sts()
+    for N in range(runs):
+        if sts.verbose:
+            print('Repeat : {}'.format(N))
+        [out_mPrm, out_mts] = model.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
+        #todo Save out_mts.R0_trace average over all generations...
+        sys.exit()
+
+
+    sys.exit()
+
+
+    sys.exit()
+
+
 
 
 
