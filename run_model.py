@@ -8,7 +8,7 @@ import sys
 class ModelParamSet:  # Set model parameter and simulation fields
     def __init__(self, rho, beta):
         self.alpha = 5  # (m) lattice scale parameter
-        self.L = 500  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
+        self.L = 1000  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
         self.S = []
         self.I = []
         self.R = []
@@ -16,7 +16,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
         self.tend = 1000 # (day) final end time
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
-        self.ell = 100  # (m) dispersal
+        self.ell = 1600  # (m) dispersal
         self.epiC = int(self.L/2)
         self.r = 0 # epicenter radius
         self.model = ['exp', 'gaussian'][1]
@@ -138,8 +138,8 @@ def run_lcl_ens(repeats, rhos, betas):
 
 if __name__ == '__main__':
     import sys
-    run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.01, 6), betas = np.linspace(0.001, 0.003, 2))
-    # singleSim(rho=.05, beta=.003)
+    # run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.01, 6), betas = np.linspace(0.001, 0.003, 2))
+    singleSim(rho=.02, beta=.00003)
     sys.exit()
 
 
