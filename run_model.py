@@ -8,7 +8,7 @@ import sys
 class ModelParamSet:  # Set model parameter and simulation fields
     def __init__(self, rho, beta):
         self.alpha = 5  # (m) lattice scale parameter
-        self.L = 500  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
+        self.L = 1000  # L = domain dim :: modelled size = (alpha * L)^2 (m^2)
         self.S = []
         self.I = []
         self.R = []
@@ -16,7 +16,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
         self.tend = 1000 # (day) final end time
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
-        self.ell = 100  # (m) dispersal
+        self.ell = 1000  # (m) dispersal
         self.epiC = int(self.L/2)
         self.r = 0 # epicenter radius
         self.model = ['exp', 'gaussian'][1]

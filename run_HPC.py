@@ -14,9 +14,9 @@ if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
-rhos = np.linspace(0.0, 0.03, 3)
-betas = np.linspace(0.003, 0.006, 2)
-repeats = 2
+rhos = np.linspace(0.00, 0.10, 11)
+betas = np.linspace(0.00003, 0.00006, 2)
+repeats = 3
 result = Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, job_id)
 print('...'+result)
 sys.exit()
