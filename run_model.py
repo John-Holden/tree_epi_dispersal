@@ -99,20 +99,19 @@ def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "
     :param betas: float, infectivity constant
     """
     from helper_functions import timerPrint
-    from ensemble_methods import save_ensemble, save_info
+    from ensemble_methods import save_ensemble, save_sim_info, save_sim_out
 
-    start = timer()  # Time ensemble averaging process
     if jobId == '1' or jobId == 'local_test':
-        save_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
+        save_sim_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
                   rhos=rhos, betas=betas, param_set=ModelParamSet(0, 0), settings=Settings(),
                   ensemble_name=ensName, per_core_repeats=N)
 
+    start = timer()  # Time ensemble averaging process
     R0_results = np.zeros(shape=(len(betas), len(rhos), N))
     extinctionT_results = np.zeros(shape=(len(betas), len(rhos), N))
     mortality_ratio_results = np.zeros(shape=(len(betas), len(rhos), N))
     print('Running @Get Parameter Space...')
     for i, beta in enumerate(betas):
-        print('i, ', i)
         for j, rho in enumerate(rhos):
             all_ens_fields = run_ensemble(rho, beta, runs=N, MPrm=ModelParamSet, Mts=Metrics, Sts=Settings)
             R0_results[i, j] = all_ens_fields[0]
@@ -124,13 +123,15 @@ def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "
                  ensemble_name=ensName, job_id=jobId)
 
     elapsed = round(timer() - start, 2)
+    if jobId == '1' or jobId == 'local_test':
+        save_sim_out(ensemble_name=ensName, elapsed_time=timerPrint(elapsed))
     print('\n@ Ensemble Run DONE | {}'.format(timerPrint(elapsed)))
     return "Success"
 
 def run_lcl_ens(repeats, rhos, betas):
     from ensemble_methods import runR0_ensemble, mk_new_dir
     date = datetime.datetime.today().strftime('%Y-%m-%d')
-    ens_name = date + '-lcl-vel-ens'
+    ens_name = date + '-local-ensemble'
     ens_name = mk_new_dir(ens_name)
     Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, jobId='local_test')
     return 'Success'
@@ -138,8 +139,8 @@ def run_lcl_ens(repeats, rhos, betas):
 
 if __name__ == '__main__':
     import sys
-    # run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.01, 6), betas = np.linspace(0.001, 0.003, 2))
-    singleSim(rho=.02, beta=.00003)
+    run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.00, 1), betas = np.linspace(0.001, 0.003, 2))
+    # singleSim(rho=.02, beta=.00003)
     sys.exit()
 
 

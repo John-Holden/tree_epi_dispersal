@@ -48,33 +48,39 @@ def save_ensemble(ens_results, ens_field_names, ensemble_name, job_id) -> 'Succe
         np.save(save_name + f"/{metric}/" + job_id, ens_results[c])
     return 'Success'
 
+def save_sim_info(ens_field_names, rhos, betas, param_set, settings,
+                  ensemble_name, per_core_repeats):
 
-def save_info(ens_field_names, rhos, betas, param_set, settings,
-              ensemble_name, per_core_repeats):
     from datetime import datetime
     save_name = 'ensemble_dat/'+ensemble_name
     np.save(save_name+"/info/betas", betas)
     np.save(save_name+"/info/rhos", rhos)
 
-    save_info = {"Ensemble averaged metrics: ": ens_field_names,
-                 "Time stamp":datetime.now(),
-                 "model":param_set.model,
-                 "alpha": str(param_set.alpha) + '(m)',
-                 "ell":str(param_set.ell)+'(m)',
-                 "L":str(param_set.L)+' X '+str(param_set.L),
-                 "rhos":str([rhos[0], rhos[-1]])+' | '+str(len(rhos)),
-                 "betas":str([betas[0], betas[-1]])+' | '+str(len(betas)),
-                 "core repeats":per_core_repeats,
-                 "initial epicenter radius ": str(param_set.r),
-                 "percolation boundary": settings.boundary}
+    save_info = {"\t ensemble averaged metrics: ": ens_field_names,
+                 "\t start time: ":datetime.now(),
+                 "\t model: ":param_set.model,
+                 "\t alpha: ": str(param_set.alpha) + '(m)',
+                 "\t ell: ":str(param_set.ell)+'(m)',
+                 "\t L":str(param_set.L)+' X '+str(param_set.L),
+                 "\t rhos":str([rhos[0], rhos[-1]])+' | '+str(len(rhos)),
+                 "\t betas":str([betas[0], betas[-1]])+' | '+str(len(betas)),
+                 "\t core repeats: ":per_core_repeats,
+                 "\t initial epicenter radius: ": str(param_set.r),
+                 "\t percolation boundary: ": settings.boundary}
 
-    with open(save_name + "/info/ensemble_info.txt", "w+") as info_file:
-        info_file.write("______Simulation Parameters_______" + "\n")
+    with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
+        info_file.write("\n______Ensemble Parameters_______\n")
         for prm in save_info:
             info_file.write(prm + ' : ' + str(save_info[prm]) + '\n')
-        info_file.write("Notes : '...' ")  # Note section to document results
     return
 
+def save_sim_out(ensemble_name, elapsed_time):
+    save_name = 'ensemble_dat/' + ensemble_name
+    with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
+        info_file.write("\n______Out_______\n")
+        info_file.write('\telapsed time : '+ elapsed_time + '\n')
+        info_file.write("\tNotes : '...' ")  # Note section to document results
+    return
 
 #  ensemble selector
 
