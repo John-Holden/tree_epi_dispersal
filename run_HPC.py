@@ -15,7 +15,7 @@ if job_id == '1':
 # - make directories & run phase
 # ----------------------------------------------------- #
 rhos = np.linspace(0.00, 0.10, 51)
-betas = np.linspace(0.00003, 0.00006, 2)
+betas = np.linspace(0.000015, 0.000020, 2)
 repeats = 1
 result = Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, job_id)
 print('...'+result)
