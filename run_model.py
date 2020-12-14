@@ -139,8 +139,8 @@ def run_lcl_ens(repeats, rhos, betas):
 
 if __name__ == '__main__':
     import sys
-    run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.00, 1), betas = np.linspace(0.001, 0.003, 2))
-    # singleSim(rho=.02, beta=.00003)
+    # run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.00, 1), betas = np.linspace(0.001, 0.003, 2))
+    singleSim(rho=.02, beta=.00003)
     sys.exit()
 
 
