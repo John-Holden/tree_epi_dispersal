@@ -38,7 +38,6 @@ def pltR0(R0_v_gen, save=False, print_out=True):
         plt.plot([1, t[-1]], [1, 1], c='r', ls='--')
     plt.ylabel(r'$R^i_0$')
     plt.xlabel('generation')
-    plt.legend()
     if save:
         plt.savefig('r0_gen.pdf')
     plt.show()

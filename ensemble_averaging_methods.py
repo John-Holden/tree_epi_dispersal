@@ -140,7 +140,7 @@ def runR0_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[R0, extinctinon time, mortal
     :param Sts: Class, settings
     """
     import numpy as np
-    from helper_functions import R0_generation_mean
+    from helper_methods import R0_generation_mean
     ensemble_R0 = np.zeros(runs)
     extinctionT = np.zeros(runs)
     mortality_ratio = np.zeros(runs)

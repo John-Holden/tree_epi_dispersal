@@ -2,13 +2,13 @@ import datetime
 import numpy as np
 from model import runSim
 from timeit import default_timer as timer
-from run_model import ModelParamSet, Settings, Metrics
+from run_simulation import ModelParamSet, Settings, Metrics
 
 def singleSim(rho, beta):
     """
     Run a single instance of the model.
     """
-    from helper_functions import timerPrint, R0_generation_mean
+    from helper_methods import timerPrint, R0_generation_mean
 
     start = timer()
     print('\n Running @ singleSim...')
@@ -20,9 +20,9 @@ def singleSim(rho, beta):
 
 def R0_analysis(metrics, save=False):
     "plot R0 as a function of generation"
-    from helper_functions import  R0_generation_mean
+    from helper_methods import  R0_generation_mean
     from plots.plotLib import pltR0
-    meanR0_vs_gen = R0_generation_mean(metrics.R0_trace)
+    meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
     pltR0(meanR0_vs_gen, save)
     print('\n...Time steps elapsed = {}'.format(metrics.endT))
     print('...Percolation = {} @ time = {}'.format(metrics.percolation, metrics.percT))
@@ -39,8 +39,8 @@ def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "
     :param rhos: float, av tree densities
     :param betas: float, infectivity constant
     """
-    from helper_functions import timerPrint
-    from ensemble_methods import save_ensemble, save_sim_info, save_sim_out
+    from helper_methods import timerPrint
+    from ensemble_averaging_methods import save_ensemble, save_sim_info, save_sim_out
 
     if jobId == '1' or jobId == 'local_test':
         save_sim_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
@@ -71,7 +71,7 @@ def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "
 
 
 def run_lcl_ens(repeats, rhos, betas):
-    from ensemble_methods import runR0_ensemble, mk_new_dir
+    from ensemble_averaging_methods import runR0_ensemble, mk_new_dir
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
     ens_name = mk_new_dir(ens_name)
@@ -85,7 +85,7 @@ def R0_domain_sensitivity(runs, rho, beta, box_sizes ,Mparams, Mts, sts):
     import sys
     from collections import defaultdict
     import matplotlib.pyplot as plt
-    from helper_functions import timerPrint, R0_generation_mean, avg_multi_dim
+    from helper_methods import timerPrint, R0_generation_mean, avg_multi_dim
     from timeit import default_timer as timer
     R0_gen_ens = defaultdict(list)
     for N in range(runs):
@@ -98,7 +98,7 @@ def R0_domain_sensitivity(runs, rho, beta, box_sizes ,Mparams, Mts, sts):
             if sts.verbose >= 1:
                 start = timer()
 
-            [out_mPrm, out_mts] = runSim(pc=mprms, metrics=Mts(), settings=sts)
+            out_mts = runSim(pc=mprms, metrics=Mts(), settings=sts)[1]
             meanR0_vs_gen = R0_generation_mean(out_mts.R0_trace)
             if sts.verbose >= 1:
                 print('\n\tTime steps elapsed = {}'.format(out_mts.endT))

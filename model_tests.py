@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
-from run_model import ModelParamSet, Metrics, Settings
+from run_simulation import ModelParamSet, Metrics, Settings
+from helper_methods import setFields
 
 def expected_number_of_trees_over_domain():
     # does the number trees match the expected ?
@@ -102,16 +103,36 @@ def test_different_L_and_alpha_values_which_give_same_modelled_area():
     print(f'expected tree number alpha=5m: {expected_tree_number5m}, '
           f'expected tree number alpha=10m: {expected_tree_number10m}')
 
+
+def test_expected_number_of_infecteds_upon_init():
+    number = None  # case 1, single centralised epicenter
+    radius = 0
+    S,I,R=setFields(L=1000, rho=0.01, epiC=500, r=radius, init_n_infected=number)
+    assert len(np.where(I)[0]) == 1
+
+    number = None
+    radius = 2
+    S, I, R = setFields(L=1000, rho=0.01, epiC=500, r=radius, init_n_infected=number)
+    assert len(np.where(I)[0]) == 16
+
+    number = 10
+    radius = None
+    S, I, R = setFields(L=1000, rho=0.01, epiC=500, r=radius, init_n_infected=number, epiType='distributed')
+    assert len(np.where(I)[0]) == 10
+
+
+
 if __name__ == '__main__':
-    print('-----------------------------')
-    print('Testing domain density is as expected')
-    print('-----------------------------')
-    expected_number_of_trees_over_domain()
-    print('-----------------------------')
-    print('Testing the domain over different alpha values, one L value')
-    print('-----------------------------')
-    expected_number_of_trees_for_different_alpha_values()
-    print('-----------------------------')
-    print('Testing the domain over different alpha and L value to give same domain')
-    print('-----------------------------')
-    test_different_L_and_alpha_values_which_give_same_modelled_area()
+    test_expected_number_of_infecteds_upon_init()
+    # print('-----------------------------')
+    # print('Testing domain density is as expected')
+    # print('-----------------------------')
+    # expected_number_of_trees_over_domain()
+    # print('-----------------------------')
+    # print('Testing the domain over different alpha values, one L value')
+    # print('-----------------------------')
+    # expected_number_of_trees_for_different_alpha_values()
+    # print('-----------------------------')
+    # print('Testing the domain over different alpha and L value to give same domain')
+    # print('-----------------------------')
+    # test_different_L_and_alpha_values_which_give_same_modelled_area()

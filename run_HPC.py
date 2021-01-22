@@ -2,8 +2,8 @@ import sys
 import datetime
 import os, sys
 import numpy as np
-from run_model import Pspace_iterator
-from ensemble_methods import runR0_ensemble, mk_new_dir
+from run_simulation import Pspace_iterator
+from ensemble_averaging_methods import runR0_ensemble, mk_new_dir
 
 # - Input variables & setup/save directories
 # ----------------------------------------------------- #
