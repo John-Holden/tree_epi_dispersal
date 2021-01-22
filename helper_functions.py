@@ -32,3 +32,16 @@ def R0_generation_mean(R0_trace) -> 'mean(R0) | gen':
     num_trees_in_gen = num_trees_in_gen[:max_gen_in_sim]
     mean_R0_for_gen = R0_count / num_trees_in_gen
     return mean_R0_for_gen
+
+def avg_multi_dim(arrays):
+    """
+    Average arrays with variable entires
+    :param arrays: variable number of array-like structs
+    :return:
+    """
+    max_= max([len(arr) for arr in arrays])
+    avg_arr = np.zeros(max_)
+    for arr in arrays:
+        avg_arr[0:len(arr)] += arr
+    return avg_arr/len(arrays)
+

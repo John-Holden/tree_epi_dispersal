@@ -1,9 +1,9 @@
 import numpy as np
 import sys
 
-ijDistance = lambda i, j : np.sqrt((i[0] - j[0])**2 + (i[1] - j[1])**2)
+ijDistance = lambda i, j : np.sqrt((i[0] - j[0])**2 + (i[1] - j[1])**2)  # where i and j are tuples
 modelSelector = lambda m, exponent : exponent if m == 'exp' else 0.5*exponent**2
-printStep = lambda t, freq : print('\t Time : {} (days)'.format(t)) if t % freq == 0 else None
+printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
 
 def set_R0trace(I_ind, R0_trace):
@@ -18,7 +18,7 @@ def update_R0trace(R0_trace, new_trace, site) -> '{ site : [R0, generation]}':
     for i in range(len(new_trace[0])):
         # initialise nth generation infections
         R0_trace[str(new_trace[0][i]) + str(new_trace[1][i])] = [0, gen]
-    return
+    return gen
 
 def ith_new_infections(infected_site, S_ind, alpha, model, ell, beta) -> 'new infections due to i':
     distance = ijDistance(i=infected_site, j=S_ind) * alpha  # (m)
@@ -31,20 +31,24 @@ def get_new_I(S_ind, I_ind, beta, alpha, ell, model, R0_trace) -> 'Indices of al
     R0_count = 0
     S_t0 = len(S_ind[0])
     newI_ind = [[],[]]
+    max_gen = 0
     for i in range(len(I_ind[0])):
         # for each infected site, find secondary infections
         infected_site = [I_ind[0][i], I_ind[1][i]]
         new_I = ith_new_infections(infected_site, S_ind, alpha, model, ell, beta)
         newI_ind[0].extend(S_ind[0][new_I])
         newI_ind[1].extend(S_ind[1][new_I])
-        update_R0trace(R0_trace, new_trace=[S_ind[0][new_I], S_ind[1][new_I]], site=infected_site)
+        gen = update_R0trace(R0_trace, new_trace=[S_ind[0][new_I], S_ind[1][new_I]], site=infected_site)
+        if gen > max_gen:
+            max_gen = gen
         S_ind = tuple([np.delete(S_ind[0], new_I), np.delete(S_ind[1], new_I)])
         R0_count += len(new_I[0])
 
     assert R0_count == S_t0 - len(S_ind[0])
-    return tuple(newI_ind)
+    return tuple(newI_ind), max_gen
 
 return_ = {'pc': 'with updated output fields', 'metrics': 'holding time-series data'}
+
 def runSim(pc, metrics, settings) -> return_:
     """
     Run dynamic simulation of pathogen spread
@@ -54,7 +58,7 @@ def runSim(pc, metrics, settings) -> return_:
         from plots.plotLib import pltSim
 
     for t in range(pc.tend):
-        if settings.verbose:
+        if settings.verbose == 2:
             printStep(t, freq=1)
         S_ = np.where(pc.S)
         I_ = np.where(pc.I)
@@ -62,7 +66,6 @@ def runSim(pc, metrics, settings) -> return_:
         # update metrics
         if t == 0:
             set_R0trace(I_, metrics.R0_trace)
-
         metrics.numS[t] = len(S_[0])
         metrics.numI[t] = len(I_[0])
         metrics.numR[t] = len(R_[0])
@@ -80,12 +83,15 @@ def runSim(pc, metrics, settings) -> return_:
         if settings.boundary and metrics.percolation:
             break
         # update fields S, I, R
-        newI_ind = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model, metrics.R0_trace)
+        newI_ind, max_gen = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model, metrics.R0_trace)
+        if pc.max_gen is not None and max_gen > pc.max_gen:
+            metrics.max_gen = max_gen
+            break
+
         pc.S[newI_ind] = 0
         pc.I[newI_ind] = 1
         pc.I = pc.I + (pc.I>=1) # increment infected count
         newR = np.where(pc.I == pc.infLT + 2)
-
         pc.R[newR] = 1
         pc.I[newR] = 0
         if settings.plot:
