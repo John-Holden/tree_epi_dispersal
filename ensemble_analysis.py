@@ -46,6 +46,20 @@ def run_plot(name, metric):
     plot1D_mean(rhos, betas, ens_mean, save=True)
     return ens_mean
 
+def ens_avg_dict_of_arrays():
+    import pickle
+    file = open(f"{os.getcwd()}/ensemble_dat/1.pkl", 'rb')
+    object_file = pickle.load(file)
+    # for box_size in R0_gen_ens:
+    #     plt.plot(avg_multi_dim(R0_gen_ens[box_size]), label=f' size: {box_sizes[box_size]}, '
+    #                                                         f'grid size:{box_sizes[box_size]*mprms.alpha/1000}km')
+    # plt.xlabel('Generation', size=20)
+    # plt.ylabel(r'$\overline{R}_0$', size=25)
+    # plt.legend()
+    # plt.show()
+
+ens_avg_dict_of_arrays()
+sys.exit()
 ens_name = os.getcwd()+'/data_store/2020-11-27-hpc-R0-trace'
 ens_mean = run_plot(ens_name, metric='R0_trace')
 sys.exit(f'Done...{ens_mean}')

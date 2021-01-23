@@ -1,6 +1,5 @@
 import model
-import sys
-import math
+from typing import Union, Type
 import numpy as np
 perc = lambda p: 1 if p else 0
 
@@ -13,7 +12,7 @@ def mk_new_dir(name):
     if c == 0:
         os.mkdir('./ensemble_dat/'+name)
         os.mkdir('./ensemble_dat/'+name+'/vel')
-        os.mkdir('./ensemble_dat/'+name+'/R0_trace')
+        os.mkdir('./ensemble_dat/'+name+'/R0_histories')
         os.mkdir('./ensemble_dat/'+name+'/extinction_time')
         os.mkdir('./ensemble_dat/'+name+'/mortality_ratio')
         os.mkdir('./ensemble_dat/'+name+'/perc')
@@ -48,25 +47,38 @@ def save_ensemble(ens_results, ens_field_names, ensemble_name, job_id) -> 'Succe
         np.save(save_name + f"/{metric}/" + job_id, ens_results[c])
     return 'Success'
 
-def save_sim_info(ens_field_names, rhos, betas, param_set, settings,
-                  ensemble_name, per_core_repeats):
-
+def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
+                  param_set, settings, ensemble_name, per_core_repeats:int, box_sizes:Union[None, list]):
+    """
+    Save simulation ensemble to file at the beginning of the simulation.
+    """
     from datetime import datetime
     save_name = 'ensemble_dat/'+ensemble_name
-    np.save(save_name+"/info/betas", betas)
-    np.save(save_name+"/info/rhos", rhos)
-
     save_info = {"\t ensemble averaged metrics: ": ens_field_names,
-                 "\t start time: ":datetime.now(),
-                 "\t model: ":param_set.model,
+                 "\t start time: ": datetime.now(),
+                 "\t model: ": param_set.model,
                  "\t alpha: ": str(param_set.alpha) + '(m)',
-                 "\t ell: ":str(param_set.ell)+'(m)',
-                 "\t L":str(param_set.L)+' X '+str(param_set.L),
-                 "\t rhos":str([rhos[0], rhos[-1]])+' | '+str(len(rhos)),
-                 "\t betas":str([betas[0], betas[-1]])+' | '+str(len(betas)),
-                 "\t core repeats: ":per_core_repeats,
+                 "\t ell: ": str(param_set.ell) + '(m)',
+                 "\t L": str(param_set.L) + ' X ' + str(param_set.L),
+                 "\t core repeats: ": per_core_repeats,
                  "\t initial epicenter radius: ": str(param_set.r),
                  "\t percolation boundary: ": settings.boundary}
+
+    # save iterable parameter types.
+    if type(rhos) is np.ndarray:
+        np.save(save_name+"/info/betas", betas)
+        save_info['\t rhos'] = f'{rhos[0]}, {rhos[-1]} | {len(rhos)}'
+    elif type(rhos) is float:
+        save_info["\t rho"] = f'{round(rhos, 3)}'
+    if type(betas) is np.ndarray:
+        np.save(save_name+"/info/betas", betas)
+        save_info["\t betas"] = f'{betas[0]}, {betas[-1]} | {len(betas)}'
+    elif type(betas) is float:
+        save_info["\t beta"] = f'{round(betas, 3)}'
+    if type(box_sizes) is list or type(box_sizes) is np.ndarray:
+        np.save(save_name+"/info/box_sizes", box_sizes)
+        save_info["\t domain size "] = [L for L in box_sizes]
+        save_info["\t modelled size"] = [f'{L*param_set.alpha/1000} x {L*param_set.alpha/1000} (km)' for L in box_sizes]
 
     with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Ensemble Parameters_______\n")
@@ -74,7 +86,10 @@ def save_sim_info(ens_field_names, rhos, betas, param_set, settings,
             info_file.write(prm + ' : ' + str(save_info[prm]) + '\n')
     return
 
-def save_sim_out(ensemble_name, elapsed_time):
+def save_sim_out(ensemble_name:str, elapsed_time:str):
+    """
+    Save output info
+    """
     save_name = 'ensemble_dat/' + ensemble_name
     with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Out_______\n")
@@ -82,7 +97,6 @@ def save_sim_out(ensemble_name, elapsed_time):
         info_file.write("\tNotes : '...' ")  # Note section to document results
     return
 
-#  ensemble selector
 
 def runSIR_ensemble(N, mPrm, mts, sts) -> 'Success':
     import pickle

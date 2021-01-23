@@ -8,7 +8,7 @@ def singleSim(rho, beta):
     """
     Run a single instance of the model.
     """
-    from helper_methods import timerPrint, R0_generation_mean
+    from helper_methods import timerPrint
 
     start = timer()
     print('\n Running @ singleSim...')
@@ -29,8 +29,8 @@ def R0_analysis(metrics, save=False):
     print('...Extinction = {} @ time = {}'.format(metrics.extinction, metrics.extinctionT))
     print('...Mortality Ratio = {} '.format(metrics.mortality_ratio))
     print('...Tot Number Removed = {} '.format(metrics.numR[-1]))
-
     return "Success"
+
 
 def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Success":
     """
@@ -40,10 +40,10 @@ def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "
     :param betas: float, infectivity constant
     """
     from helper_methods import timerPrint
-    from ensemble_averaging_methods import save_ensemble, save_sim_info, save_sim_out
+    from ensemble_averaging_methods import save_ensemble, save_ens_info, save_sim_out
 
     if jobId == '1' or jobId == 'local_test':
-        save_sim_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
+        save_ens_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
                   rhos=rhos, betas=betas, param_set=ModelParamSet(0, 0), settings=Settings(),
                   ensemble_name=ensName, per_core_repeats=N)
 
@@ -78,42 +78,51 @@ def run_lcl_ens(repeats, rhos, betas):
     Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, jobId='local_test')
     return 'Success'
 
-def R0_domain_sensitivity(runs, rho, beta, box_sizes ,Mparams, Mts, sts):
+
+def run_lcl_R0_sensitivity(repeats, rho, beta, box_sizes):
+    from ensemble_averaging_methods import mk_new_dir
+    date = datetime.datetime.today().strftime('%Y-%m-%d')
+    ens_name = date + '-local-ensemble'
+    ens_name = mk_new_dir(ens_name)
+    R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, box_sizes=box_sizes, jobId='local-run', ens_name=ens_name)
+
+
+def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId:str, ens_name=None):
     """
     Run sensitivity analysis on model for different grid sizes.
     """
-    import sys
+    import os
+    import pickle
     from collections import defaultdict
-    import matplotlib.pyplot as plt
-    from helper_methods import timerPrint, R0_generation_mean, avg_multi_dim
+    from ensemble_averaging_methods import save_sim_out, save_ens_info
+    from helper_methods import timerPrint, R0_generation_mean
     from timeit import default_timer as timer
     R0_gen_ens = defaultdict(list)
+    start = timer()
+    if jobId == '1' or jobId == 'local-run':  # if hpc simulation or local test
+        save_ens_info(ens_field_names=['R0_histories'], box_sizes=box_sizes,
+                      rhos=rho, betas=beta, param_set=ModelParamSet(0, 0), settings=Settings(),
+                      ensemble_name=ens_name, per_core_repeats=runs)
+    sim_settings = Settings()
     for N in range(runs):
-        print('_')
         for iter_, L in enumerate(box_sizes):
-            mprms = Mparams(rho=rho, beta=beta, L=L, alpha=5)
-            if sts.verbose >= 1:
+            model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=5)
+            if sim_settings.verbose >= 1:
                 print(f'\t Repeat : {N}, Box size : {L}')
-                print(f'\t equivalent grid size {L*mprms.alpha/1000}km x {L*mprms.alpha/1000}km')
-            if sts.verbose >= 1:
-                start = timer()
-
-            out_mts = runSim(pc=mprms, metrics=Mts(), settings=sts)[1]
-            meanR0_vs_gen = R0_generation_mean(out_mts.R0_trace)
-            if sts.verbose >= 1:
-                print('\n\tTime steps elapsed = {}'.format(out_mts.endT))
-                print('\tPercolation = {} @ time = {}'.format(out_mts.percolation, out_mts.percT))
-                print('\tExtinction = {} @ time = {}'.format(out_mts.extinction, out_mts.extinctionT))
-                print('\tMortality Ratio = {} '.format(out_mts.mortality_ratio))
-                print('\tTot Number Removed = {} '.format(out_mts.numR[-1]))
-                elapsed = round(timer() - start, 2)
-                print(f'\t@ singleSim DONE | {timerPrint(elapsed)}\n')
+                print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
+            out_mts = runSim(pc=model_params, metrics=Metrics(), settings=sim_settings)[1]
+            meanR0_vs_gen = R0_generation_mean(out_mts.R0_histories)
             R0_gen_ens[iter_].append(meanR0_vs_gen)
 
-    for box_size in R0_gen_ens:
-        plt.plot(avg_multi_dim(R0_gen_ens[box_size]), label=f' size: {box_sizes[box_size]}, '
-                                                            f'grid size:{box_sizes[box_size]*mprms.alpha/1000}km')
-    plt.xlabel('Generation', size=20)
-    plt.ylabel(r'$\overline{R}_0$', size=25)
-    plt.legend()
-    plt.show()
+    if sim_settings.verbose >= 1:
+        elapsed = round(timer() - start, 2)
+        print(f'\t@ singleSim DONE | {timerPrint(elapsed)}\n')
+
+    if jobId == '1' or jobId == 'local-run':
+        save_sim_out(ensemble_name=ens_name, elapsed_time=timerPrint(elapsed))
+
+    f = open(f"{os.getcwd()}/ensemble_dat/{ens_name}/R0_histories/core_{jobId}.pkl", "wb")
+    pickle.dump(R0_gen_ens, f)
+    f.close()
+    return 'Success'
+

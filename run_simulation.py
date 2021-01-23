@@ -45,14 +45,10 @@ class Metrics:
         self.numR = np.zeros(3000)
 
 if __name__ == '__main__':
-    from runner_methods import singleSim, R0_domain_sensitivity, R0_analysis
-    # run_lcl_ens(repeats=1, rhos=np.linspace(0.00, 0.00, 1), betas = np.linspace(0.001, 0.003, 2))
-    R0_analysis(singleSim(rho=.01, beta=.00025)[1], save=True)
-    # start = timer()
-    # R0_domain_sensitivity(runs=5, rho=.01, beta=.00025, box_sizes=[1000, 1500],
-    #                       Mparams=ModelParamSet, Mts=Metrics, sts=Settings())
-    # elapsed = round(timer() - start, 2)
-    # print(f'Ensemble complete in | {timerPrint(elapsed)}\n')
+    from runner_methods import run_lcl_R0_sensitivity
+    start = timer()
+    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.002, box_sizes=[250, 300])
+
 
 
 

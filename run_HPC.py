@@ -1,22 +1,17 @@
 import sys
 import datetime
-import os, sys
-import numpy as np
-from run_simulation import Pspace_iterator
-from ensemble_averaging_methods import runR0_ensemble, mk_new_dir
+from runner_methods import R0_domain_sensitivity
+from ensemble_averaging_methods import mk_new_dir
 
 # - Input variables & setup/save directories
 # ----------------------------------------------------- #
 job_id = sys.argv[1:][0]
 date = datetime.datetime.today().strftime('%Y-%m-%d')
-ens_name = date+'-hpc-ensemble'
+ens_name = date+'-hpc-R0-generation'
 if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
-rhos = np.linspace(0.00, 0.10, 51)
-betas = np.linspace(0.000015, 0.000020, 2)
-repeats = 1
-result = Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, job_id)
-print('...'+result)
-sys.exit()
+result = R0_domain_sensitivity(runs=5, rho=0.01, beta=.00025, box_sizes=[250, 500, 750, 1000],
+                               jobId=job_id,ens_name=ens_name)
+print(result)

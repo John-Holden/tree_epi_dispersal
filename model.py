@@ -7,7 +7,6 @@ printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % fre
 
 return_ = {'pc': 'with updated output fields', 'metrics': 'holding time-series data'}
 def runSim(pc, metrics, settings) -> return_:
-    import sys
     """
     Run dynamic simulation of pathogen spread
     :return:
