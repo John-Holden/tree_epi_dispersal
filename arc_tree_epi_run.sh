@@ -6,5 +6,4 @@ module load python-libs/3.1.0
 #$ -cwd -V
 #$ -l h_rt=48:00:00
 #$ -t 1-5
-#python3 run_HPC.py $SGE_TASK_ID
-python3 run_HPC.py $1
+python3 run_HPC.py $SGE_TASK_ID
