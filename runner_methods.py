@@ -1,10 +1,11 @@
 import datetime
 import numpy as np
 from model import runSim
+from typing import Type
 from timeit import default_timer as timer
 from run_simulation import ModelParamSet, Settings, Metrics
 
-def singleSim(rho, beta):
+def singleSim(rho:float, beta:float) -> '([S,I,R], metrics)':
     """
     Run a single instance of the model.
     """
@@ -18,11 +19,12 @@ def singleSim(rho, beta):
     print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
     return out
 
-def R0_analysis(metrics, save=False):
-    "plot R0 as a function of generation"
+def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
+    "Given metrics class, from singleSim, plot R0 as a function of generation"
     from helper_methods import  R0_generation_mean
     from plots.plotLib import pltR0
     meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
+    print(meanR0_vs_gen, 'mean R0 gen')
     pltR0(meanR0_vs_gen, save)
     print('\n...Time steps elapsed = {}'.format(metrics.endT))
     print('...Percolation = {} @ time = {}'.format(metrics.percolation, metrics.percT))
@@ -92,8 +94,8 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
     """
     Run sensitivity analysis on model for different grid sizes.
     """
-    import os, sys
-    import pickle, json
+    import os
+    import json
     from collections import defaultdict
     from ensemble_averaging_methods import save_sim_out, save_ens_info
     from helper_methods import timerPrint, R0_generation_mean

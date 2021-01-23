@@ -83,14 +83,14 @@ def ith_new_infections(infected_site: list, S_ind:np.array, alpha:float, model:s
     return np.where(ijInfected)
 
 def get_new_I(S_ind: np.array, I_ind:np.array, beta:float, alpha:float, ell:float,
-              model:str, R0_histories:dict) -> tuple:
+              model:str, R0_histories:dict, gen_limit:int) -> tuple:
     """
     Return a list of indices of all the newly infected trees, along with the max infectious order
     """
     R0_count = 0
     S_t0 = len(S_ind[0])
     newI_ind = [[],[]]
-    max_gen = 0
+    max_gen_exceeded = True  # if not more `max_gen' trees, terminate
     for i in range(len(I_ind[0])):
         # for each infected site, find secondary infections
         infected_site = [I_ind[0][i], I_ind[1][i]]
@@ -98,13 +98,12 @@ def get_new_I(S_ind: np.array, I_ind:np.array, beta:float, alpha:float, ell:floa
         newI_ind[0].extend(S_ind[0][new_I])  # extend the newly infected list
         newI_ind[1].extend(S_ind[1][new_I])
         gen = update_R0trace(R0_histories, new_trace=[S_ind[0][new_I], S_ind[1][new_I]], site=infected_site)
-        if gen > max_gen:
-            max_gen = gen
+        if gen <= gen_limit:
+            max_gen_exceeded = False  # if a single tree, of less than or equal to, order gen exists continue simulation
         S_ind = tuple([np.delete(S_ind[0], new_I), np.delete(S_ind[1], new_I)])
         R0_count += len(new_I[0])
-
     assert R0_count == S_t0 - len(S_ind[0])
-    return tuple(newI_ind), max_gen
+    return tuple(newI_ind), max_gen_exceeded
 
 
 def timerPrint(seconds: float) -> str:

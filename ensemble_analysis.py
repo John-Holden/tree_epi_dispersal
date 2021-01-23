@@ -56,25 +56,42 @@ def collect_and_plot(name: str, metric: str):
     return ens_mean
 
 
-def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict):
+def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
+    """
+    Process ensemble_core_averaged R0 history and plot generational mean R0
+    """
     from helper_methods import avg_multi_dim
-    box_sizes = np.load(f'{path_to_ensemble}/info/box_sizes.npy')
+    box_sizes = np.load(f'{path_to_ensemble}/info/box_sizes.npy')[::-1]
+    c=0
+    for box_size in ensemble_mean:
+        assert int(box_size) in box_sizes
+        c+=1
 
-    for i, box_size in enumerate(ensemble_mean):
-        assert int(box_size) == box_sizes[i]
-        plt.plot(avg_multi_dim(ensemble_mean[box_size]), label=f' size: {box_size}')
+    assert c == len(box_sizes)
+    fig, ax = plt.subplots(figsize=(7.5, 5.5))
+    for i, box_size in enumerate(box_sizes):
+        R0_vs_gen = avg_multi_dim(ensemble_mean[str(box_size)])[:21]
+        gen = np.arange(1, len(R0_vs_gen)+1)
+        ax.plot(gen, R0_vs_gen, label=f'{box_size}  {box_size}')
+        ax.scatter(gen, R0_vs_gen)
 
+    ax.set_xlim(0.5, 21.5)
     plt.legend()
+    if save:
+        plt.tight_layout()
+        plt.savefig('R0_vs_gen.pdf')
     plt.show()
 
 
+
 def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
-    import json
-    from collections import defaultdict
-    from helper_methods import avg_multi_dim
     """
     Iteratively load json object from a directory, each object represents a core. Average each core and return.
     """
+    import json
+    from collections import defaultdict
+    from helper_methods import avg_multi_dim
+
     f_list = sorted(os.listdir(f'{path_to_ensemble}/{metric}/'))
     core_means = defaultdict(list)
     for core_result_name in f_list:
@@ -85,7 +102,7 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
     return core_means
 
 
-
-ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation'
-ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
-process_R0_ensemble(ens_name, ensemble_avg)
+if __name__ == '__main__':
+    ens_name = os.getcwd()+'/data_store/2021-01-23-local-ensemble'
+    ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
+    process_R0_ensemble(ens_name, ensemble_avg, save=True)

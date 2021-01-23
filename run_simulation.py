@@ -8,7 +8,6 @@ class ModelParamSet:  # Set model parameter and simulation fields
         self.L = L  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
         self.infLT = 10 # (day) infectious life-time
         self.tend = 1000 # (day) final end time
-        self.max_gen = None
         self.beta = beta # (day^{-1})) infectivity parameter
         self.rho = rho  # tree density
         self.ell = 1000  # (m) dispersal
@@ -27,6 +26,8 @@ class Settings:  # Simulation setup
         self.verbose = 1
         self.ext='.png'
         self.boundary = False
+        # if no `max_gen' infected trees left, end simulation
+        self.gen_limit = 1 # R_0^i
 
 class Metrics:
     def __init__(self):
@@ -46,8 +47,8 @@ class Metrics:
 
 if __name__ == '__main__':
     from runner_methods import run_lcl_R0_sensitivity
-    start = timer()
-    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, box_sizes=[250])
+    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0005, box_sizes=[500, 750, 1000])
+
 
 
 

@@ -1,15 +1,14 @@
 import numpy as np
+from typing import Type
 from helper_methods import set_R0trace, ijDistance, get_new_I, setFields
-
+from run_simulation import ModelParamSet, Settings, Metrics
 
 printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
-
-return_ = {'pc': 'with updated output fields', 'metrics': 'holding time-series data'}
-def runSim(pc, metrics, settings) -> return_:
+def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Settings]) -> '[S,I,R], metrics':
     """
-    Run dynamic simulation of pathogen spread
-    :return:
+    Run dynamic simulation of pathogen spread,
+    :return: SIR fields and updated metrics
     """
     S,I,R = setFields(pc.L, pc.rho, pc.epiC, pc.r, pc.init_n_infected)
 
@@ -42,9 +41,11 @@ def runSim(pc, metrics, settings) -> return_:
         if settings.boundary and metrics.percolation:
             break
         # update fields S, I, R
-        newI_ind, max_gen = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model, metrics.R0_histories)
-        if pc.max_gen is not None and max_gen > pc.max_gen:
-            metrics.max_gen = max_gen
+        newI_ind, max_gen_exceeded = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model,
+                                                   metrics.R0_histories, settings.gen_limit)
+
+        if settings.gen_limit is not None and max_gen_exceeded:
+            # if no remaining infected trees of order `gen-limit', terminate simulation
             break
 
         S[newI_ind] = 0

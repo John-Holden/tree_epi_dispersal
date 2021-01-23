@@ -8,14 +8,13 @@ def mk_new_dir(name):
     import sys
     if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
         sys.exit(f'ERROR DUPLICATE DIRECTORY{name}')
-
-    os.mkdir(f'./ensemble_dat/{name}')
-    os.mkdir(f'./ensemble_dat/{name}/vel')
-    os.mkdir(f'./ensemble_dat/{name}/R0_histories')
-    os.mkdir(f'./ensemble_dat/{name}/extinction_time')
-    os.mkdir(f'./ensemble_dat/{name}/mortality_ratio')
-    os.mkdir(f'./ensemble_dat/{name}/perc')
-    os.mkdir(f'./ensemble_dat/{name}/info')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/vel')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/R0_histories')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/extinction_time')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/mortality_ratio')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/perc')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/info')
     return name
 
 
