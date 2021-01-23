@@ -1,7 +1,7 @@
 
 ______Ensemble Parameters_______
 	 ensemble averaged metrics:  : ['R0_histories']
-	 start time:  : 2021-01-23 17:46:39.424199
+	 start time:  : 2021-01-23 17:56:39.288417
 	 model:  : gaussian
 	 alpha:  : 5(m)
 	 ell:  : 1000(m)
@@ -15,5 +15,5 @@ ______Ensemble Parameters_______
 	 modelled size : ['1.25 x 1.25 (km)', '2.5 x 2.5 (km)', '3.75 x 3.75 (km)', '5.0 x 5.0 (km)']
 
 ______Out_______
-	elapsed time : 2 (mins): 57 (s)
+	elapsed time : 3 (mins): 38 (s)
 	Notes : '...' 
