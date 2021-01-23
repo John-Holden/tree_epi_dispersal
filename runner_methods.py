@@ -87,12 +87,13 @@ def run_lcl_R0_sensitivity(repeats, rho, beta, box_sizes):
     R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, box_sizes=box_sizes, jobId='local-run', ens_name=ens_name)
 
 
+
 def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId:str, ens_name=None):
     """
     Run sensitivity analysis on model for different grid sizes.
     """
-    import os
-    import pickle
+    import os, sys
+    import pickle, json
     from collections import defaultdict
     from ensemble_averaging_methods import save_sim_out, save_ens_info
     from helper_methods import timerPrint, R0_generation_mean
@@ -112,7 +113,7 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
                 print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
             out_mts = runSim(pc=model_params, metrics=Metrics(), settings=sim_settings)[1]
             meanR0_vs_gen = R0_generation_mean(out_mts.R0_histories)
-            R0_gen_ens[iter_].append(meanR0_vs_gen)
+            R0_gen_ens[L].append(meanR0_vs_gen)
 
     if sim_settings.verbose >= 1:
         elapsed = round(timer() - start, 2)
@@ -121,8 +122,8 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
     if jobId == '1' or jobId == 'local-run':
         save_sim_out(ensemble_name=ens_name, elapsed_time=timerPrint(elapsed))
 
-    f = open(f"{os.getcwd()}/ensemble_dat/{ens_name}/R0_histories/core_{jobId}.pkl", "wb")
-    pickle.dump(R0_gen_ens, f)
-    f.close()
+    with open(f"{os.getcwd()}/ensemble_dat/{ens_name}/R0_histories/core_{jobId}.json", 'w') as fp:
+        json.dump(R0_gen_ens, fp, indent=4)  # save as json struct
+
     return 'Success'
 

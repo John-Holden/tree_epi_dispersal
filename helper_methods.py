@@ -124,25 +124,23 @@ def timerPrint(seconds: float) -> str:
         return f'{hrs} (Hrs): {mns%60} (mins): {secs} (s)'
 
 
-def R0_generation_mean(R0_trace: dict) -> np.array:
+def R0_generation_mean(R0_trace: dict) -> list:
     """
     From the infectious history of all infected trees, calculate the generational mean.
     """
-    import numpy as np
     R0_count = [0 for i in range(1000)]
-    num_trees_in_gen = np.zeros_like(R0_count)
+    num_trees_in_gen = [0 for i in range(1000)]
     max_gen_in_sim = 0
     for site in R0_trace:
-        inf_hist = R0_trace[site]
+        inf_hist = R0_trace[site] # inf_hist[0]: the number of secondary infections, inf_hist[1]: the generation
         R0_count[inf_hist[1]] += inf_hist[0]
-        num_trees_in_gen[inf_hist[1]] += 1
+        num_trees_in_gen[inf_hist[1]] += 1  # cumulatively add the number of trees in each infectious generation
         if inf_hist[1] > max_gen_in_sim:
-            max_gen_in_sim = inf_hist[1]
+            max_gen_in_sim = inf_hist[1]  # update the highest generation
 
     R0_count = R0_count[:max_gen_in_sim]
     num_trees_in_gen = num_trees_in_gen[:max_gen_in_sim]
-    mean_R0_for_gen = R0_count / num_trees_in_gen
-    return mean_R0_for_gen
+    return [R0_c/num_trees for R0_c, num_trees in zip(R0_count, num_trees_in_gen)]  # Return mean infections / gen
 
 
 def avg_multi_dim(arrays: np.array) -> np.array:
