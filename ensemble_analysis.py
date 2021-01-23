@@ -26,19 +26,28 @@ def plot1D_mean(rhos, betas, ens_mean, save=False):
     plt.show()
     return "SUCCESS"
 
-def collect_data(name, field) -> 'ensemble average of field f':
+def collect_data(name: str, field: str) -> 'np.ndarray | ensemble average of field f':
+    """
+    Collect each core result, as a np.ndarray, and average.
+    """
+    # todo test this and streamline
     f_list = sorted(os.listdir(name+'/'+field+'/'))
     dat = np.load(name+'/'+field+'/'+f_list[0])
     print('@collecting data: field {}'.format(field))
     for file in f_list[1:]:
         dat += np.load(name+'/'+field+'/'+file)
+
     dat = dat / len(f_list)
     print('\t cores = {} '.format(len(f_list)))
     print('\t repeats/cores = {} '.format(dat.shape[2]))
     print('\t -> ensemble size = {} '.format(dat.shape[2] * len(f_list)))
     return dat.mean(axis=2)
 
-def run_plot(name, metric):
+def collect_and_plot(name: str, metric: str):
+    """
+    Given the dataset name and the metric of interest, load np.array-based ensemble data (n-dimensional)
+    for rhos, betas and save average in ensemble directory.
+    """
     rhos = np.load(name + '/info/rhos.npy')
     betas = np.load(name + '/info/betas.npy')
     ens_mean = collect_data(name, metric)
@@ -46,10 +55,20 @@ def run_plot(name, metric):
     plot1D_mean(rhos, betas, ens_mean, save=True)
     return ens_mean
 
-def ens_avg_dict_of_arrays():
+def ens_avg_dict_of_arrays(name:str, metric:str):
+    """
+
+    """
     import pickle
-    file = open(f"{os.getcwd()}/ensemble_dat/1.pkl", 'rb')
-    object_file = pickle.load(file)
+    f_list = sorted(os.listdir(f'{name}/{metric}/'))
+    for core_result_name in f_list:
+        core_ens = open(f"{name}/{metric}/{core_result_name}", 'rb')
+        for key in core_ens:
+            print(key)
+        sys.exit()
+    # object_file = pickle.load(file)
+
+
     # for box_size in R0_gen_ens:
     #     plt.plot(avg_multi_dim(R0_gen_ens[box_size]), label=f' size: {box_sizes[box_size]}, '
     #                                                         f'grid size:{box_sizes[box_size]*mprms.alpha/1000}km')
@@ -58,8 +77,7 @@ def ens_avg_dict_of_arrays():
     # plt.legend()
     # plt.show()
 
-ens_avg_dict_of_arrays()
-sys.exit()
-ens_name = os.getcwd()+'/data_store/2020-11-27-hpc-R0-trace'
-ens_mean = run_plot(ens_name, metric='R0_trace')
-sys.exit(f'Done...{ens_mean}')
+
+
+ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation'
+ens_avg_dict_of_arrays(ens_name, metric='R0_histories')

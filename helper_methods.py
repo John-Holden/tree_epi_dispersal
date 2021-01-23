@@ -129,7 +129,7 @@ def R0_generation_mean(R0_trace: dict) -> np.array:
     From the infectious history of all infected trees, calculate the generational mean.
     """
     import numpy as np
-    R0_count = np.zeros(10**4)
+    R0_count = [0 for i in range(1000)]
     num_trees_in_gen = np.zeros_like(R0_count)
     max_gen_in_sim = 0
     for site in R0_trace:

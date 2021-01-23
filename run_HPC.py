@@ -12,6 +12,6 @@ if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
-result = R0_domain_sensitivity(runs=5, rho=0.01, beta=.00025, box_sizes=[250, 500, 750, 1000],
+result = R0_domain_sensitivity(runs=5, rho=0.01, beta=.00025, box_sizes=[250, 500, 750],
                                jobId=job_id,ens_name=ens_name)
 print(result)
