@@ -107,7 +107,7 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
     for N in range(runs):
         for iter_, L in enumerate(box_sizes):
             model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=5)
-            if sim_settings.verbose >= 1:
+            if sim_settings.verbose > 1:
                 print(f'\t Repeat : {N}, Box size : {L}')
                 print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
             out_mts = runSim(pc=model_params, metrics=Metrics(), settings=sim_settings)[1]
