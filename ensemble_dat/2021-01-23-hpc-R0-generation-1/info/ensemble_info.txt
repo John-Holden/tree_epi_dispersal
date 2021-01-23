@@ -1,0 +1,19 @@
+
+______Ensemble Parameters_______
+	 ensemble averaged metrics:  : ['R0_histories']
+	 start time:  : 2021-01-23 17:46:39.424199
+	 model:  : gaussian
+	 alpha:  : 5(m)
+	 ell:  : 1000(m)
+	 L : 1000 X 1000
+	 core repeats:  : 5
+	 initial epicenter radius:  : 0
+	 percolation boundary:  : False
+	 rho : 0.01
+	 beta : 0.0
+	 domain size  : [250, 500, 750, 1000]
+	 modelled size : ['1.25 x 1.25 (km)', '2.5 x 2.5 (km)', '3.75 x 3.75 (km)', '5.0 x 5.0 (km)']
+
+______Out_______
+	elapsed time : 2 (mins): 57 (s)
+	Notes : '...' 
