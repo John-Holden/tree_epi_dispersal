@@ -86,6 +86,6 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
 
 
 
-ens_name = os.getcwd()+'/data_store/2021-01-23-local-ensemble'
+ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation'
 ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
 process_R0_ensemble(ens_name, ensemble_avg)

@@ -47,7 +47,7 @@ class Metrics:
 if __name__ == '__main__':
     from runner_methods import run_lcl_R0_sensitivity
     start = timer()
-    run_lcl_R0_sensitivity(repeats=3, rho=0.01, beta=0.0001, box_sizes=[250, 500, 750])
+    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, box_sizes=[250])
 
 
 

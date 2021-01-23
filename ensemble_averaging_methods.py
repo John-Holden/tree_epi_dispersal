@@ -5,28 +5,18 @@ perc = lambda p: 1 if p else 0
 
 def mk_new_dir(name):
     import os
-    c=0
-    for ith_name in sorted(os.listdir('./ensemble_dat/')):
-        if name in ith_name:
-            c+=1
-    if c == 0:
-        os.mkdir('./ensemble_dat/'+name)
-        os.mkdir('./ensemble_dat/'+name+'/vel')
-        os.mkdir('./ensemble_dat/'+name+'/R0_histories')
-        os.mkdir('./ensemble_dat/'+name+'/extinction_time')
-        os.mkdir('./ensemble_dat/'+name+'/mortality_ratio')
-        os.mkdir('./ensemble_dat/'+name+'/perc')
-        os.mkdir('./ensemble_dat/'+name+'/info')
-        return name
-    else:
-        os.mkdir(os.getcwd()+'/ensemble_dat/'+name+'-{}'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/vel'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/R0_trace'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/extinction_time'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/mortality_ratio'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/perc'.format(c))
-        os.mkdir('./ensemble_dat/'+name+'-{}/info'.format(c))
-        return name+'-{}'.format(c)
+    import sys
+    if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
+        sys.exit(f'ERROR DUPLICATE DIRECTORY{name}')
+
+    os.mkdir(f'./ensemble_dat/{name}')
+    os.mkdir(f'./ensemble_dat/{name}/vel')
+    os.mkdir(f'./ensemble_dat/{name}/R0_histories')
+    os.mkdir(f'./ensemble_dat/{name}/extinction_time')
+    os.mkdir(f'./ensemble_dat/{name}/mortality_ratio')
+    os.mkdir(f'./ensemble_dat/{name}/perc')
+    os.mkdir(f'./ensemble_dat/{name}/info')
+    return name
 
 
 def save_ensemble(ens_results, ens_field_names, ensemble_name, job_id) -> 'Success':
