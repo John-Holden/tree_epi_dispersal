@@ -58,12 +58,12 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
         np.save(save_name+"/info/betas", betas)
         save_info['\t rhos'] = f'{rhos[0]}, {rhos[-1]} | {len(rhos)}'
     elif type(rhos) is float:
-        save_info["\t rho"] = f'{round(rhos, 3)}'
+        save_info["\t rho"] = f'{round(rhos, 5)}'
     if type(betas) is np.ndarray:
         np.save(save_name+"/info/betas", betas)
         save_info["\t betas"] = f'{betas[0]}, {betas[-1]} | {len(betas)}'
     elif type(betas) is float:
-        save_info["\t beta"] = f'{round(betas, 3)}'
+        save_info["\t beta"] = f'{round(betas, 7)}'
     if type(box_sizes) is list or type(box_sizes) is np.ndarray:
         np.save(save_name+"/info/box_sizes", box_sizes)
         save_info["\t domain size "] = [L for L in box_sizes]

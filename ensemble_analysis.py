@@ -62,10 +62,10 @@ def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
     """
     from helper_methods import avg_multi_dim
     box_sizes = np.load(f'{path_to_ensemble}/info/box_sizes.npy')[::-1]
-    c=0
+    c = 0
     for box_size in ensemble_mean:
         assert int(box_size) in box_sizes
-        c+=1
+        c += 1
 
     assert c == len(box_sizes)
     fig, ax = plt.subplots(figsize=(7.5, 5.5))
@@ -75,7 +75,7 @@ def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
         ax.plot(gen, R0_vs_gen, label=f'{box_size}  {box_size}')
         ax.scatter(gen, R0_vs_gen)
 
-    ax.set_xlim(0.5, 21.5)
+    ax.set_xlim(0.5, 10.5)
     plt.legend()
     if save:
         plt.tight_layout()
@@ -99,10 +99,12 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
             core_R0_history = json.load(f)
             for box_size in core_R0_history:
                 core_means[box_size].append(avg_multi_dim(core_R0_history[box_size]))
+
+    print(f'Ensemble size {len(f_list) * len(core_means[box_size])}')
     return core_means
 
 
 if __name__ == '__main__':
-    ens_name = os.getcwd()+'/data_store/2021-01-23-local-ensemble'
+    ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation-2'
     ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
     process_R0_ensemble(ens_name, ensemble_avg, save=True)
