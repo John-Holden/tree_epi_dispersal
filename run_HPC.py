@@ -1,5 +1,6 @@
 import sys
 import datetime
+from run_simulation import Settings
 from runner_methods import R0_domain_sensitivity
 from ensemble_averaging_methods import mk_new_dir
 
@@ -12,6 +13,7 @@ if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
+assert Settings().plot == False
 result = R0_domain_sensitivity(runs=25, rho=0.01, beta=.0001, alpha=7.5, box_sizes=[i for i in range(250, 2250, 250)],
                                jobId=job_id,ens_name=ens_name)
 print(result)
