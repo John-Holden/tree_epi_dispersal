@@ -7,11 +7,11 @@ from ensemble_averaging_methods import mk_new_dir
 # ----------------------------------------------------- #
 job_id = sys.argv[1:][0]
 date = datetime.datetime.today().strftime('%Y-%m-%d')
-ens_name = date+'-hpc-R0-generation'
+ens_name = date+'-hpc-R0-generation-alpha-7_5'
 if job_id == '1':
     ens_name = mk_new_dir(ens_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
-result = R0_domain_sensitivity(runs=25, rho=0.01, beta=.0001, alpha=10, box_sizes=[i for i in range(250, 2250, 250)],
+result = R0_domain_sensitivity(runs=25, rho=0.01, beta=.0001, alpha=7.5, box_sizes=[i for i in range(250, 2250, 250)],
                                jobId=job_id,ens_name=ens_name)
 print(result)

@@ -48,7 +48,6 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
                  "\t model: ": param_set.model,
                  "\t alpha: ": str(param_set.alpha) + '(m)',
                  "\t ell: ": str(param_set.ell) + '(m)',
-                 "\t L": str(param_set.L) + ' X ' + str(param_set.L),
                  "\t core repeats: ": per_core_repeats,
                  "\t initial epicenter radius: ": str(param_set.r),
                  "\t percolation boundary: ": settings.boundary}
@@ -68,6 +67,8 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
         np.save(save_name+"/info/box_sizes", box_sizes)
         save_info["\t domain size "] = [L for L in box_sizes]
         save_info["\t modelled size"] = [f'{L*param_set.alpha/1000} x {L*param_set.alpha/1000} (km)' for L in box_sizes]
+    elif box_sizes is None:
+        save_info['\t L x L']: f'{param_set.L} x {param_set.L}'
 
     with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Ensemble Parameters_______\n")

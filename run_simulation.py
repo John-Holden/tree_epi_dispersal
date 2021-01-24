@@ -19,7 +19,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
 
 class Settings:  # Simulation setup
     def __init__(self):
-        self.plot = False
+        self.plot = True
         self.show = True
         self.anim = True
         self.pltFreq = 10
@@ -27,7 +27,7 @@ class Settings:  # Simulation setup
         self.ext='.png'
         self.boundary = False
         # if no `max_gen' infected trees left, end simulation
-        self.gen_limit = 1 # R_0^i
+        self.gen_limit = 5 # R_0^i
 
 class Metrics:
     def __init__(self):
@@ -47,7 +47,8 @@ class Metrics:
 
 if __name__ == '__main__':
     from runner_methods import run_lcl_R0_sensitivity, singleSim, R0_analysis
-    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, alpha=10, box_sizes=[i for i in range(250, 2250, 250)])
+    # R0_analysis(singleSim(rho=0.01, beta=0.0001, L=1000)[1])
+    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, alpha=7.5, box_sizes=[i for i in range(250, 2250, 250)])
 
 
 

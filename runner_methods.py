@@ -104,7 +104,7 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:
     start = timer()
     if jobId == '1' or jobId == 'local-run':  # if hpc simulation or local test
         save_ens_info(ens_field_names=['R0_histories'], box_sizes=box_sizes,
-                      rhos=rho, betas=beta, param_set=ModelParamSet(0, 0), settings=Settings(),
+                      rhos=rho, betas=beta, param_set=ModelParamSet(rho=rho, beta=beta, alpha=alpha), settings=Settings(),
                       ensemble_name=ens_name, per_core_repeats=runs)
     sim_settings = Settings()
     for N in range(runs):
