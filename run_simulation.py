@@ -19,7 +19,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
 
 class Settings:  # Simulation setup
     def __init__(self):
-        self.plot = True
+        self.plot = False
         self.show = True
         self.anim = True
         self.pltFreq = 10
