@@ -81,16 +81,16 @@ def run_lcl_ens(repeats, rhos, betas):
     return 'Success'
 
 
-def run_lcl_R0_sensitivity(repeats, rho, beta, box_sizes):
+def run_lcl_R0_sensitivity(repeats, rho, beta, alpha, box_sizes):
     from ensemble_averaging_methods import mk_new_dir
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
     ens_name = mk_new_dir(ens_name)
-    R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, box_sizes=box_sizes, jobId='local-run', ens_name=ens_name)
+    R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, alpha=alpha, box_sizes=box_sizes, jobId='local-run', ens_name=ens_name)
 
 
 
-def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId:str, ens_name=None):
+def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:list, jobId:str, ens_name=None):
     """
     Run sensitivity analysis on model for different grid sizes.
     """
@@ -109,7 +109,7 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
     sim_settings = Settings()
     for N in range(runs):
         for iter_, L in enumerate(box_sizes):
-            model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=5)
+            model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=alpha)
             if sim_settings.verbose >= 1:
                 print(f'\t Repeat : {N}, Box size : {L}')
                 print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
@@ -118,8 +118,7 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
             R0_gen_ens[L].append(meanR0_vs_gen)
 
     elapsed = round(timer() - start, 2)
-    if sim_settings.verbose >= 1:
-        print(f'\t@ singleSim DONE | {timerPrint(elapsed)}\n')
+    print(f'\t@ singleSim DONE | {timerPrint(elapsed)}\n')
 
     if jobId == '1' or jobId == 'local-run':
         save_sim_out(ensemble_name=ens_name, elapsed_time=timerPrint(elapsed))

@@ -1,10 +1,11 @@
 """
 Plot and analyse ensemble data.
 """
-import sys, os
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+PATH_TO_DATA_STORE = os.getcwd()+'/data_store/'
 
 pltParams = {'figure.figsize': (7.5, 5.5),
              'axes.labelsize': 15,
@@ -12,6 +13,7 @@ pltParams = {'figure.figsize': (7.5, 5.5),
              'xtick.labelsize': 20,
              'legend.fontsize': 'x-large'}
 plt.rcParams.update(pltParams)
+
 
 def plot1D_mean(rhos, betas, ens_mean, save=False):
     for i, beta in enumerate(betas):
@@ -56,7 +58,7 @@ def collect_and_plot(name: str, metric: str):
     return ens_mean
 
 
-def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
+def plot_R0_ens_vs_gen(path_to_ensemble:str, ensemble_mean:dict, save=False):
     """
     Process ensemble_core_averaged R0 history and plot generational mean R0
     """
@@ -66,11 +68,14 @@ def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
     for box_size in ensemble_mean:
         assert int(box_size) in box_sizes
         c += 1
-
     assert c == len(box_sizes)
+    R0_v_L = np.zeros(len(box_sizes))
+
     fig, ax = plt.subplots(figsize=(7.5, 5.5))
+    box_sizes = [2000, 1500, 1000,  500, 250]
     for i, box_size in enumerate(box_sizes):
         R0_vs_gen = avg_multi_dim(ensemble_mean[str(box_size)])[:21]
+        R0_v_L[i] = R0_vs_gen[0]
         gen = np.arange(1, len(R0_vs_gen)+1)
         ax.plot(gen, R0_vs_gen, label=f'{box_size}  {box_size}')
         ax.scatter(gen, R0_vs_gen)
@@ -78,10 +83,29 @@ def process_R0_ensemble(path_to_ensemble:str, ensemble_mean:dict, save=False):
     ax.set_xlim(0.5, 10.5)
     plt.legend()
     if save:
+        np.save('R0_vs_L_alpha_5m', R0_v_L)
         plt.tight_layout()
         plt.savefig('R0_vs_gen.pdf')
     plt.show()
 
+
+def plot_R0_ens_vs_L(save=False):
+    """
+    For different alpha values, plot saved R0 values against domain size L
+    """
+    data_sets = {'2021-01-24-hpc-R0-generation': r'$\alpha = 5\mathrm{m}$'}
+    fig, ax = plt.subplots(figsize=(7.5, 5.5))
+    for data_set in data_sets:
+        box_sizes = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/info/box_sizes.npy')[::-1]
+        alpha_5 = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/R0_vs_L_alpha_5m.npy')
+        ax.plot(box_sizes, alpha_5, label=data_sets[data_set])
+        ax.scatter(box_sizes, alpha_5)
+
+    plt.legend()
+    plt.tight_layout()
+    if save:
+        plt.savefig('R0_vs_L_vs_alpha.pdf')
+    plt.show()
 
 
 def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
@@ -106,7 +130,7 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
 
 
 if __name__ == '__main__':
-    # ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation-2'
-    ens_name = os.getcwd()+'/data_store/2021-01-24-local-ensemble'
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-24-hpc-R0-generation-alpha-5'
     ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
-    process_R0_ensemble(ens_name, ensemble_avg, save=True)
+    plot_R0_ens_vs_gen(ens_name, ensemble_avg, save=True)
+    plot_R0_ens_vs_L()

@@ -47,7 +47,7 @@ class Metrics:
 
 if __name__ == '__main__':
     from runner_methods import run_lcl_R0_sensitivity, singleSim, R0_analysis
-    run_lcl_R0_sensitivity(repeats=5, rho=0.01, beta=0.0001, box_sizes=[i for i in range(250, 2250, 250)])
+    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, alpha=10, box_sizes=[i for i in range(250, 2250, 250)])
 
 
 
