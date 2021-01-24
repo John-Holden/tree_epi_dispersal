@@ -23,7 +23,7 @@ class Settings:  # Simulation setup
         self.show = True
         self.anim = True
         self.pltFreq = 10
-        self.verbose = 1
+        self.verbose = 0
         self.ext='.png'
         self.boundary = False
         # if no `max_gen' infected trees left, end simulation
@@ -46,8 +46,8 @@ class Metrics:
         self.numR = np.zeros(3000)
 
 if __name__ == '__main__':
-    from runner_methods import run_lcl_R0_sensitivity
-    run_lcl_R0_sensitivity(repeats=1, rho=0.01, beta=0.0001, box_sizes=[500, 750, 1000, 1250, 1500])
+    from runner_methods import run_lcl_R0_sensitivity, singleSim, R0_analysis
+    run_lcl_R0_sensitivity(repeats=5, rho=0.01, beta=0.0001, box_sizes=[i for i in range(250, 2250, 250)])
 
 
 

@@ -5,7 +5,7 @@ from typing import Type
 from timeit import default_timer as timer
 from run_simulation import ModelParamSet, Settings, Metrics
 
-def singleSim(rho:float, beta:float) -> '([S,I,R], metrics)':
+def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
     """
     Run a single instance of the model.
     """
@@ -14,7 +14,7 @@ def singleSim(rho:float, beta:float) -> '([S,I,R], metrics)':
     start = timer()
     print('\n Running @ singleSim...')
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
-    out = runSim(pc=ModelParamSet(rho, beta, alpha=10, L=1000), metrics=Metrics(), settings=Settings())
+    out = runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics(), settings=Settings())
     elapsed = round(timer() - start, 2)
     print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
     return out
@@ -110,15 +110,15 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, box_sizes:list, jobId
     for N in range(runs):
         for iter_, L in enumerate(box_sizes):
             model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=5)
-            if sim_settings.verbose > 1:
+            if sim_settings.verbose >= 1:
                 print(f'\t Repeat : {N}, Box size : {L}')
                 print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
             out_mts = runSim(pc=model_params, metrics=Metrics(), settings=sim_settings)[1]
             meanR0_vs_gen = R0_generation_mean(out_mts.R0_histories)
             R0_gen_ens[L].append(meanR0_vs_gen)
 
+    elapsed = round(timer() - start, 2)
     if sim_settings.verbose >= 1:
-        elapsed = round(timer() - start, 2)
         print(f'\t@ singleSim DONE | {timerPrint(elapsed)}\n')
 
     if jobId == '1' or jobId == 'local-run':

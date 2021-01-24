@@ -100,11 +100,13 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
             for box_size in core_R0_history:
                 core_means[box_size].append(avg_multi_dim(core_R0_history[box_size]))
 
+
     print(f'Ensemble size {len(f_list) * len(core_means[box_size])}')
     return core_means
 
 
 if __name__ == '__main__':
-    ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation-2'
+    # ens_name = os.getcwd()+'/data_store/2021-01-23-hpc-R0-generation-2'
+    ens_name = os.getcwd()+'/data_store/2021-01-24-local-ensemble'
     ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
     process_R0_ensemble(ens_name, ensemble_avg, save=True)
