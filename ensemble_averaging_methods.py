@@ -4,7 +4,8 @@ import numpy as np
 perc = lambda p: 1 if p else 0
 from PARAMETERS_AND_SETUP import Metrics, ModelParamSet, Settings
 
-def mk_new_dir(name):
+def mk_new_dir(name: str) -> str:
+    "Save new directory to file."
     import os
     import sys
     if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
@@ -32,23 +33,23 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
 
     # save iterable parameter types.
     if type(rhos) is np.ndarray:
-        np.save(save_name+"/info/betas", betas)
+        np.save(f"{save_name}/info/rhos", rhos)
         save_info['\t rhos'] = f'{rhos[0]}, {rhos[-1]} | {len(rhos)}'
     elif type(rhos) is float:
         save_info["\t rho"] = f'{round(rhos, 5)}'
     if type(betas) is np.ndarray:
-        np.save(save_name+"/info/betas", betas)
+        np.save(f"{save_name}/info/betas", betas)
         save_info["\t betas"] = f'{betas[0]}, {betas[-1]} | {len(betas)}'
     elif type(betas) is float:
         save_info["\t beta"] = f'{round(betas, 7)}'
     if type(box_sizes) is list or type(box_sizes) is np.ndarray:
-        np.save(save_name+"/info/box_sizes", box_sizes)
+        np.save(f"{save_name}/info/box_sizes", box_sizes)
         save_info["\t domain size "] = [L for L in box_sizes]
         save_info["\t modelled size"] = [f'{L*param_set.alpha/1000} x {L*param_set.alpha/1000} (km)' for L in box_sizes]
     elif box_sizes is None:
         save_info['\t L x L']: f'{param_set.L} x {param_set.L}'
 
-    with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
+    with open(f"{save_name}/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Ensemble Parameters_______\n")
         for prm in save_info:
             info_file.write(prm + ' : ' + str(save_info[prm]) + '\n')
@@ -66,32 +67,26 @@ def save_sim_out(ensemble_name:str, elapsed_time:str):
     return
 
 
-def run_vel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolation ensemble]':
+def run_vel_ensemble(rho:float, beta:float, runs:int) -> dict:
     """
-    :param r: float, rho av tree density
-    :param b: float, beta infectivity constant
-    :param N: int, number of repeats
-    :param mPrm: class, model parameters
-    :param mts: class, metrics & time-series
-    :param sts: class, model settings
-    :return: arr (1, N), array of repeats
+    Repeat velocity simulations over a number of `runs' for a given value of rho, beta.
     """
     import numpy as np
     ensemble_vel = np.zeros(runs)
     ensemble_perc = np.zeros(runs)
-    sts = Sts()
+    settings = Settings()
     for N in range(runs):
-        if sts.verbose:
+        if settings.verbose>=2:
             print('Repeat : {}'.format(N))
-        [out_mPrm, out_mts] = model_dynamics.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
+        out_mts = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics(), settings=settings)[1]
         ensemble_vel[N] = out_mts.maxD.max()/out_mts.endT
         ensemble_perc[N] = perc(out_mts.percolation)
-        if sts.verbose:
+        if settings.verbose>=2:
             print("\t Percolation : {} @ t = {} (days)".format(out_mts.percolation, out_mts.endT))
             print('\t Max Distance : {} (m)'.format(round(out_mts.maxD.max(), 3)))
             print('\t ~ Spread Vel : {} (m/day)'.format(round(out_mts.maxD.max()/out_mts.endT, 3)))
             print('\t ~ Spread Vel: {} (km/ry)'.format(round((out_mts.maxD.max()*365)/(out_mts.endT*1000), 3)))
-    return ensemble_vel, ensemble_perc
+    return {'ensemble_velocity':ensemble_vel, 'ensemble_percolation':ensemble_perc}
 
 
 def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
