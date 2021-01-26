@@ -1,7 +1,8 @@
-import model
+import model_dynamics
 from typing import Union, Type
 import numpy as np
 perc = lambda p: 1 if p else 0
+from PARAMETERS_AND_SETUP import Metrics, ModelParamSet, Settings
 
 def mk_new_dir(name):
     import os
@@ -9,35 +10,12 @@ def mk_new_dir(name):
     if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
         sys.exit(f'ERROR DUPLICATE DIRECTORY{name}')
     os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/vel')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/R0_histories')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/extinction_time')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/mortality_ratio')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/perc')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/info')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/info/')
     return name
 
 
-def save_ensemble(ens_results, ens_field_names, ensemble_name, job_id) -> 'Success':
-    """
-    Save the ensemble results
-    :param ens_results: list [arg1,...], arg1: npy.arr
-    :param ens_field_names: list [name1,..] name1:str
-    :param ensemble_name: str:
-    :param job_id: str:
-    :return: Success
-    """
-    save_name = 'ensemble_dat/'+ensemble_name
-    assert len(ens_field_names) == len(ens_results), "/error. supplied field names must be same length" \
-                                                     " as saved ensemble filed."
-    if job_id == '':  # local mode
-        job_id='lcl_test'
-    for c, metric in enumerate(ens_field_names):
-        np.save(save_name + f"/{metric}/" + job_id, ens_results[c])
-    return 'Success'
-
 def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
-                  param_set, settings, ensemble_name, per_core_repeats:int, box_sizes:Union[None, list]):
+                  param_set, settings, ensemble_name, per_core_repeats:int, box_sizes=None):
     """
     Save simulation ensemble to file at the beginning of the simulation.
     """
@@ -88,25 +66,7 @@ def save_sim_out(ensemble_name:str, elapsed_time:str):
     return
 
 
-def runSIR_ensemble(N, mPrm, mts, sts) -> 'Success':
-    import pickle
-    from plots.plotLib import pltSIR
-    ensemble_results = {}
-    for i in range(N):
-        print('Repeat : {}'.format(i))
-        [out_mPrm, out_mts] = model.runSim(pc=mPrm(), metrics=mts(), settings=sts())
-        ensemble_results["S{}".format(i)] = out_mts.numS
-        ensemble_results["I{}".format(i)] = out_mts.numI
-        ensemble_results["R{}".format(i)] = out_mts.numR
-        pltSIR(S=out_mts.numS, I=out_mts.numI, R=out_mts.numR, dt=1)
-
-    file = open("./SIR/ENSEMBLE.dat", "wb")
-    pickle.dump(ensemble_results, file)
-    file.close()
-    return "Success"
-
-
-def runVel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolation ensemble]':
+def run_vel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolation ensemble]':
     """
     :param r: float, rho av tree density
     :param b: float, beta infectivity constant
@@ -123,7 +83,7 @@ def runVel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolat
     for N in range(runs):
         if sts.verbose:
             print('Repeat : {}'.format(N))
-        [out_mPrm, out_mts] = model.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
+        [out_mPrm, out_mts] = model_dynamics.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
         ensemble_vel[N] = out_mts.maxD.max()/out_mts.endT
         ensemble_perc[N] = perc(out_mts.percolation)
         if sts.verbose:
@@ -134,33 +94,26 @@ def runVel_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[velocity ensemble, percolat
     return ensemble_vel, ensemble_perc
 
 
-def runR0_ensemble(r, b, runs, MPrm, Mts, Sts) -> '[R0, extinctinon time, mortality ratio]':
+def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
     """
-    :param r: float, rho
-    :param b: float, beta
-    :param runs: int
-    :param MPrm: Class, model parameters
-    :param Mts: Class, metrics
-    :param Sts: Class, settings
+    Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
     """
     import numpy as np
     from helper_methods import R0_generation_mean
-    ensemble_R0 = np.zeros(runs)
-    extinctionT = np.zeros(runs)
-    mortality_ratio = np.zeros(runs)
-    sts = Sts()
+    ensemble_R0 = []
+    extinctionT = [None]*runs
+    mortality_ratio = [None]*runs
+    settings = Settings()
     for N in range(runs):
-        if sts.verbose:
+        if settings.verbose:
             print('Repeat : {}'.format(N))
-        [out_mPrm, out_mts] = model.runSim(pc=MPrm(r, b), metrics=Mts(), settings=sts)
-        if len(R0_generation_mean(out_mts.R0_trace)) == 0:
-            ensemble_R0[N] = 0
-        else:
-            ensemble_R0[N] = R0_generation_mean(out_mts.R0_trace).mean()
-        extinctionT[N] = out_mts.extinctionT
-        mortality_ratio[N] = out_mts.mortality_ratio
-
-    return [ensemble_R0, extinctionT, mortality_ratio]
+        out_metrics = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics(), settings=settings)[1]
+        R0_histories = R0_generation_mean(out_metrics.R0_histories)
+        ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
+        extinctionT[N] = out_metrics.extinctionT
+        mortality_ratio[N] = out_metrics.mortality_ratio
+    return {'mean_R0_vs_gen_core_ensemble': ensemble_R0, 'extinction_time':extinctionT,
+            'mortality_ratio':mortality_ratio}
 
 
 

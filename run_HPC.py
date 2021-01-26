@@ -1,19 +1,20 @@
 import sys
 import datetime
-from run_simulation import Settings
-from runner_methods import R0_domain_sensitivity
+import numpy as np
+from PARAMETERS_AND_SETUP import Settings
+from runner_methods import parameter_space_iterator
 from ensemble_averaging_methods import mk_new_dir
 
 # - Input variables & setup/save directories
 # ----------------------------------------------------- #
 job_id = sys.argv[1:][0]
 date = datetime.datetime.today().strftime('%Y-%m-%d')
-ens_name = date+'-hpc-R0-generation-alpha-7_5'
+ensemble_name = date+'-hpc-R0-vs-rho'
 if job_id == '1':
-    ens_name = mk_new_dir(ens_name)
+    ensemble_name = mk_new_dir(ensemble_name)
 # - make directories & run phase
 # ----------------------------------------------------- #
 assert Settings().plot == False
-result = R0_domain_sensitivity(runs=25, rho=0.01, beta=.0001, alpha=7.5, box_sizes=[i for i in range(250, 2250, 250)],
-                               jobId=job_id,ens_name=ens_name)
-print(result)
+result = parameter_space_iterator(ensName=ensemble_name, jobId=job_id,
+                                  N=2, rhos=np.arange(0.002, 0.102, 0.002), betas=np.arange(0.0001, 0.0011, 0.0001))
+

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Type
 from helper_methods import set_R0trace, ijDistance, get_new_I, setFields
-from run_simulation import ModelParamSet, Settings, Metrics
+from PARAMETERS_AND_SETUP import ModelParamSet, Settings, Metrics
 
 printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
@@ -11,10 +11,8 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
     :return: SIR fields and updated metrics
     """
     S,I,R = setFields(pc.L, pc.rho, pc.epiC, pc.r, pc.init_n_infected)
-
     if settings.plot:
         from plots.plotLib import pltSim
-
     for t in range(pc.tend):
         if settings.verbose == 2:
             printStep(t, freq=1)
@@ -51,7 +49,8 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
         S[newI_ind] = 0
         I[newI_ind] = 1
         I = I + (I>=1) # increment infected count
-        newR = np.where(I == pc.infLT + 2)
+        newR = np.exp(-I/pc.infLT) < np.random.uniform(0, 1, size=S.shape)  # Pr I -> R = 1-exp^(-1 t/mu)
+        newR = np.where(newR)
         R[newR] = 1
         I[newR] = 0
         if settings.plot:
@@ -72,4 +71,5 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
 
     if settings.plot:
         pltSim(S=S, I=I, R=R, t=t, anim=settings.anim, show=settings.show)
+
     return [S,I,R], metrics

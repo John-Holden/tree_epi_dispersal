@@ -1,93 +1,46 @@
 import datetime
+import os
+import json
 import numpy as np
-from model import runSim
-from typing import Type
+from model_dynamics import runSim
+from typing import Type, Union, Callable
 from timeit import default_timer as timer
-from run_simulation import ModelParamSet, Settings, Metrics
+from PARAMETERS_AND_SETUP import ModelParamSet, Settings, Metrics
 
-def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
+
+def parameter_space_iterator(ensemble_method: Callable, N: int,
+                             rhos:Union[np.ndarray, list, tuple], betas:Union[np.ndarray, list, tuple],
+                             ensName: str, jobId: str) -> "Success":
     """
-    Run a single instance of the model.
+    Get parameter space of model over rho/beta by ensemble-averaging simulations.
+    - ensemble_method is a Callable method of the type of ensemble we wish to run e.g. velocity/percolation/time-series
     """
+    from collections import defaultdict
     from helper_methods import timerPrint
+    from ensemble_averaging_methods import save_ens_info, save_sim_out
 
-    start = timer()
-    print('\n Running @ singleSim...')
-    print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
-    out = runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics(), settings=Settings())
-    elapsed = round(timer() - start, 2)
-    print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
-    return out
-
-def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
-    "Given metrics class, from singleSim, plot R0 as a function of generation"
-    from helper_methods import  R0_generation_mean
-    from plots.plotLib import pltR0
-    meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
-    print(meanR0_vs_gen, 'mean R0 gen')
-    pltR0(meanR0_vs_gen, save)
-    print('\n...Time steps elapsed = {}'.format(metrics.endT))
-    print('...Percolation = {} @ time = {}'.format(metrics.percolation, metrics.percT))
-    print('...Extinction = {} @ time = {}'.format(metrics.extinction, metrics.extinctionT))
-    print('...Mortality Ratio = {} '.format(metrics.mortality_ratio))
-    print('...Tot Number Removed = {} '.format(metrics.numR[-1]))
-    return "Success"
-
-
-def Pspace_iterator(run_ensemble, N, rhos, betas, ensName=None, jobId=None) -> "Success":
-    """
-    Get parameter space of model over rho/beta by ensemble-averaging simulations
-    :param run_ensemble: method, type of ensemble running e.g. velocity/percolation/time-series
-    :param rhos: float, av tree densities
-    :param betas: float, infectivity constant
-    """
-    from helper_methods import timerPrint
-    from ensemble_averaging_methods import save_ensemble, save_ens_info, save_sim_out
-
-    if jobId == '1' or jobId == 'local_test':
+    if jobId == '1' or jobId == 'local_test':  # write parameters to file before ensemble -- assurance
         save_ens_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
                   rhos=rhos, betas=betas, param_set=ModelParamSet(0, 0), settings=Settings(),
-                  ensemble_name=ensName, per_core_repeats=N)
+                  ensemble_name=ensName, per_core_repeats=N, box_sizes=None)
 
     start = timer()  # Time ensemble averaging process
-    R0_results = np.zeros(shape=(len(betas), len(rhos), N))
-    extinctionT_results = np.zeros(shape=(len(betas), len(rhos), N))
-    mortality_ratio_results = np.zeros(shape=(len(betas), len(rhos), N))
+    ensemble_results = defaultdict(dict)
     print('Running @Get Parameter Space...')
     for i, beta in enumerate(betas):
         for j, rho in enumerate(rhos):
-            all_ens_fields = run_ensemble(rho, beta, runs=N, MPrm=ModelParamSet, Mts=Metrics, Sts=Settings)
-            R0_results[i, j] = all_ens_fields[0]
-            extinctionT_results[i, j] = all_ens_fields[1]
-            mortality_ratio_results[i, j] = all_ens_fields[2]
-
-    save_ensemble(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
-                 ens_results=[R0_results, extinctionT_results, mortality_ratio_results],
-                 ensemble_name=ensName, job_id=jobId)
+            all_ens_fields = ensemble_method(rho, beta, runs=N)
+            ensemble_results[f'rho_{rho}_beta_{beta}'] = all_ens_fields
 
     elapsed = round(timer() - start, 2)
     if jobId == '1' or jobId == 'local_test':
         save_sim_out(ensemble_name=ensName, elapsed_time=timerPrint(elapsed))
+
+    with open(f"{os.getcwd()}/ensemble_dat/{ensName}/core_{jobId}.json", 'w') as json_file:
+        json.dump(ensemble_results, json_file, indent=4)  # save as json struct
+
     print('\n@ Ensemble Run DONE | {}'.format(timerPrint(elapsed)))
     return "Success"
-
-
-def run_lcl_ens(repeats, rhos, betas):
-    from ensemble_averaging_methods import runR0_ensemble, mk_new_dir
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
-    ens_name = date + '-local-ensemble'
-    ens_name = mk_new_dir(ens_name)
-    Pspace_iterator(runR0_ensemble, repeats, rhos, betas, ens_name, jobId='local_test')
-    return 'Success'
-
-
-def run_lcl_R0_sensitivity(repeats, rho, beta, alpha, box_sizes):
-    from ensemble_averaging_methods import mk_new_dir
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
-    ens_name = date + '-local-ensemble'
-    ens_name = mk_new_dir(ens_name)
-    R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, alpha=alpha, box_sizes=box_sizes, jobId='local-run', ens_name=ens_name)
-
 
 
 def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:list, jobId:str, ens_name=None):
@@ -127,4 +80,34 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:
         json.dump(R0_gen_ens, fp, indent=4)  # save as json struct
 
     return 'Success'
+
+
+def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
+    "Given metrics class, from singleSim, plot R0 as a function of generation"
+    from helper_methods import  R0_generation_mean
+    from plots.plotLib import pltR0
+    meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
+    print(meanR0_vs_gen, 'mean R0 gen')
+    pltR0(meanR0_vs_gen, save)
+    print('\n...Time steps elapsed = {}'.format(metrics.endT))
+    print('...Percolation = {} @ time = {}'.format(metrics.percolation, metrics.percT))
+    print('...Extinction = {} @ time = {}'.format(metrics.extinction, metrics.extinctionT))
+    print('...Mortality Ratio = {} '.format(metrics.mortality_ratio))
+    print('...Tot Number Removed = {} '.format(metrics.numR[-1]))
+    return "Success"
+
+
+def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
+    """
+    Run a single instance of the model.
+    """
+    from helper_methods import timerPrint
+
+    start = timer()
+    print('\n Running @ singleSim...')
+    print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
+    out = runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics(), settings=Settings())
+    elapsed = round(timer() - start, 2)
+    print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
+    return out
 

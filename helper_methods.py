@@ -35,7 +35,7 @@ def setFields(L:int, rho:float, epiC:int, r:int, init_n_infected:int, epiType='c
         randRow = np.array(np.random.randint(1, I.shape[0], size=init_n_infected))
         randCol = np.array(np.random.randint(1, I.shape[0], size=init_n_infected))
         randInf = tuple([randRow, randCol])
-        I[randInf] = 2
+        I[randInf] = 1
         S[randInf] = 0
 
     R = np.zeros_like(I)  # Init removed field
@@ -98,7 +98,7 @@ def get_new_I(S_ind: np.array, I_ind:np.array, beta:float, alpha:float, ell:floa
         newI_ind[0].extend(S_ind[0][new_I])  # extend the newly infected list
         newI_ind[1].extend(S_ind[1][new_I])
         gen = update_R0trace(R0_histories, new_trace=[S_ind[0][new_I], S_ind[1][new_I]], site=infected_site)
-        if gen <= gen_limit:
+        if gen_limit is not None and gen <= gen_limit:
             max_gen_exceeded = False  # if a single tree, of less than or equal to, order gen exists continue simulation
         S_ind = tuple([np.delete(S_ind[0], new_I), np.delete(S_ind[1], new_I)])
         R0_count += len(new_I[0])
