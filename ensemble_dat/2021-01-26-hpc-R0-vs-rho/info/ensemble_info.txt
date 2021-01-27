@@ -1,0 +1,16 @@
+
+______Ensemble Parameters_______
+	 ensemble averaged metrics:  : ['R0_trace', 'extinction_time', 'mortality_ratio']
+	 start time:  : 2021-01-26 21:48:46.826760
+	 model:  : gaussian
+	 alpha:  : 5(m)
+	 ell:  : 1000(m)
+	 core repeats:  : 2
+	 initial epicenter radius:  : 0
+	 percolation boundary:  : False
+	 rhos : 0.002, 0.1 | 50
+	 betas : 0.0001, 0.001 | 10
+
+______Out_______
+	elapsed time : 10 (Hrs): 39 (mins): 24 (s)
+	Notes : '...' 
