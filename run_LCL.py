@@ -30,6 +30,6 @@ def run_lcl_R0_sensitivity(repeats: int, rho:float, beta:float, alpha:Union[floa
     return R0_domain_sensitivity(runs=repeats, rho=rho, beta=beta, alpha=alpha, box_sizes=box_sizes, jobId='local-run',
                           ens_name=ens_name)
 
-
 if __name__ == '__main__':
-    print(run_lcl_ens(repeats=2, rhos=[0.01, 0.01], betas=[0.0001, 0.0002]))
+    from runner_methods import singleSim, R0_analysis
+    R0_analysis(singleSim(rho=0.05, beta=0.0003)[1])

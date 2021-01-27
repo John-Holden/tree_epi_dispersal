@@ -17,5 +17,5 @@ if job_id == '1':
 # ----------------------------------------------------- #
 assert Settings().plot == False
 result = parameter_space_iterator(ensemble_method=run_R0_ensemble, ensName=ensemble_name, jobId=job_id,
-                                  N=2, rhos=np.arange(0.002, 0.102, 0.002), betas=np.arange(0.0001, 0.0011, 0.0001))
+                                  N=2, rhos=np.arange(0.00, 0.102, 0.002), betas=np.arange(0.00001, 0.0003, 0.00002))
 

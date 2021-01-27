@@ -19,10 +19,11 @@ def parameter_space_iterator(ensemble_method: Callable, N: int,
     from helper_methods import timerPrint
     from ensemble_averaging_methods import save_ens_info, save_sim_out
 
+    path_to_ensemble = f'{os.getcwd()}/ensemble_dat/{ensName}'
     if jobId == '1' or jobId == 'local_test':  # write parameters to file before ensemble -- assurance
         save_ens_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
                   rhos=rhos, betas=betas, param_set=ModelParamSet(0, 0), settings=Settings(),
-                  ensemble_name=ensName, per_core_repeats=N, box_sizes=None)
+                  path_to_ensemble=path_to_ensemble, per_core_repeats=N, box_sizes=None)
 
     start = timer()  # Time ensemble averaging process
     ensemble_results = defaultdict(dict)
@@ -34,16 +35,16 @@ def parameter_space_iterator(ensemble_method: Callable, N: int,
 
     elapsed = round(timer() - start, 2)
     if jobId == '1' or jobId == 'local_test':
-        save_sim_out(ensemble_name=ensName, elapsed_time=timerPrint(elapsed))
+        save_sim_out(path_to_ensemble=path_to_ensemble, elapsed_time=timerPrint(elapsed))
 
-    with open(f"{os.getcwd()}/ensemble_dat/{ensName}/core_{jobId}.json", 'w') as json_file:
+    with open(f"{path_to_ensemble}/core_output/core_{jobId}.json", 'w') as json_file:
         json.dump(ensemble_results, json_file, indent=4)  # save as json struct
 
     print('\n@ Ensemble Run DONE | {}'.format(timerPrint(elapsed)))
     return "Success"
 
 
-def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:list, jobId:str, ens_name=None):
+def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:list, jobId:str, ens_name:str):
     """
     Run sensitivity analysis on model for different grid sizes.
     """
@@ -55,10 +56,12 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:
     from timeit import default_timer as timer
     R0_gen_ens = defaultdict(list)
     start = timer()
+    # todo fix path imports
+    path_to_ensemble = f'{os.getcwd()}/ensemble_dat/'
     if jobId == '1' or jobId == 'local-run':  # if hpc simulation or local test
         save_ens_info(ens_field_names=['R0_histories'], box_sizes=box_sizes,
                       rhos=rho, betas=beta, param_set=ModelParamSet(rho=rho, beta=beta, alpha=alpha), settings=Settings(),
-                      ensemble_name=ens_name, per_core_repeats=runs)
+                      path_to_ensemble=path_to_ensemble, per_core_repeats=runs)
     sim_settings = Settings()
     for N in range(runs):
         for iter_, L in enumerate(box_sizes):

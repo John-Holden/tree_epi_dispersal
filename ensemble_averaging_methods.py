@@ -11,17 +11,18 @@ def mk_new_dir(name: str) -> str:
     if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
         sys.exit(f'ERROR DUPLICATE DIRECTORY{name}')
     os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}')
+    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/core_output')
     os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/info/')
     return name
 
 
 def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
-                  param_set, settings, ensemble_name, per_core_repeats:int, box_sizes=None):
+                  param_set, settings, path_to_ensemble:str, per_core_repeats:int, box_sizes=None):
     """
     Save simulation ensemble to file at the beginning of the simulation.
     """
     from datetime import datetime
-    save_name = 'ensemble_dat/'+ensemble_name
+
     save_info = {"\t ensemble averaged metrics: ": ens_field_names,
                  "\t start time: ": datetime.now(),
                  "\t model: ": param_set.model,
@@ -31,36 +32,38 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
                  "\t initial epicenter radius: ": str(param_set.r),
                  "\t percolation boundary: ": settings.boundary}
 
-    # save iterable parameter types.
-    if type(rhos) is np.ndarray:
-        np.save(f"{save_name}/info/rhos", rhos)
+    try:  # save iterable parameter types.
+        iter(rhos)
+        np.save(f"{path_to_ensemble}/info/rhos", rhos)
         save_info['\t rhos'] = f'{rhos[0]}, {rhos[-1]} | {len(rhos)}'
-    elif type(rhos) is float:
+    except TypeError:
         save_info["\t rho"] = f'{round(rhos, 5)}'
-    if type(betas) is np.ndarray:
-        np.save(f"{save_name}/info/betas", betas)
+    try:
+        iter(betas)
+        np.save(f"{path_to_ensemble}/info/betas", betas)
         save_info["\t betas"] = f'{betas[0]}, {betas[-1]} | {len(betas)}'
-    elif type(betas) is float:
+    except TypeError:
         save_info["\t beta"] = f'{round(betas, 7)}'
-    if type(box_sizes) is list or type(box_sizes) is np.ndarray:
-        np.save(f"{save_name}/info/box_sizes", box_sizes)
+    try:
+        iter(box_sizes)
+        np.save(f"{path_to_ensemble}/info/box_sizes", box_sizes)
         save_info["\t domain size "] = [L for L in box_sizes]
-        save_info["\t modelled size"] = [f'{L*param_set.alpha/1000} x {L*param_set.alpha/1000} (km)' for L in box_sizes]
-    elif box_sizes is None:
+        save_info["\t modelled size"] = [f'{L * param_set.alpha / 1000} x {L * param_set.alpha / 1000} (km)' for L in
+                                         box_sizes]
+    except TypeError:
         save_info['\t L x L']: f'{param_set.L} x {param_set.L}'
 
-    with open(f"{save_name}/info/ensemble_info.txt", "a") as info_file:
+    with open(f"{path_to_ensemble}/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Ensemble Parameters_______\n")
         for prm in save_info:
             info_file.write(prm + ' : ' + str(save_info[prm]) + '\n')
     return
 
-def save_sim_out(ensemble_name:str, elapsed_time:str):
+def save_sim_out(path_to_ensemble:str, elapsed_time:str):
     """
     Save output info
     """
-    save_name = 'ensemble_dat/' + ensemble_name
-    with open(save_name + "/info/ensemble_info.txt", "a") as info_file:
+    with open(path_to_ensemble + "/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Out_______\n")
         info_file.write('\telapsed time : '+ elapsed_time + '\n')
         info_file.write("\tNotes : '...' ")  # Note section to document results

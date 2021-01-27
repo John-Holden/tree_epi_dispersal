@@ -5,7 +5,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-PATH_TO_DATA_STORE = os.getcwd()+'/data_store/'
+PATH_TO_DATA_STORE = os.getcwd()+'/data_store'
 
 pltParams = {'figure.figsize': (7.5, 5.5),
              'axes.labelsize': 15,
@@ -13,6 +13,19 @@ pltParams = {'figure.figsize': (7.5, 5.5),
              'xtick.labelsize': 20,
              'legend.fontsize': 'x-large'}
 plt.rcParams.update(pltParams)
+
+
+def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.ndarray):
+    """
+    For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
+    """
+    for i, rho_line in enumerate(ensemble):
+        plt.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
+
+    plt.xlim([0, 0.02])
+    plt.ylim([0, 25])
+    plt.legend()
+    plt.show()
 
 
 def plot1D_mean(rhos, betas, ens_mean, save=False):
@@ -27,6 +40,7 @@ def plot1D_mean(rhos, betas, ens_mean, save=False):
         plt.savefig('ens_dat.pdf')
     plt.show()
     return "SUCCESS"
+
 
 def collect_data(name: str, field: str) -> 'np.ndarray | ensemble average of field f':
     """
@@ -44,6 +58,7 @@ def collect_data(name: str, field: str) -> 'np.ndarray | ensemble average of fie
     print('\t repeats/cores = {} '.format(dat.shape[2]))
     print('\t -> ensemble size = {} '.format(dat.shape[2] * len(f_list)))
     return dat.mean(axis=2)
+
 
 def collect_and_plot(name: str, metric: str):
     """
@@ -110,7 +125,7 @@ def plot_R0_ens_vs_L(save=False):
     plt.show()
 
 
-def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
+def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
     """
     Iteratively load json object from a directory, each object represents a core. Average each core and return.
     """
@@ -131,8 +146,34 @@ def ens_avg_dict_of_arrays(path_to_ensemble:str, metric:str) -> dict:
     return core_means
 
 
+def process_avg_R0(R0_struct:list) -> float:
+    R0_av = 0
+    for R0_vs_gen in R0_struct:
+        if len(R0_vs_gen):  # zero-length
+            R0_av += R0_vs_gen[0]  # sum first-generation R0
+
+    return R0_av/len(R0_struct)
+
+
+def ens_avg_dict_of_fields(path_to_ensemble:str, field_of_interest:str) -> np.ndarray:
+    """Load json, for each rho-beta key find R0, then average over of all core results. """
+    import json
+    f_list = sorted(os.listdir(f'{path_to_ensemble}/core_output/'))
+    rhos = np.load(f'{path_to_ensemble}/info/rhos.npy')
+    betas = np.load(f'{path_to_ensemble}/info/betas.npy')
+    ensemble = np.zeros(shape=[ len(betas), len(rhos)])
+    for core_result_name in f_list:
+        print(core_result_name)
+        with open(f"{path_to_ensemble}/core_output/{core_result_name}") as f:
+            core_result = json.load(f)
+            for i, beta in enumerate(betas):
+                for j, rho in enumerate(rhos):
+                    R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}'][field_of_interest]   # list of lists
+                    ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens)  # find avg R0 for (rho, beta)
+
+    return ensemble/len(f_list), rhos, betas
+
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-24-hpc-R0-generation-alpha-7_5'
-    ensemble_avg = ens_avg_dict_of_arrays(ens_name, metric='R0_histories')
-    # plot_R0_ens_vs_gen(ens_name, ensemble_avg, save=True)
-    plot_R0_ens_vs_L(save=True)
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-26-hpc-R0-vs-rho'
+    ensemble, rhos, betas = ens_avg_dict_of_fields(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble')
+    plot_rho_beta_ensemble_1D(ensemble, rhos, betas)
