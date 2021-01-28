@@ -31,5 +31,4 @@ def run_lcl_R0_sensitivity(repeats: int, rho:float, beta:float, alpha:Union[floa
                           ens_name=ens_name)
 
 if __name__ == '__main__':
-    from runner_methods import singleSim, R0_analysis
-    R0_analysis(singleSim(rho=0.05, beta=0.0003)[1])
+    run_lcl_ens(repeats=1, rhos=[0.01, 0.02], betas=[0.0001, 0.0002])

@@ -4,6 +4,7 @@ import numpy as np
 perc = lambda p: 1 if p else 0
 from PARAMETERS_AND_SETUP import Metrics, ModelParamSet, Settings
 
+
 def mk_new_dir(name: str) -> str:
     "Save new directory to file."
     import os
@@ -17,14 +18,15 @@ def mk_new_dir(name: str) -> str:
 
 
 def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
-                  param_set, settings, path_to_ensemble:str, per_core_repeats:int, box_sizes=None):
+                  param_set: Type[ModelParamSet], settings: Type[Settings], path_to_ensemble:str, per_core_repeats:int,
+                  box_sizes=None):
     """
     Save simulation ensemble to file at the beginning of the simulation.
     """
     from datetime import datetime
 
     save_info = {"\t ensemble averaged metrics: ": ens_field_names,
-                 "\t start time: ": datetime.now(),
+                 "\t start time: ": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                  "\t model: ": param_set.model,
                  "\t alpha: ": str(param_set.alpha) + '(m)',
                  "\t ell: ": str(param_set.ell) + '(m)',

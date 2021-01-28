@@ -1,4 +1,6 @@
-import datetime
+"""
+Run ensembles averaging methods on HPC or local machine.
+"""
 import os
 import json
 import numpy as np

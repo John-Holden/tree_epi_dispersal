@@ -22,8 +22,8 @@ def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.nda
     for i, rho_line in enumerate(ensemble):
         plt.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
 
-    plt.xlim([0, 0.02])
-    plt.ylim([0, 25])
+    # plt.xlim([0, 0.02])
+    plt.ylim([0, 2])
     plt.legend()
     plt.show()
 
@@ -155,7 +155,7 @@ def process_avg_R0(R0_struct:list) -> float:
     return R0_av/len(R0_struct)
 
 
-def ens_avg_dict_of_fields(path_to_ensemble:str, field_of_interest:str) -> np.ndarray:
+def ens_avg_dict_of_fields(path_to_ensemble:str, field_of_interest:str,save=False) -> np.ndarray:
     """Load json, for each rho-beta key find R0, then average over of all core results. """
     import json
     f_list = sorted(os.listdir(f'{path_to_ensemble}/core_output/'))
@@ -171,9 +171,14 @@ def ens_avg_dict_of_fields(path_to_ensemble:str, field_of_interest:str) -> np.nd
                     R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}'][field_of_interest]   # list of lists
                     ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens)  # find avg R0 for (rho, beta)
 
-    return ensemble/len(f_list), rhos, betas
+    ensemble = ensemble/len(f_list)
+    if save:
+        np.save(f'{path_to_ensemble}/R0-vs-rho', ensemble)
+    return ensemble, rhos, betas
 
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-26-hpc-R0-vs-rho'
-    ensemble, rhos, betas = ens_avg_dict_of_fields(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble')
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-27-hpc-R0-vs-rho'
+    ensemble, rhos, betas = ens_avg_dict_of_fields(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble',
+                                                   save=True)
+
     plot_rho_beta_ensemble_1D(ensemble, rhos, betas)
