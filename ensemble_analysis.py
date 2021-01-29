@@ -1,6 +1,7 @@
 """
 Plot and analyse ensemble data.
 """
+import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,11 +20,14 @@ def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.nda
     """
     For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
     """
-    for i, rho_line in enumerate(ensemble):
-        plt.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
+    fig, ax = plt.subplots(figsize=(10, 7))
+    for i in [4,5,6,7]:
+        rho_line = ensemble[i]
+        ax.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
+        ax.scatter(rhos, rho_line)
+    print('BETAS: ', betas)
+    ax.plot([0, rhos[-1]], [1, 1], color='r', ls='--')
 
-    # plt.xlim([0, 0.02])
-    plt.ylim([0, 2])
     plt.legend()
     plt.show()
 
@@ -154,31 +158,60 @@ def process_avg_R0(R0_struct:list) -> float:
 
     return R0_av/len(R0_struct)
 
+def set_package(ensemble: np.ndarray, path_to_ens:str):
+    """
+    Create folder to be used for land-scape control code-base.
+    """
+    path_to_save = f'{path_to_ens}/landscape_control_input'
+    if os.path.exists(f'{path_to_ens}/landscape_control_input'):
+        print(f'Warning, folder {path_to_ens}/landscape_control_input already exists!')
+        return
+    else:
+        import shutil
+        os.mkdir(path_to_save)
+        np.save(f'{path_to_save}/ensemble', ensemble)
+        shutil.copy(f'{path_to_ens}/info/ensemble_info.txt', f'{path_to_save}/ensemble_info.txt')
+        shutil.copy(f'{path_to_ens}/info/rhos.npy', f'{path_to_save}/rhos_.npy')
+        shutil.copy(f'{path_to_ens}/info/betas.npy', f'{path_to_save}/betas_.npy')
 
-def ens_avg_dict_of_fields(path_to_ensemble:str, field_of_interest:str,save=False) -> np.ndarray:
+
+def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
+                        produce_landscape_control_package:bool) -> np.ndarray:
     """Load json, for each rho-beta key find R0, then average over of all core results. """
     import json
-    f_list = sorted(os.listdir(f'{path_to_ensemble}/core_output/'))
     rhos = np.load(f'{path_to_ensemble}/info/rhos.npy')
     betas = np.load(f'{path_to_ensemble}/info/betas.npy')
-    ensemble = np.zeros(shape=[ len(betas), len(rhos)])
-    for core_result_name in f_list:
-        print(core_result_name)
-        with open(f"{path_to_ensemble}/core_output/{core_result_name}") as f:
-            core_result = json.load(f)
-            for i, beta in enumerate(betas):
-                for j, rho in enumerate(rhos):
-                    R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}'][field_of_interest]   # list of lists
-                    ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens)  # find avg R0 for (rho, beta)
 
-    ensemble = ensemble/len(f_list)
-    if save:
-        np.save(f'{path_to_ensemble}/R0-vs-rho', ensemble)
+    if os.path.exists(f'{path_to_ensemble}/R0-vs-rho.npy'): # File already processed.
+        ensemble = np.load(f'{path_to_ensemble}/R0-vs-rho.npy')
+
+    else:  # Iterate through all core output, collect and average.
+        f_list = sorted(os.listdir(f'{path_to_ensemble}/core_output/'))
+        with open(f'{path_to_ensemble}/info/ensemble_info.txt') as ens_info:
+            for line in ens_info.readlines():
+                if 'core repeats' in line:
+                    number_of_core_repeats = int(line.split()[-1])
+
+        print(f'Ensemble size = {len(f_list)*number_of_core_repeats}')
+        ensemble = np.zeros(shape=[ len(betas), len(rhos)])
+        for core_result_name in f_list:
+            with open(f"{path_to_ensemble}/core_output/{core_result_name}") as f:
+                core_result = json.load(f)
+                for i, beta in enumerate(betas):
+                    for j, rho in enumerate(rhos):
+                        R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}'][field_of_interest]   # list of lists
+                        ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens)  # find avg R0 for (rho, beta)
+
+        ensemble = ensemble/len(f_list)
+
+    if produce_landscape_control_package:
+        set_package(ensemble, path_to_ensemble)
+
     return ensemble, rhos, betas
 
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-27-hpc-R0-vs-rho'
-    ensemble, rhos, betas = ens_avg_dict_of_fields(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble',
-                                                   save=True)
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-28-hpc-R0-vs-rho'
+    ensemble, rhos, betas = process_R0_ensemble(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble',
+                                                produce_landscape_control_package=True)
 
     plot_rho_beta_ensemble_1D(ensemble, rhos, betas)
