@@ -5,16 +5,16 @@ from PARAMETERS_AND_SETUP import ModelParamSet, Settings, Metrics
 
 printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
-def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Settings]) -> '[S,I,R], metrics':
+def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics]) -> '[S,I,R], metrics':
     """
     Run dynamic simulation of pathogen spread,
     :return: SIR fields and updated metrics
     """
     S,I,R = setFields(pc.L, pc.rho, pc.epiC, pc.r, pc.init_n_infected)
-    if settings.plot:
+    if Settings.plot:
         from plots.plotLib import pltSim
     for t in range(pc.tend):
-        if settings.verbose == 2:
+        if Settings.verbose == 2:
             printStep(t, freq=1)
         S_ = np.where(S)
         I_ = np.where(I)
@@ -36,13 +36,13 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
                 metrics.percT = t
                 metrics.percolation = True
 
-        if settings.boundary and metrics.percolation:
+        if Settings.boundary and metrics.percolation:
             break
         # update fields S, I, R
         newI_ind, max_gen_exceeded = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model,
-                                                   metrics.R0_histories, settings.gen_limit)
+                                                   metrics.R0_histories, Settings.gen_limit)
 
-        if settings.gen_limit is not None and max_gen_exceeded:
+        if Settings.gen_limit is not None and max_gen_exceeded:
             # if no remaining infected trees of order `gen-limit', terminate simulation
             break
 
@@ -53,9 +53,9 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
         newR = np.where(newR)
         R[newR] = 1
         I[newR] = 0
-        if settings.plot:
-            if t % settings.pltFreq == 0:
-                pltSim(S=S, I=I, R=R, t=t+1, anim=settings.anim, show=settings.show)
+        if Settings.plot:
+            if t % Settings.pltFreq == 0:
+                pltSim(S=S, I=I, R=R, t=t+1, anim=Settings.anim, show=Settings.show)
 
     # clean metrics
     metrics.endT = t
@@ -69,7 +69,7 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics], settings: Type[Setti
     else:
         metrics.mortality_ratio = (metrics.numR[-1] + metrics.numI[-1]) / (pc.rho * pc.L**2)
 
-    if settings.plot:
-        pltSim(S=S, I=I, R=R, t=t, anim=settings.anim, show=settings.show)
+    if Settings.plot:
+        pltSim(S=S, I=I, R=R, t=t, anim=Settings.anim, show=Settings.show)
 
     return [S,I,R], metrics

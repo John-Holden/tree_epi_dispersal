@@ -20,18 +20,6 @@ class ModelParamSet:  # Set model parameter and simulation fields
         self.model = ['exp', 'gaussian'][1]
 
 
-class Settings:  # Simulation setup
-    def __init__(self):
-        self.plot = False
-        self.show = False
-        self.anim = False
-        self.pltFreq = None
-        self.verbose = 0   # verbosity
-        self.ext='.png'
-        self.boundary = False  # Terminate upon infection reaching the boundary
-        self.gen_limit = 1 # if no infected trees of order `gen-limit' are  left, end the simulation.
-
-
 class Metrics:
     def __init__(self):
         self.endT = 0
@@ -47,6 +35,17 @@ class Metrics:
         self.numI = np.zeros(3000)
         self.numS = np.zeros(3000)
         self.numR = np.zeros(3000)
+
+
+class Settings:  # Simulation setup
+    plot = False
+    show = False
+    anim = False
+    pltFreq = None
+    verbose = 0  # verbosity
+    ext = '.png'
+    boundary = False  # Terminate upon infection reaching the boundary
+    gen_limit = 1  # if no infected trees of order `gen-limit' are  left, end the simulation.
 
 
 

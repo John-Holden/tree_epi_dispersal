@@ -1,5 +1,5 @@
 import model_dynamics
-from typing import Union, Type
+from typing import Union
 import numpy as np
 perc = lambda p: 1 if p else 0
 from PARAMETERS_AND_SETUP import Metrics, ModelParamSet, Settings
@@ -18,38 +18,39 @@ def mk_new_dir(name: str) -> str:
 
 
 def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
-                  param_set: Type[ModelParamSet], settings: Type[Settings], path_to_ensemble:str, per_core_repeats:int,
-                  box_sizes=None):
+                  path_to_ensemble:str, per_core_repeats:int, box_sizes=None):
     """
     Save simulation ensemble to file at the beginning of the simulation.
     """
     from datetime import datetime
-
+    param_set = ModelParamSet(0, 0)  # init
     save_info = {"\t ensemble averaged metrics: ": ens_field_names,
                  "\t start time: ": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                 "\t model: ": param_set.model,
-                 "\t alpha: ": str(param_set.alpha) + '(m)',
-                 "\t ell: ": str(param_set.ell) + '(m)',
-                 "\t core repeats: ": per_core_repeats,
-                 "\t initial epicenter radius: ": str(param_set.r),
-                 "\t percolation boundary: ": settings.boundary}
+                 "\t dispersal model: ": param_set.model,
+                 "\t scale parameter $alpha$: ": f'{param_set.alpha} (m)',
+                 "\t dispersal constant $ell$: ": f'{param_set.ell} (m)',
+                 "\t infectious life-time $T$": f'{param_set.infLT}',
+                 "\t $I -> R$ transitions: ": ' Exp ',
+                 "\t # core repeats: ": f'{per_core_repeats}',
+                 "\t initial epicenter radius: ": f'{param_set.r}',
+                 "\t percolation boundary: ": f'{Settings.boundary}'}
 
     try:  # save iterable parameter types.
         iter(rhos)
         np.save(f"{path_to_ensemble}/info/rhos", rhos)
-        save_info['\t rhos'] = f'{rhos[0]}, {rhos[-1]} | {len(rhos)}'
+        save_info['\t rhos'] = f'{rhos} | {len(rhos)}'
     except TypeError:
         save_info["\t rho"] = f'{round(rhos, 5)}'
     try:
         iter(betas)
         np.save(f"{path_to_ensemble}/info/betas", betas)
-        save_info["\t betas"] = f'{betas[0]}, {betas[-1]} | {len(betas)}'
+        save_info["\t betas"] = f'{betas} | {len(betas)}'
     except TypeError:
         save_info["\t beta"] = f'{round(betas, 7)}'
     try:
         iter(box_sizes)
         np.save(f"{path_to_ensemble}/info/box_sizes", box_sizes)
-        save_info["\t domain size "] = [L for L in box_sizes]
+        save_info["\t domain size "] = f'{box_sizes}'
         save_info["\t modelled size"] = [f'{L * param_set.alpha / 1000} x {L * param_set.alpha / 1000} (km)' for L in
                                          box_sizes]
     except TypeError:
@@ -98,22 +99,15 @@ def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
     """
     Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
     """
-    import numpy as np
     from helper_methods import R0_generation_mean
     ensemble_R0 = []
-    extinctionT = [None]*runs
-    mortality_ratio = [None]*runs
-    settings = Settings()
     for N in range(runs):
-        if settings.verbose:
+        if Settings.verbose:
             print('Repeat : {}'.format(N))
-        out_metrics = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics(), settings=settings)[1]
+        out_metrics = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics())[1]
         R0_histories = R0_generation_mean(out_metrics.R0_histories)
         ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
-        extinctionT[N] = out_metrics.extinctionT
-        mortality_ratio[N] = out_metrics.mortality_ratio
-    return {'mean_R0_vs_gen_core_ensemble': ensemble_R0, 'extinction_time':extinctionT,
-            'mortality_ratio':mortality_ratio}
+    return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
 
 
 

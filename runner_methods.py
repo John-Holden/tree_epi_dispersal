@@ -23,9 +23,8 @@ def parameter_space_iterator(ensemble_method: Callable, N: int,
 
     path_to_ensemble = f'{os.getcwd()}/ensemble_dat/{ensName}'
     if jobId == '1' or jobId == 'local_test':  # write parameters to file before ensemble -- assurance
-        save_ens_info(ens_field_names=['R0_trace', 'extinction_time', 'mortality_ratio'],
-                  rhos=rhos, betas=betas, param_set=ModelParamSet(0, 0), settings=Settings(),
-                  path_to_ensemble=path_to_ensemble, per_core_repeats=N, box_sizes=None)
+        save_ens_info(ens_field_names=['R0_Histories'], rhos=rhos, betas=betas, path_to_ensemble=path_to_ensemble,
+                      per_core_repeats=N, box_sizes=None)
 
     start = timer()  # Time ensemble averaging process
     ensemble_results = defaultdict(dict)
@@ -36,11 +35,11 @@ def parameter_space_iterator(ensemble_method: Callable, N: int,
             ensemble_results[f'rho_{rho}_beta_{beta}'] = all_ens_fields
 
     elapsed = round(timer() - start, 2)
-    if jobId == '1' or jobId == 'local_test':
+    if jobId == '1' or jobId == 'local_test':  # write elapsed time to file
         save_sim_out(path_to_ensemble=path_to_ensemble, elapsed_time=timerPrint(elapsed))
 
-    with open(f"{path_to_ensemble}/core_output/core_{jobId}.json", 'w') as json_file:
-        json.dump(ensemble_results, json_file, indent=4)  # save as json struct
+    with open(f"{path_to_ensemble}/core_output/core_{jobId}.json", 'w') as json_file:  # save ensemble in json struct
+        json.dump(ensemble_results, json_file, indent=4)
 
     print('\n@ Ensemble Run DONE | {}'.format(timerPrint(elapsed)))
     return "Success"
@@ -62,16 +61,16 @@ def R0_domain_sensitivity(runs:int, rho:float, beta:float, alpha:int, box_sizes:
     path_to_ensemble = f'{os.getcwd()}/ensemble_dat/'
     if jobId == '1' or jobId == 'local-run':  # if hpc simulation or local test
         save_ens_info(ens_field_names=['R0_histories'], box_sizes=box_sizes,
-                      rhos=rho, betas=beta, param_set=ModelParamSet(rho=rho, beta=beta, alpha=alpha), settings=Settings(),
+                      rhos=rho, betas=beta, param_set=ModelParamSet(rho=rho, beta=beta, alpha=alpha), settings=Settings,
                       path_to_ensemble=path_to_ensemble, per_core_repeats=runs)
-    sim_settings = Settings()
+
     for N in range(runs):
         for iter_, L in enumerate(box_sizes):
             model_params = ModelParamSet(rho=rho, beta=beta, L=L, alpha=alpha)
-            if sim_settings.verbose >= 1:
+            if Settings.verbose >= 1:
                 print(f'\t Repeat : {N}, Box size : {L}')
                 print(f'\t equivalent grid size {L*model_params.alpha/1000}km x {L*model_params.alpha/1000}km')
-            out_mts = runSim(pc=model_params, metrics=Metrics(), settings=sim_settings)[1]
+            out_mts = runSim(pc=model_params, metrics=Metrics(), settings=Settings)[1]
             meanR0_vs_gen = R0_generation_mean(out_mts.R0_histories)
             R0_gen_ens[L].append(meanR0_vs_gen)
 
@@ -111,7 +110,7 @@ def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
     start = timer()
     print('\n Running @ singleSim...')
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
-    out = runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics(), settings=Settings())
+    out = runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics())
     elapsed = round(timer() - start, 2)
     print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
     return out

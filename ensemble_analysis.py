@@ -21,7 +21,7 @@ def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.nda
     For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
     """
     fig, ax = plt.subplots(figsize=(10, 7))
-    for i in [4,5,6,7]:
+    for i in range(len(ensemble)):
         rho_line = ensemble[i]
         ax.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
         ax.scatter(rhos, rho_line)
@@ -210,7 +210,7 @@ def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
     return ensemble, rhos, betas
 
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-28-hpc-R0-vs-rho'
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-29-hpc-R0-vs-rho-test-two-cluster-sizes'
     ensemble, rhos, betas = process_R0_ensemble(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble',
                                                 produce_landscape_control_package=True)
 
