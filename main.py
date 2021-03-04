@@ -14,7 +14,7 @@ def hpc_mode():
     """
     print(os.environ)
     print(os.environ['HPC_MODE'])
-    
+
     assert 0
     job_id = sys.argv[1:][0]
     date = datetime.datetime.today().strftime('%Y-%m-%d')
