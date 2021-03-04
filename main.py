@@ -5,7 +5,7 @@ import numpy as np
 from parameters_and_settings import Settings
 
 from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir, run_R0_ensemble
-from tree_epi_dispersal.execute import parameter_space_iterator, R0_domain_sensitivity
+from tree_epi_dispersal.ensemble_simulation import parameter_space_iterator
 
 
 def hpc_mode():
@@ -25,9 +25,8 @@ def hpc_mode():
     rhos = np.hstack([rho_small, rho_large])  #  len 20
     betas = np.arange(0.00000, 0.00032, 0.00002)  # len 16
 
-    parameter_space_iterator(ensemble_method=run_R0_ensemble, ensName=ensemble_name, jobId=job_id,
-                             N=2, rhos=rhos, betas=betas)
-
+    parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ensemble_name, jobId=job_id,
+                             number_samples=2, rhos=rhos, betas=betas)
 
 def local_mode():
     """
@@ -35,10 +34,11 @@ def local_mode():
     """
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
-    ens_name = mk_new_dir(ens_name)
-    R0_domain_sensitivity(runs=1, rho=0.01, beta=0.001, alpha=5, box_sizes=[1000, 1500], jobId='local-run',
-                          ens_name=ens_name)
-
+    mk_new_dir(ens_name)
+    N = 2
+    rhos = [0.01, 0.005]
+    betas = [0.001, 0.0015]
+    parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ens_name, number_samples=N, rhos=rhos, betas=betas)
 
 if __name__ == '__main__':
     hpc_mode_ = len(sys.argv) > 1
