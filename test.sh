@@ -5,4 +5,4 @@
 
 SGE_TASK_ID=1
 export HPC_MODE=True
-python3 main.py SGE_TASK_ID
+python3 main.py $SGE_TASK_ID
