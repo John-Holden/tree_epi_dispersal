@@ -50,6 +50,8 @@ class Settings:  # Simulation setup
     gen_limit = 1  # if no infected trees of order `gen-limit' are  left, end the simulation.
 
 
+ParamsAndSetup = {'params':ModelParamSet, 'setup':Settings, 'metrics':Metrics}
+
 
 
 

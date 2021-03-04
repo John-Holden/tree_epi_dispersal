@@ -10,11 +10,11 @@ from timeit import default_timer as timer
 from parameters_and_settings import ModelParamSet, Settings, Metrics
 
 
-
 def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
     "Given metrics class, from singleSim, plot R0 as a function of generation"
     from tree_epi_dispersal.model_dynamics_helpers import  R0_generation_mean
-    from plots.plotLib import pltR0
+    from tree_epi_dispersal.plot_methods import pltR0
+
     meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
     print(meanR0_vs_gen, 'mean R0 gen')
     pltR0(meanR0_vs_gen, save)

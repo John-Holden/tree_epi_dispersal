@@ -1,11 +1,12 @@
 import os
 import json
 import datetime
-import numpy as np
 from typing import Callable, Union, Iterable
 
-def time_me():
-    ''
+from collections import defaultdict
+from tree_epi_dispersal.model_dynamics_helpers import timerPrint
+from tree_epi_dispersal.ensemble_simulation_helpers import save_ens_info, save_sim_out
+
 
 def parameter_space_iterator(method: Callable, number_samples: int, rhos:Iterable, betas:Iterable,
                              ensemble_name: str, jobId: Union[None, str] = None) -> "Success":
@@ -13,9 +14,6 @@ def parameter_space_iterator(method: Callable, number_samples: int, rhos:Iterabl
     Get parameter space of model over rho/beta by ensemble-averaging simulations.
     - ensemble_method is a Callable method of the type of ensemble we wish to run e.g. velocity/percolation/time-series
     """
-    from collections import defaultdict
-    from tree_epi_dispersal.model_dynamics_helpers import timerPrint
-    from tree_epi_dispersal.ensemble_simulation_helpers import save_ens_info, save_sim_out
 
     path_to_ensemble = f'{os.getcwd()}/ensemble_dat/{ensemble_name}'
 
