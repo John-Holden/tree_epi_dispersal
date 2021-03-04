@@ -12,9 +12,6 @@ def hpc_mode():
     """
     Run simulation on hpc task array
     """
-    print(os.environ)
-    print(os.environ['HPC_MODE'])
-
     assert 0
     job_id = sys.argv[1:][0]
     date = datetime.datetime.today().strftime('%Y-%m-%d')
@@ -45,9 +42,8 @@ if __name__ == '__main__':
 
     hpc_mode_ = len(sys.argv) > 1
     if 'HPC_MODE' in os.environ:
-	assert len(sys.argv)>1
-	hpc_mode()
-
+        assert len(sys.argv)>1
+        hpc_mode()
     else:
         local_mode()
 
