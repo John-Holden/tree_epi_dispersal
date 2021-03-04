@@ -158,11 +158,11 @@ def process_avg_R0(R0_struct:list) -> float:
 
     return R0_av/len(R0_struct)
 
-def set_package(ensemble: np.ndarray, path_to_ens:str):
+def write_package(ensemble: np.ndarray, path_to_ens:str):
     """
     Create folder to be used for land-scape control code-base.
     """
-    path_to_save = f'{path_to_ens}/landscape_control_input'
+    path_to_save = f'{path_to_ens}/landscape_control_package'
     if os.path.exists(f'{path_to_ens}/landscape_control_input'):
         print(f'Warning, folder {path_to_ens}/landscape_control_input already exists!')
         return
@@ -171,8 +171,8 @@ def set_package(ensemble: np.ndarray, path_to_ens:str):
         os.mkdir(path_to_save)
         np.save(f'{path_to_save}/ensemble', ensemble)
         shutil.copy(f'{path_to_ens}/info/ensemble_info.txt', f'{path_to_save}/ensemble_info.txt')
-        shutil.copy(f'{path_to_ens}/info/rhos.npy', f'{path_to_save}/rhos_.npy')
-        shutil.copy(f'{path_to_ens}/info/betas.npy', f'{path_to_save}/betas_.npy')
+        shutil.copy(f'{path_to_ens}/info/rhos.npy', f'{path_to_save}/rhos.npy')
+        shutil.copy(f'{path_to_ens}/info/betas.npy', f'{path_to_save}/betas.npy')
 
 
 def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
@@ -191,8 +191,13 @@ def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
             for line in ens_info.readlines():
                 if 'core repeats' in line:
                     number_of_core_repeats = int(line.split()[-1])
+        ensemble_size = len(f_list) * number_of_core_repeats
 
-        print(f'Ensemble size = {len(f_list)*number_of_core_repeats}')
+        print(f'Ensemble size = {ensemble_size}')
+
+        with open(f'{path_to_ensemble}/info/ensemble_info.txt', 'a') as ens_info:  # write total size to file
+            ens_info.write(f'Ensemble size : {ensemble_size}')
+
         ensemble = np.zeros(shape=[ len(betas), len(rhos)])
         for core_result_name in f_list:
             with open(f"{path_to_ensemble}/core_output/{core_result_name}") as f:
@@ -205,12 +210,12 @@ def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
         ensemble = ensemble/len(f_list)
 
     if produce_landscape_control_package:
-        set_package(ensemble, path_to_ensemble)
+        write_package(ensemble, path_to_ensemble)
 
     return ensemble, rhos, betas
 
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-29-hpc-R0-vs-rho-test-two-cluster-sizes'
+    ens_name = f'{PATH_TO_DATA_STORE}/2021-01-30-hpc-R0-vs-rho'
     ensemble, rhos, betas = process_R0_ensemble(ens_name, field_of_interest='mean_R0_vs_gen_core_ensemble',
                                                 produce_landscape_control_package=True)
 

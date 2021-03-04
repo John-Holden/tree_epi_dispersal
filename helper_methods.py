@@ -8,6 +8,14 @@ ijDistance = lambda i, j : np.sqrt((i[0] - j[0])**2 + (i[1] - j[1])**2)  # where
 modelSelector = lambda m, exponent : exponent if m == 'exp' else 0.5*exponent**2
 
 
+def get_prS_I(model:str, beta:float, ell:float, dist: np.ndarray):
+    if model == 'gauss':
+        return np.exp((-dist / ell))**2 * beta
+    elif model == 'exp':
+        return np.exp(-dist / ell) * beta
+
+    return (1 -dist/1 )**(-ell) * beta
+
 def setFields(L:int, rho:float, epiC:int, r:int, init_n_infected:int, epiType='centralised') -> tuple:
     """
     Initialise the domain in terms of three fields, S,I and R.

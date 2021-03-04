@@ -38,11 +38,11 @@ class Metrics:
 
 
 class Settings:  # Simulation setup
-    plot = False
-    show = False
+    plot = True
+    show = True
     anim = False
-    pltFreq = None
-    verbose = 0  # verbosity
+    pltFreq = 2
+    verbose = 3  # verbosity
     ext = '.png'
     boundary = False  # Terminate upon infection reaching the boundary
     gen_limit = 1  # if no infected trees of order `gen-limit' are  left, end the simulation.
