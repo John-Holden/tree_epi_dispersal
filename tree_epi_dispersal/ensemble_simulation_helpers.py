@@ -1,20 +1,20 @@
-import model_dynamics
-from typing import Union
+import os
 import numpy as np
+from typing import Union
+from tree_epi_dispersal import model_dynamics
+from parameters_and_settings import Metrics, ModelParamSet, Settings
+
 perc = lambda p: 1 if p else 0
-from PARAMETERS_AND_SETUP import Metrics, ModelParamSet, Settings
 
-
-def mk_new_dir(name: str) -> str:
+def mk_new_dir(name: str):
     "Save new directory to file."
-    import os
-    import sys
-    if os.path.exists(f'{os.getcwd()}/ensemble_dat/{name}'):
-        sys.exit(f'ERROR DUPLICATE DIRECTORY{name}')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/core_output')
-    os.mkdir(f'{os.getcwd()}/ensemble_dat/{name}/info/')
-    return name
+
+    if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
+        raise FileExistsError(f'{os.getcwd()}/temp_dat_store/{name}')
+
+    os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}')
+    os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/info/')
+    os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/core_output')
 
 
 def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:Union[np.ndarray, float],
@@ -99,7 +99,7 @@ def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
     """
     Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
     """
-    from helper_methods import R0_generation_mean
+    from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
     ensemble_R0 = []
     for N in range(runs):
         if Settings.verbose:

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Type
-from helper_methods import set_R0trace, ijDistance, get_new_I, setFields
-from PARAMETERS_AND_SETUP import ModelParamSet, Settings, Metrics
+from tree_epi_dispersal.model_dynamics_helpers import set_R0trace, ijDistance, get_new_I, setFields
+from parameters_and_settings import ModelParamSet, Settings, Metrics
 
 printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
@@ -12,7 +12,7 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics]) -> '[S,I,R], metrics
     """
     S,I,R = setFields(pc.L, pc.rho, pc.epiC, pc.r, pc.init_n_infected)
     if Settings.plot:
-        from plots.plotLib import pltSim
+        from tree_epi_dispersal.plot_methods import pltSim
     for t in range(pc.tend):
         if Settings.verbose == 2:
             printStep(t, freq=1)

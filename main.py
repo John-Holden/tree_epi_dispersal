@@ -2,17 +2,16 @@ import os
 import sys
 import datetime
 import numpy as np
-from PARAMETERS_AND_SETUP import Settings
+from parameters_and_settings import Settings
 
-from ensemble_averaging_methods import mk_new_dir, run_R0_ensemble
-from runner_methods import parameter_space_iterator, R0_domain_sensitivity
+from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir, run_R0_ensemble
+from tree_epi_dispersal.execute import parameter_space_iterator, R0_domain_sensitivity
 
 
 def hpc_mode():
     """
-    Run simulation on hpc task array
+    Run simulation via hpc task array
     """
-    assert 0
     job_id = sys.argv[1:][0]
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ensemble_name = date + '-hpc-R0-vs-rho'
@@ -31,6 +30,9 @@ def hpc_mode():
 
 
 def local_mode():
+    """
+    Run ensemble simulation on local machine
+    """
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
     ens_name = mk_new_dir(ens_name)
@@ -39,13 +41,10 @@ def local_mode():
 
 
 if __name__ == '__main__':
-
     hpc_mode_ = len(sys.argv) > 1
     if 'HPC_MODE' in os.environ:
         assert len(sys.argv)>1
-        print(sys.argv)
         hpc_mode()
-        
     else:
         local_mode()
 

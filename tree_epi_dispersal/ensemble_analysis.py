@@ -1,51 +1,11 @@
-import sys
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-
-pltParams = {'figure.figsize': (7.5, 5.5),
-             'axes.labelsize': 15,
-             'ytick.labelsize': 20,
-             'xtick.labelsize': 20,
-             'legend.fontsize': 'x-large'}
-plt.rcParams.update(pltParams)
-
-
-def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.ndarray):
-    """
-    For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
-    """
-    fig, ax = plt.subplots(figsize=(10, 7))
-    for i in range(len(ensemble)):
-        rho_line = ensemble[i]
-        ax.plot(rhos, rho_line, label=f'beta = {round(betas[i], 5)}')
-        ax.scatter(rhos, rho_line)
-    print('BETAS: ', betas)
-    ax.plot([0, rhos[-1]], [1, 1], color='r', ls='--')
-
-    plt.legend()
-    plt.show()
-
-
-def plot1D_mean(rhos, betas, ens_mean, save=False):
-    for i, beta in enumerate(betas):
-        plt.plot(rhos, ens_mean[i], c='C'+str(i),
-                 label=r'$\beta$ = {}'.format(round(beta, 8)))
-        plt.scatter(rhos, ens_mean[i], c='C'+str(i),)
-
-    plt.hlines(y=1, xmin=rhos[0], xmax=rhos[-1], ls='--')
-    plt.legend()
-    if save:
-        plt.savefig('ens_dat.pdf')
-    plt.show()
-    return "SUCCESS"
 
 
 def collect_data(name: str, field: str) -> 'np.ndarray | ensemble average of field f':
     """
     Collect each core result, as a np.ndarray, and average.
     """
-    # todo test this and streamline
     f_list = sorted(os.listdir(name+'/'+field+'/'))
     dat = np.load(name+'/'+field+'/'+f_list[0])
     print('@collecting data: field {}'.format(field))
@@ -68,60 +28,7 @@ def collect_and_plot(name: str, metric: str):
     betas = np.load(name + '/info/betas.npy')
     ens_mean = collect_data(name, metric)
     np.save(name + '/ens_R0_data', ens_mean)
-    plot1D_mean(rhos, betas, ens_mean, save=True)
-    return ens_mean
-
-
-def plot_R0_ens_vs_gen(path_to_ensemble:str, ensemble_mean:dict, save=False):
-    """
-    Process ensemble_core_averaged R0 history and plot generational mean R0
-    """
-    from helper_methods import avg_multi_dim
-    box_sizes = np.load(f'{path_to_ensemble}/info/box_sizes.npy')[::-1]
-    c = 0
-    for box_size in ensemble_mean:
-        assert int(box_size) in box_sizes
-        c += 1
-    assert c == len(box_sizes)
-    R0_v_L = np.zeros(len(box_sizes))
-
-    fig, ax = plt.subplots(figsize=(7.5, 5.5))
-    for i, box_size in enumerate(box_sizes):
-        R0_vs_gen = avg_multi_dim(ensemble_mean[str(box_size)])[:21]
-        R0_v_L[i] = R0_vs_gen[0]
-        gen = np.arange(1, len(R0_vs_gen)+1)
-        ax.plot(gen, R0_vs_gen, label=f'{box_size}  {box_size}')
-        ax.scatter(gen, R0_vs_gen)
-
-    ax.set_xlim(0.5, 10.5)
-    plt.legend()
-    if save:
-        np.save('R0_vs_L_alpha_()m', R0_v_L)
-        plt.tight_layout()
-        plt.savefig('R0_vs_gen.pdf')
-    plt.show()
-
-
-def plot_R0_ens_vs_L(save=False):
-    """
-    For different alpha values, plot saved R0 values against domain size L
-    """
-    data_sets = {'2021-01-24-hpc-R0-generation-alpha-5': '5',
-                 '2021-01-24-hpc-R0-generation-alpha-10': '10',
-                 '2021-01-24-hpc-R0-generation-alpha-7_5': '7_5'}
-
-    fig, ax = plt.subplots(figsize=(7.5, 5.5))
-    for data_set in data_sets:
-        box_sizes = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/info/box_sizes.npy')[::-1]
-        alpha_5 = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/R0_vs_L_alpha_{data_sets[data_set]}m.npy')
-        ax.plot(box_sizes, alpha_5, label=rf'$\alpha = $ {data_sets[data_set].replace("_", ".")}')
-        ax.scatter(box_sizes, alpha_5)
-
-    plt.legend()
-    plt.tight_layout()
-    if save:
-        plt.savefig('R0_vs_L_vs_alpha.pdf')
-    plt.show()
+    return ens_mean, rhos, betas
 
 
 def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
@@ -130,7 +37,7 @@ def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
     """
     import json
     from collections import defaultdict
-    from helper_methods import avg_multi_dim
+    from tree_epi_dispersal.model_dynamics_helpers import avg_multi_dim
 
     f_list = sorted(os.listdir(f'{path_to_ensemble}/{metric}/'))
     core_means = defaultdict(list)

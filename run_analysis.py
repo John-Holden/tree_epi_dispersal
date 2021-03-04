@@ -1,11 +1,9 @@
 """
 Plot and analyse ensemble data.
 """
-
-import os
+from parameters_and_settings import PATH_TO_DATA_STORE
+from tree_epi_dispersal.plot_methods import plot_rho_beta_ensemble_1D
 from tree_epi_dispersal.ensemble_analysis import process_R0_ensemble
-
-PATH_TO_DATA_STORE = os.getcwd()+'/data_store'
 
 
 if __name__ == '__main__':
