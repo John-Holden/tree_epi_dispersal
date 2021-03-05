@@ -1,16 +1,36 @@
 import os
 import numpy as np
 from typing import Union
-from tree_epi_dispersal import model_dynamics
+from warnings import warn
+
 from parameters_and_settings import Metrics, ModelParamSet, Settings
 
 perc = lambda p: 1 if p else 0
 
+def time_print(delta_time):
+
+    seconds = delta_time.seconds()
+    seconds = int(seconds)
+    if seconds < 60:
+        print(f'Done in {seconds} (s)')
+
+
+
+
 def mk_new_dir(name: str):
     "Save new directory to file."
 
-    if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
-        raise FileExistsError(f'{os.getcwd()}/temp_dat_store/{name}')
+    dir1 = f'{os.getcwd()}/temp_dat_store/{name}'
+    sub_dir1 = f'{os.getcwd()}/temp_dat_store/{name}/info/'
+    sub_dir2 = f'{os.getcwd()}/temp_dat_store/{name}/core_output'
+
+    if os.path.exists(dir1):
+        msg = f'FileExistsWarn: {os.getcwd()}/temp_dat_store/{name}'
+        # raise FileExistsError(F'{os.getcwd()}/temp_dat_store/{name}')
+        warn(msg)
+        assert os.path.exists(sub_dir1)
+        assert os.path.exists(sub_dir2)
+        return
 
     os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}')
     os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/info/')
@@ -72,42 +92,6 @@ def save_sim_out(path_to_ensemble:str, elapsed_time:str):
         info_file.write("\tNotes : '...' ")  # Note section to document results
     return
 
-
-def run_vel_ensemble(rho:float, beta:float, runs:int) -> dict:
-    """
-    Repeat velocity simulations over a number of `runs' for a given value of rho, beta.
-    """
-    import numpy as np
-    ensemble_vel = np.zeros(runs)
-    ensemble_perc = np.zeros(runs)
-    settings = Settings()
-    for N in range(runs):
-        if settings.verbose>=2:
-            print('Repeat : {}'.format(N))
-        out_mts = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics(), settings=settings)[1]
-        ensemble_vel[N] = out_mts.maxD.max()/out_mts.endT
-        ensemble_perc[N] = perc(out_mts.percolation)
-        if settings.verbose>=2:
-            print("\t Percolation : {} @ t = {} (days)".format(out_mts.percolation, out_mts.endT))
-            print('\t Max Distance : {} (m)'.format(round(out_mts.maxD.max(), 3)))
-            print('\t ~ Spread Vel : {} (m/day)'.format(round(out_mts.maxD.max()/out_mts.endT, 3)))
-            print('\t ~ Spread Vel: {} (km/ry)'.format(round((out_mts.maxD.max()*365)/(out_mts.endT*1000), 3)))
-    return {'ensemble_velocity':ensemble_vel, 'ensemble_percolation':ensemble_perc}
-
-
-def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
-    """
-    Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
-    """
-    from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
-    ensemble_R0 = []
-    for N in range(runs):
-        if Settings.verbose:
-            print('Repeat : {}'.format(N))
-        out_metrics = model_dynamics.runSim(pc=ModelParamSet(rho, beta), metrics=Metrics())[1]
-        R0_histories = R0_generation_mean(out_metrics.R0_histories)
-        ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
-    return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
 
 
 

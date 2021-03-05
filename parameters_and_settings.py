@@ -4,7 +4,8 @@ Define classes for model parameters, settings and metrics.
 import os
 import numpy as np
 
-PATH_TO_DATA_STORE = os.getcwd()+'/data_store'
+PATH_TO_DATA_STORE = f'{os.getcwd()}/temp_dat_store/'
+
 
 class ModelParamSet:  # Set model parameter and simulation fields
     def __init__(self, rho, beta, L=1000, alpha=5, META_DATA=None):
@@ -40,8 +41,8 @@ class Metrics:
 
 
 class Settings:  # Simulation setup
-    plot = True
-    show = True
+    plot = False
+    show = False
     anim = False
     pltFreq = 2
     verbose = 3  # verbosity

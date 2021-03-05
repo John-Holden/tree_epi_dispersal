@@ -1,13 +1,25 @@
 """
 Run ensembles averaging methods on HPC or local machine.
 """
-import os
-import json
-import numpy as np
 from tree_epi_dispersal.model_dynamics import runSim
-from typing import Type, Union, Callable
+from typing import Type
 from timeit import default_timer as timer
 from parameters_and_settings import ModelParamSet, Settings, Metrics
+
+
+def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
+    """
+    Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
+    """
+    from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
+    ensemble_R0 = []
+    for N in range(runs):
+        if Settings.verbose:
+            print('Repeat : {}'.format(N))
+        out_metrics = runSim(pc=ModelParamSet(rho, beta), metrics=Metrics())[1]
+        R0_histories = R0_generation_mean(out_metrics.R0_histories)
+        ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
+    return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
 
 
 def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
@@ -38,4 +50,5 @@ def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
     runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics())
     elapsed = round(timer() - start, 2)
     print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
+
 

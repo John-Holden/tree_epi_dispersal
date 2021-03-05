@@ -114,23 +114,6 @@ def get_new_I(S_ind: np.array, I_ind:np.array, beta:float, alpha:float, ell:floa
     return tuple(newI_ind), max_gen_exceeded
 
 
-def timerPrint(seconds: float) -> str:
-    """
-    Print the number of hours, minutes and seconds it took to run a simulation, or ensemble.
-    """
-    dc = round(seconds - math.floor(seconds), 2)
-    seconds = math.floor(seconds)
-    hrs = math.floor(seconds / 3600)
-    mns = math.floor(seconds / 60)
-    secs = seconds % 60
-    if seconds < 60:
-        return f'{round(secs + dc, 2)} (s)'
-    elif 60 <= seconds < 3600:
-        return f'{mns} (mins): {secs} (s)'
-    elif seconds >= 3600:
-        return f'{hrs} (Hrs): {mns%60} (mins): {secs} (s)'
-
-
 def R0_generation_mean(R0_trace: dict) -> list:
     """
     From the infectious history of all infected trees, calculate the generational mean.

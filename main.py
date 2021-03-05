@@ -4,7 +4,8 @@ import datetime
 import numpy as np
 from parameters_and_settings import Settings
 
-from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir, run_R0_ensemble
+from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir
+from tree_epi_dispersal.execute import run_R0_ensemble
 from tree_epi_dispersal.ensemble_simulation import parameter_space_iterator
 
 
@@ -35,9 +36,9 @@ def local_mode():
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
     mk_new_dir(ens_name)
-    N = 2
-    rhos = [0.01, 0.005]
-    betas = [0.001, 0.0015]
+    N = 1
+    rhos = [0.01]
+    betas = [0.001]
     parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ens_name, number_samples=N, rhos=rhos, betas=betas)
 
 if __name__ == '__main__':
