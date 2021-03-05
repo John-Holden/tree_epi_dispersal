@@ -1,20 +1,30 @@
 import os
+import math
 import numpy as np
 from typing import Union
 from warnings import warn
 
-from parameters_and_settings import Metrics, ModelParamSet, Settings
+from parameters_and_settings import ModelParamSet, Settings, Metrics
 
 perc = lambda p: 1 if p else 0
 
-def time_print(delta_time):
+def time_print(time_seconds:int, msg:str='Simulation done in: ') -> str:
+    """
+    Pretty formatter to display time
+    """
+    seconds = math.floor(time_seconds)
+    hrs = math.floor(seconds / 3600)
+    mns = math.floor(seconds / 60)
+    secs = seconds % 60
 
-    seconds = delta_time.seconds()
-    seconds = int(seconds)
     if seconds < 60:
-        print(f'Done in {seconds} (s)')
+        print(f'{msg} {seconds} (s)')
+    elif 60 <= seconds < 3600:
+        print(f'{msg} {mns} (mins): {seconds} (s)')
+    elif seconds >= 3600:
+        print(f'{msg} {hrs} (Hrs): {mns%60} (mins): {secs} (s)')
 
-
+    return f'{msg} {hrs} (Hrs): {mns%60} (mins): {secs} (s)'
 
 
 def mk_new_dir(name: str):
@@ -82,10 +92,14 @@ def save_ens_info(ens_field_names: list, rhos: Union[np.ndarray, float], betas:U
             info_file.write(prm + ' : ' + str(save_info[prm]) + '\n')
     return
 
-def save_sim_out(path_to_ensemble:str, elapsed_time:str):
+def save_meta_data(path_to_ensemble:str, elapsed_time:str):
     """
     Save output info
     """
+
+    print(vars(ModelParamSet(0, 0)))
+
+    assert 0
     with open(path_to_ensemble + "/info/ensemble_info.txt", "a") as info_file:
         info_file.write("\n______Out_______\n")
         info_file.write('\telapsed time : '+ elapsed_time + '\n')

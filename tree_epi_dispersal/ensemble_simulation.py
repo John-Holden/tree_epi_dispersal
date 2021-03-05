@@ -1,30 +1,32 @@
-import os
 import json
 import datetime
 from typing import Callable, Union, Iterable
 
 from collections import defaultdict
-from tree_epi_dispersal.ensemble_simulation_helpers import save_sim_out, time_print
+from tree_epi_dispersal.ensemble_simulation_helpers import save_meta_data, time_print
 
 from parameters_and_settings import PATH_TO_DATA_STORE
 
 def save_output(method:Callable):
 
     def wrapper(ensemble_name: str, jobId: Union[None, str] = None, **kwargs):
-
-
-
+        """
+         Wrapper to save output and display time taken.
+        :param ensemble_name:
+        :param jobId:
+        :param kwargs:
+        """
         start = datetime.datetime.now()
         ensemble_output = method(**kwargs)
         end = datetime.datetime.now() - start
-        time_print(end)
-
-        if jobId == '1' or jobId == 'local_test':  # write elapsed time to file
-            save_sim_out(path_to_ensemble=path_to_ensemble, elapsed_time=timerPrint(elapsed))
+        elapsed = time_print(end.seconds)
 
 
         path_to_ensemble = f'{PATH_TO_DATA_STORE}{ensemble_name}/core_output/'
         save_name = f"/core_{jobId}" if jobId else f"/local.json"
+
+        if jobId == '1' or jobId is None:  # write elapsed time to file
+            save_meta_data(path_to_ensemble=path_to_ensemble, elapsed_time=elapsed)
 
         with open(f"{path_to_ensemble}{save_name}",
                   'w') as json_file:  # save ensemble in json struct
