@@ -2,7 +2,7 @@
 Run ensembles averaging methods on HPC or local machine.
 """
 from typing import Union
-from tree_epi_dispersal.model_dynamics import runSim
+from tree_epi_dispersal.model_dynamics import run_simulation
 from timeit import default_timer as timer
 from parameters_and_settings import ParamsAndSetup
 
@@ -19,7 +19,8 @@ def get_avg_R0(rho: float, beta: float) -> dict:
         if ParamsAndSetup['setup'].verb >= 1:
             print('Repeat : {}'.format(repeat))
 
-        out_metrics = runSim(rho, beta, ell)
+        sim_result = run_simulation(rho, beta, ell)
+        assert 0
         R0_histories = R0_generation_mean(out_metrics._R0_histories)
         ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
     return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
@@ -51,7 +52,7 @@ def singleSim(rho:float, beta:float, L=1000) -> '([S,I,R], metrics)':
     start = timer()
     print('\n Running @ singleSim...')
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
-    runSim(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics())
+    run_simulation(pc=ModelParamSet(rho, beta, alpha=5, L=L), metrics=Metrics())
     elapsed = round(timer() - start, 2)
     print(f'\n@ singleSim DONE | {timerPrint(elapsed)}')
 

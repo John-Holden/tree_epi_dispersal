@@ -24,16 +24,16 @@ class ModelParamSet:  # Set model parameter and simulation fields
 
 class Metrics:   # Define which metrics are recorded over the simulation
     max_gen = None
-    save_end_time = False
+    save_end_time = True
     save_percolation = False
-    save_mortality_ratio = False
+    save_mortality_ratio = True
     track_R0_history = False
-    track_time_series = False
+    track_time_series = True
 
 
 class Settings:  # Simulation setup
     plot = False
-    show = True
+    show = False
     save = False
     plt_freq = 2
     verb = 2  # verbosity

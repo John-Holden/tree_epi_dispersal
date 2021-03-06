@@ -2,12 +2,48 @@ import numpy as np
 from typing import Union
 from tree_epi_dispersal.plot_methods import plt_sim_frame
 from parameters_and_settings import ModelParamSet, Settings, Metrics
-from tree_epi_dispersal.model_dynamics_helpers import set_R0trace, ijDistance, get_new_I, setFields
+from tree_epi_dispersal.model_dynamics_helpers import set_R0trace, ijDistance, setFields, ith_new_infections
 
 printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
 
-def runSim(rho: float, beta: float, ell: Union[float, tuple]) -> dict:
+def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_histories: dict) -> tuple:
+    """
+    Return a list of indices of all the newly infected trees, along with the max infectious order
+    """
+    alpha = ModelParamSet.alpha
+    model = ModelParamSet.model
+    R0_count = 0
+    num_S = len(S_ind[0])
+    newI_ind = [[], []]
+    max_generation = Settings.max_generation_bcd if R0_histories else None
+    max_gen_exceeded = False if R0_histories else None
+
+    # the maximum generation of infected trees considered
+    for i in range(len(I_ind[0])):
+        # for each infected site, find secondary infections
+        infected_site = [I_ind[0][i], I_ind[1][i]]
+        new_I = ith_new_infections(infected_site, S_ind, alpha, model, ell, beta)
+        newI_ind[0].extend(S_ind[0][new_I])  # extend the newly infected list
+        newI_ind[1].extend(S_ind[1][new_I])
+
+        if R0_histories:
+            print('tracking R0...')
+            #todo sort me out.....
+            assert 0
+            gen = update_R0trace(R0_histories, new_trace=[S_ind[0][new_I], S_ind[1][new_I]], site=infected_site)
+            if gen_limit is not None and gen <= max_generation:
+                max_gen_exceeded = False  # if a single tree, of less than or equal to, order gen exists continue simulation
+            continue
+
+        S_ind = tuple([np.delete(S_ind[0], new_I), np.delete(S_ind[1], new_I)])
+        R0_count += len(new_I[0])
+
+    assert R0_count == num_S - len(S_ind[0])
+    return tuple(newI_ind), max_gen_exceeded
+
+
+def run_simulation(rho: float, beta: float, ell: Union[float, tuple]) -> dict:
     """
 
     :param rho: tree density
@@ -76,12 +112,13 @@ def runSim(rho: float, beta: float, ell: Union[float, tuple]) -> dict:
         if Settings.plot and t % Settings.plt_freq == 0:
             plt_sim_frame(S, I, R, t+1, Settings.save, Settings.show)
 
+    # save required fields
     sim_result = {}
+
     if Metrics.track_R0_history:
         sim_result['R0_hist'] = R0_history
-    # clean metrics
-    if Metrics.track_time_series:
-        # metrics.endT = t
+
+    if Metrics.track_time_series:  # clean metrics
         S_ts = S_ts[:t]
         I_ts = I_ts[:t]
         R_ts = R_ts[:t]
