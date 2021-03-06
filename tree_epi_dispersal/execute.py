@@ -2,31 +2,34 @@
 Run ensembles averaging methods on HPC or local machine.
 """
 from tree_epi_dispersal.model_dynamics import runSim
-from typing import Type
 from timeit import default_timer as timer
-from parameters_and_settings import ModelParamSet, Settings, Metrics
+from parameters_and_settings import ParamsAndSetup
 
 
-def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
+def get_avg_R0(rho: float, beta: float) -> dict:
     """
     Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
     """
     from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
     ensemble_R0 = []
-    for N in range(runs):
-        if Settings.verbose:
-            print('Repeat : {}'.format(N))
-        out_metrics = runSim(pc=ModelParamSet(rho, beta), metrics=Metrics())[1]
+    ensemble_size = ParamsAndSetup['params'].ensemble_size
+
+    for repeat in range(ensemble_size):
+        if ParamsAndSetup['setup'].verbose:
+            print('Repeat : {}'.format(repeat))
+
+        out_metrics = runSim(rho, beta)
         R0_histories = R0_generation_mean(out_metrics._R0_histories)
         ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
     return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
 
 
-def R0_analysis(metrics:Type[Metrics], save=False) -> 'Success':
+def R0_analysis(save=False) -> 'Success':
     "Given metrics class, from singleSim, plot R0 as a function of generation"
     from tree_epi_dispersal.model_dynamics_helpers import  R0_generation_mean
     from tree_epi_dispersal.plot_methods import pltR0
-
+    Metrics = ParamsAndSetup['metrics']
+    metrics = Metrics()
     meanR0_vs_gen = R0_generation_mean(metrics.R0_histories)
     print(meanR0_vs_gen, 'mean R0 gen')
     pltR0(meanR0_vs_gen, save)

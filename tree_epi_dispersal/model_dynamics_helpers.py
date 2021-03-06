@@ -1,8 +1,11 @@
 """
 Methods used in the model and ensemble-averaging.
 """
-import math
+
+
 import numpy as np
+from parameters_and_settings import ModelParamSet
+
 
 ijDistance = lambda i, j : np.sqrt((i[0] - j[0])**2 + (i[1] - j[1])**2)  # where i and j are tuples
 modelSelector = lambda m, exponent : exponent if m == 'exp' else 0.5*exponent**2
@@ -16,53 +19,57 @@ def get_prS_I(model:str, beta:float, ell:float, dist: np.ndarray):
 
     return (1 -dist/1 )**(-ell) * beta
 
-def setFields(L:int, rho:float, epiC:int, r:int, init_n_infected:int, epiType='centralised') -> tuple:
+
+def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
     """
     Initialise the domain in terms of three fields, S,I and R.
     """
-    S = np.zeros(shape=[L, L])  # Init domain with density rho
-    S_tree_number = rho * L ** 2
+
+    S = np.zeros(shape=[ModelParamSet.L, ModelParamSet.L])  # init susceptible domain with density rho
+    S_tree_number = rho * ModelParamSet.L ** 2
     tree = 0
+
     while tree < S_tree_number:  # seed exact number in random locations
-        rand_row = np.random.randint(0, L - 1)
-        rand_col = np.random.randint(0, L - 1)
-        assert rand_row or rand_col < L
+        rand_row = np.random.randint(0, ModelParamSet.L - 1)
+        rand_col = np.random.randint(0, ModelParamSet.L - 1)
+
         if not S[rand_row, rand_col]:
             S[rand_row, rand_col] = 1
             tree += 1
 
-    I = np.zeros_like(S)  # Init Infected field
-    if epiType == 'centralised':
+    I = np.zeros_like(S)  # Infected field
+    r = ModelParamSet.r
+    if epicenter_init_cond == 'centralised':
+        epi_c = ModelParamSet.epi_center
         if r == 0:
-            I[epiC, epiC] = 1
+            I[epi_c, epi_c] = 1
         else:
-            I[epiC - r:epiC + r, epiC - r:epiC + r] = 2
+            I[epi_c - r:epi_c + r, epi_c - r:epi_c + r] = 2
         S[np.where(I)] = 0
 
-    elif epiType == 'distributed':
-        randRow = np.array(np.random.randint(1, I.shape[0], size=init_n_infected))
-        randCol = np.array(np.random.randint(1, I.shape[0], size=init_n_infected))
+    elif epicenter_init_cond == 'distributed':
+        num_init_infected = ModelParamSet.init_n_infected
+        randRow = np.array(np.random.randint(1, I.shape[0], size=num_init_infected))
+        randCol = np.array(np.random.randint(1, I.shape[0], size=num_init_infected))
         randInf = tuple([randRow, randCol])
         I[randInf] = 1
         S[randInf] = 0
 
     R = np.zeros_like(I)  # Init removed field
-    return S,I,R
+    return S, I, R
 
 
-def set_R0trace(I_ind: np.array, R0_hist:dict) -> None:
+def set_R0trace(I: np.array, R0_hist: dict) -> dict:
+    I_ind = np.where(I)
     for i in range(len(I_ind[0])):
         site = str(I_ind[0][i]) + str(I_ind[1][i])
         R0_hist[site] = [0, 0]
 
+    return R0_hist
 
-def update_R0trace(R0_hist:dict, new_trace:list, site: list) -> int:
+def update_R0trace(R0_hist: dict, new_trace: list, site: list) -> int:
     """
     Update the record of secondary infections, ie { str(site) : [R0, generation] }
-    :param R0_trace:
-    :param new_trace:
-    :param site:
-    :return:
     """
     infected_site_key = str(site[0]) + str(site[1])
     R0_hist[infected_site_key][0] += len(new_trace[0])  # update the source infected R0 count

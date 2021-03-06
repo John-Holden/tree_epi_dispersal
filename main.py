@@ -5,8 +5,9 @@ import numpy as np
 from parameters_and_settings import Settings
 
 from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir
-from tree_epi_dispersal.execute import run_R0_ensemble
+from tree_epi_dispersal.execute import get_avg_R0
 from tree_epi_dispersal.ensemble_simulation import parameter_space_iterator
+from parameters_and_settings import ParamsAndSetup
 
 
 def hpc_mode():
@@ -26,8 +27,8 @@ def hpc_mode():
     rhos = np.hstack([rho_small, rho_large])  #  len 20
     betas = np.arange(0.00000, 0.00032, 0.00002)  # len 16
 
-    parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ensemble_name, jobId=job_id,
-                             number_samples=2, rhos=rhos, betas=betas)
+    # parameter_space_iterator(method=g, ensemble_name=ensemble_name, jobId=job_id,
+    #                          number_samples=2, rhos=rhos, betas=betas)
 
 
 def local_mode():
@@ -37,10 +38,13 @@ def local_mode():
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
     mk_new_dir(ens_name)
-    N = 1
-    rhos = [0.01]
-    betas = [0.001]
-    parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ens_name, number_samples=N, rhos=rhos, betas=betas)
+
+    ParamsAndSetup['params'].rhos = [0.01, 0.005]
+    ParamsAndSetup['params'].betas = [0.001, 0.0005]
+    ParamsAndSetup['params'].ensemble_mode = True
+    ParamsAndSetup['params'].ensemble_size = 2
+
+    parameter_space_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 
 
 if __name__ == '__main__':
