@@ -31,13 +31,13 @@ class Metrics:
         self.extinction = False
         self.extinctionT = None
         self.percolation = False
-        self.mortality_ratio = 0
-        self.R0 = np.zeros(3000)
-        self.R0_histories = {}
-        self.maxD = np.zeros(3000)
-        self.numI = np.zeros(3000)
-        self.numS = np.zeros(3000)
-        self.numR = np.zeros(3000)
+        self.mortality_ratio = True
+        self._R0 = np.zeros(3000)
+        self._R0_histories = {}
+        self._maxD = np.zeros(3000)
+        self._numI = np.zeros(3000)
+        self._numS = np.zeros(3000)
+        self._numR = np.zeros(3000)
 
 
 class Settings:  # Simulation setup

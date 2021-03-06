@@ -21,14 +21,13 @@ def save_output(method:Callable):
         end = datetime.datetime.now() - start
         elapsed = time_print(end.seconds)
 
-
-        path_to_ensemble = f'{PATH_TO_DATA_STORE}{ensemble_name}/core_output/'
-        save_name = f"/core_{jobId}" if jobId else f"/local.json"
+        path_to_ensemble = f'{PATH_TO_DATA_STORE}{ensemble_name}'
+        save_name = f"core_{jobId}" if jobId else f"/local.json"
 
         if jobId == '1' or jobId is None:  # write elapsed time to file
             save_meta_data(path_to_ensemble=path_to_ensemble, elapsed_time=elapsed)
 
-        with open(f"{path_to_ensemble}{save_name}",
+        with open(f"{path_to_ensemble}/core_output/{save_name}",
                   'w') as json_file:  # save ensemble in json struct
             json.dump(ensemble_output, json_file, indent=4)
 

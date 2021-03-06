@@ -1,0 +1,29 @@
+
+______Ensemble_______
+
+Notes : '...' 
+ 
+___Model parameters___
+	 - scale constant /alpha : 5 (m)
+	 - domain size L x L : 1000
+	 - infectious lifetime T : 50 (steps)
+	 - simulation run time : 100 (steps)
+	 - infectivity /beta : 0
+	 - tree density /rho : 0
+	 - dispersal constant /ell : 1000 (m)
+	 - epiC : 500
+	 - initially infected : 1
+	 - initial epicenter radius : 0
+	 - dispersal model : gaussian
+
+ elapsed time : Simulation done in:  0 (Hrs): 0 (mins): 0 (s)
+
+___Settings___
+	 - plot : False
+	 - show : False
+	 - anim : False
+	 - pltFreq : 2
+	 - verbose : 3
+	 - ext : .png
+	 - boundary : False
+	 - gen_limit : 1

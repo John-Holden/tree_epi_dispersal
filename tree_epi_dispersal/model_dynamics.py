@@ -21,18 +21,18 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics]) -> '[S,I,R], metrics
         R_ = np.where(R)
         # update metrics
         if t == 0:
-            set_R0trace(I_, metrics.R0_histories)
-        metrics.numS[t] = len(S_[0])
-        metrics.numI[t] = len(I_[0])
-        metrics.numR[t] = len(R_[0])
-        if metrics.numI[t] == 0:  # BCD 1
-            metrics.extinction = True
-            metrics.extinctionT = t
+            set_R0trace(I_, metrics._R0_histories)
+        metrics._numS[t] = len(S_[0])
+        metrics._numI[t] = len(I_[0])
+        metrics._numR[t] = len(R_[0])
+        if metrics._numI[t] == 0:  # BCD 1
+            metrics._extinction = True
+            metrics._extinctionT = t
             break
 
-        metrics.maxD[t] = ijDistance(i=[pc.epiC, pc.epiC], j=I_).max() * pc.alpha
+        metrics._maxD[t] = ijDistance(i=[pc.epiC, pc.epiC], j=I_).max() * pc.alpha
         if not metrics.percolation:
-            if metrics.maxD.max() >= (pc.L/2 - 10) * pc.alpha:
+            if metrics._maxD.max() >= (pc.L/2 - 10) * pc.alpha:
                 metrics.percT = t
                 metrics.percolation = True
 
@@ -40,7 +40,7 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics]) -> '[S,I,R], metrics
             break
         # update fields S, I, R
         newI_ind, max_gen_exceeded = get_new_I(S_, I_, pc.beta, pc.alpha, pc.ell, pc.model,
-                                                   metrics.R0_histories, Settings.gen_limit)
+                                                   metrics._R0_histories, Settings.gen_limit)
 
         if Settings.gen_limit is not None and max_gen_exceeded:
             # if no remaining infected trees of order `gen-limit', terminate simulation
@@ -59,15 +59,15 @@ def runSim(pc: Type[ModelParamSet], metrics: Type[Metrics]) -> '[S,I,R], metrics
 
     # clean metrics
     metrics.endT = t
-    metrics.numS = metrics.numS[:t]
-    metrics.numI = metrics.numI[:t]
-    metrics.numR = metrics.numR[:t]
-    metrics.maxD = metrics.maxD[:t]
-    metrics.R0 = metrics.numI[1:]/metrics.numI[:-1]
+    metrics._numS = metrics._numS[:t]
+    metrics._numI = metrics._numI[:t]
+    metrics._numR = metrics._numR[:t]
+    metrics._maxD = metrics._maxD[:t]
+    metrics.R0 = metrics._numI[1:]/metrics._numI[:-1]
     if pc.rho == 0:
         metrics.mortality_ratio = 0
     else:
-        metrics.mortality_ratio = (metrics.numR[-1] + metrics.numI[-1]) / (pc.rho * pc.L**2)
+        metrics.mortality_ratio = (metrics._numR[-1] + metrics._numI[-1]) / (pc.rho * pc.L**2)
 
     if Settings.plot:
         pltSim(S=S, I=I, R=R, t=t, anim=Settings.anim, show=Settings.show)

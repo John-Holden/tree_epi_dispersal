@@ -29,6 +29,7 @@ def hpc_mode():
     parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ensemble_name, jobId=job_id,
                              number_samples=2, rhos=rhos, betas=betas)
 
+
 def local_mode():
     """
     Run ensemble simulation on local machine
@@ -40,6 +41,7 @@ def local_mode():
     rhos = [0.01]
     betas = [0.001]
     parameter_space_iterator(method=run_R0_ensemble, ensemble_name=ens_name, number_samples=N, rhos=rhos, betas=betas)
+
 
 if __name__ == '__main__':
     hpc_mode_ = len(sys.argv) > 1

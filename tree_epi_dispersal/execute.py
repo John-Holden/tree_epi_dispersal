@@ -17,7 +17,7 @@ def run_R0_ensemble(rho:float, beta:float, runs:int) -> dict:
         if Settings.verbose:
             print('Repeat : {}'.format(N))
         out_metrics = runSim(pc=ModelParamSet(rho, beta), metrics=Metrics())[1]
-        R0_histories = R0_generation_mean(out_metrics.R0_histories)
+        R0_histories = R0_generation_mean(out_metrics._R0_histories)
         ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
     return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}
 
