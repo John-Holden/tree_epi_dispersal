@@ -1,10 +1,9 @@
 import os
 import math
+
 from warnings import warn
 
-from parameters_and_settings import ModelParamSet, Settings
-
-perc = lambda p: 1 if p else 0
+from parameters_and_settings import ModelParamSet, Settings, Metrics
 
 
 def time_print(time_seconds: int, msg: str = 'Simulation done in: ') -> str:
@@ -53,13 +52,11 @@ def save_meta_data(path_to_ensemble: str, elapsed_time: str):
     Save model parameters, settings and metrics used in ensemble to file.
     """
 
-    model_params = vars(ModelParamSet(0, 0))
-
     with open(f'{path_to_ensemble}/info/ensemble_info.txt', 'w') as info_file:
         info_file.write("\n______Ensemble_______\n")
         info_file.write("\nNotes : '...' \n ")  # Note section to document results
         info_file.write("\n___Model parameters___\n")
-        for param, value in model_params.items():
+        for param, value in vars(ModelParamSet).items():
             if param == 'alpha':
                 param, value = f'scale constant /{param}', f'{value} (m)'
             elif param == 'ell':
@@ -106,6 +103,12 @@ def save_meta_data(path_to_ensemble: str, elapsed_time: str):
 
         info_file.write("\n___Settings___\n")
         for param, value in vars(Settings).items():
+            if param[0] == '_':
+                continue
+            info_file.write(f'\t - {param} : {value}\n')
+
+        info_file.write("\n___Metrics___\n")
+        for param, value in vars(Metrics).items():
             if param[0] == '_':
                 continue
             info_file.write(f'\t - {param} : {value}\n')

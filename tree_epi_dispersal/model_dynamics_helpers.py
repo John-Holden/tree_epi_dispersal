@@ -2,22 +2,57 @@
 Methods used in the model and ensemble-averaging.
 """
 
-
 import numpy as np
-from parameters_and_settings import ModelParamSet, Settings
+from tree_epi_dispersal.exceptions import InvalidDispersalSetup
+from typing import Union, Callable
+from parameters_and_settings import ModelParamSet
 
 
-ijDistance = lambda i, j : np.sqrt((i[0] - j[0])**2 + (i[1] - j[1])**2)  # where i and j are tuples
-modelSelector = lambda m, exponent : exponent if m == 'exp' else 0.5*exponent**2
+def assert_correct_dispersal():
+    """
+        Check dispersal configurations are correct
+        """
+    is_int_or_float = isinstance(ModelParamSet.ell, int) or isinstance(ModelParamSet.ell, float)
+    is_gauss = ModelParamSet.model == 'gaussian' and is_int_or_float
+    is_exp = ModelParamSet == 'exponential' and is_int_or_float
+    is_power_law = ModelParamSet.model == 'power_law' and isinstance(ModelParamSet.ell, tuple) and len(
+        ModelParamSet.ell) == 2
+
+    valid = is_exp or is_gauss or is_power_law
+    if not valid:
+        raise InvalidDispersalSetup(ModelParamSet.model, ModelParamSet.ell)
+
+    return True
 
 
-def get_prS_I(model:str, beta:float, ell:float, dist: np.ndarray):
-    if model == 'gauss':
-        return np.exp((-dist / ell))**2 * beta
-    elif model == 'exp':
-        return np.exp(-dist / ell) * beta
+def ij_distance(i: tuple, j: tuple) -> np.ndarray:
+    """
+    Find the distance between site i : (x, y) and coordinates j : (x1,...xN), (y1,...,yN)
+    """
+    return np.sqrt((i[0] - j[0]) ** 2 + (i[1] - j[1]) ** 2)
 
-    return (1 -dist/1 )**(-ell) * beta
+
+def model_selector() -> Callable:
+    """
+    Define the current dispersal model
+    :return: dispersal function
+    """
+    model = None
+
+    assert_correct_dispersal()
+
+    if ModelParamSet.model == 'gaussian':
+        def model(dist, beta, ell):
+            return np.exp(- (dist / ell) ** 2) * beta
+    elif ModelParamSet.model == 'exponential':
+        def model(dist, beta, ell):
+            return np.exp(-(dist / ell)) * beta
+    elif ModelParamSet.model == 'power_law':
+        def model(dist, beta, ell):
+            a, b = ell
+            return (1 + dist / a) ** (-b) * beta
+
+    return model
 
 
 def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
@@ -67,54 +102,67 @@ def set_R0trace(I: np.array, R0_hist: dict) -> dict:
 
     return R0_hist
 
-def update_R0trace(R0_hist: dict, new_trace: list, site: list) -> int:
-    """
-    Update the record of secondary infections, ie { str(site) : [R0, generation] }
-    """
-    infected_site_key = str(site[0]) + str(site[1])
-    R0_hist[infected_site_key][0] += len(new_trace[0])  # update the source infected R0 count
-    gen = R0_hist[infected_site_key][1] + 1
-    for i in range(len(new_trace[0])):
-        # initialise new, n^th order, infection into the record
-        R0_hist[str(new_trace[0][i]) + str(new_trace[1][i])] = [0, gen]
-    return gen
 
-
-def ith_new_infections(infected_site: list, S_ind:np.array, alpha:float, model:str, ell:float, beta:float) -> np.array:
+def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple) -> int:
     """
-    Get the new infections due to the ith infected tree
-    :param infected_site:
-    :param S_ind: Susceptible tree indices
-    :param alpha: lattice constant
-    :param model: type of dispersal
-    :param ell: dispersal constant
-    :param beta: infectivity parameter
+    Update the record of secondary infections, i.e:
+        - site_i_j : [R0, generation]
+        - site_i_j is a string-representation of coordinates
+        - R0 is the number of current total number of infections
+        - generation is the n^th order generation site_i_j became infected
+
+    :param R0_hist: store infection counts due to each infected, along with generation became infected
+    :param new_infected: indices of newly infected trees
+    :param site: coordinates (i, j) of source-infection
     :return:
     """
-    distance = ijDistance(i=infected_site, j=S_ind) * alpha  # (m) get distance of infected to all S-trees
-    exponent = modelSelector(m=model, exponent=(distance / ell))  # d/ell (dimensionless)
-    prS_I = np.exp(-exponent) * beta  # Gaussian or exponential dispersal
-    ijInfected = np.array(np.random.uniform(low=0, high=1, size=len(prS_I)) < prS_I).astype(int)
+    source_infection = str(site[0]) + str(site[1])
+    R0_hist[source_infection][0] += len(new_infected[0])  # update the source infected R0 count
+    generation_of_new_infection = R0_hist[source_infection][1] + 1
+    for i in range(len(new_infected[0])):
+        # initialise new, n^th order, infection into the record
+        R0_hist[str(new_infected[0][i]) + str(new_infected[1][i])] = [0, generation_of_new_infection]
+    return generation_of_new_infection
+
+
+def ith_new_infections(infected_site: tuple, S_ind: np.array, ell: float, beta: float,
+                       dispersal_model: Callable) -> np.array:
+    """
+    Get the new infections due to the ith infected tree
+    :param infected_site: coordinates (i, j) of infected site
+    :param S_ind: Susceptible tree indices
+    :param dispersal_model: type of dispersal
+    :param ell: dispersal constant(s)
+    :param beta: infectivity parameter
+    :return: indices of newly infected trees
+    """
+    alpha = ModelParamSet.alpha
+    # (m) get distance of infected to all S-trees
+    distance = ij_distance(i=infected_site, j=S_ind) * alpha
+    # probability of susceptible trees S transitioning to infected
+    pr_S_I = dispersal_model(distance, beta, ell)
+    ijInfected = np.array(np.random.uniform(low=0, high=1, size=len(pr_S_I)) < pr_S_I).astype(int)
     return np.where(ijInfected)
 
 
 def R0_generation_mean(R0_trace: dict) -> list:
     """
-    From the infectious history of all infected trees, calculate the generational mean.
+    From the infectious history of all infected trees, calculate the mean for each generation i.
     """
-    R0_count = [0 for i in range(1000)]
-    num_trees_in_gen = [0 for i in range(1000)]
+    R0_count = np.zeros(1000)
+    num_trees_in_gen = np.zeros(1000)
     max_gen_in_sim = 0
     for site in R0_trace:
-        inf_hist = R0_trace[site] # inf_hist[0]: the number of secondary infections, inf_hist[1]: the generation
+        # inf_hist[0]: the number of secondary infections, inf_hist[1]: the generation
+        inf_hist = R0_trace[site]
         R0_count[inf_hist[1]] += inf_hist[0]
         num_trees_in_gen[inf_hist[1]] += 1  # cumulatively add the number of trees in each infectious generation
-        if inf_hist[1] > max_gen_in_sim:
-            max_gen_in_sim = inf_hist[1]  # update the highest generation
+
+        max_gen_in_sim = inf_hist[1] if inf_hist[1] > max_gen_in_sim else max_gen_in_sim  # update the max generation
 
     R0_count = R0_count[:max_gen_in_sim]
     num_trees_in_gen = num_trees_in_gen[:max_gen_in_sim]
-    return [R0_c/num_trees for R0_c, num_trees in zip(R0_count, num_trees_in_gen)]  # Return mean infections / gen
+    return [R0_c / num_trees for R0_c, num_trees in zip(R0_count, num_trees_in_gen)]  # Return mean infections / gen
 
 
 def avg_multi_dim(arrays: np.array) -> np.array:
@@ -122,9 +170,8 @@ def avg_multi_dim(arrays: np.array) -> np.array:
     Average arrays with variable entries.
     :param arrays: variable number of array-like structs
     """
-    max_= max([len(arr) for arr in arrays])
+    max_ = max([len(arr) for arr in arrays])
     avg_arr = np.zeros(max_)
     for arr in arrays:
         avg_arr[0:len(arr)] += arr
-    return avg_arr/len(arrays)
-
+    return avg_arr / len(arrays)

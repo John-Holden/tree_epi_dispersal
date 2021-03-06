@@ -24,7 +24,7 @@ def hpc_mode():
 
     rho_small = np.arange(0.0, 0.031, 0.0025)
     rho_large = np.arange(0.04, 0.101, 0.01)
-    rhos = np.hstack([rho_small, rho_large])  #  len 20
+    rhos = np.hstack([rho_small, rho_large])  # len 20
     betas = np.arange(0.00000, 0.00032, 0.00002)  # len 16
 
     # parameter_space_iterator(method=g, ensemble_name=ensemble_name, jobId=job_id,
@@ -40,7 +40,7 @@ def local_mode():
     mk_new_dir(ens_name)
 
     ParamsAndSetup['params'].rhos = [0.01, 0.005]
-    ParamsAndSetup['params'].betas = [0.00005]
+    ParamsAndSetup['params'].betas = [0.05]
     ParamsAndSetup['params'].ensemble_mode = True
     ParamsAndSetup['params'].ensemble_size = 2
 
