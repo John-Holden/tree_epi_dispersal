@@ -1,6 +1,7 @@
 """
 Run ensembles averaging methods on HPC or local machine.
 """
+from typing import Union
 from tree_epi_dispersal.model_dynamics import runSim
 from timeit import default_timer as timer
 from parameters_and_settings import ParamsAndSetup
@@ -13,12 +14,12 @@ def get_avg_R0(rho: float, beta: float) -> dict:
     from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
     ensemble_R0 = []
     ensemble_size = ParamsAndSetup['params'].ensemble_size
-
+    ell = ParamsAndSetup['params'].ell
     for repeat in range(ensemble_size):
-        if ParamsAndSetup['setup'].verbose:
+        if ParamsAndSetup['setup'].verb >= 1:
             print('Repeat : {}'.format(repeat))
 
-        out_metrics = runSim(rho, beta)
+        out_metrics = runSim(rho, beta, ell)
         R0_histories = R0_generation_mean(out_metrics._R0_histories)
         ensemble_R0.append(R0_histories)  # the number of gen-0 secondary infections
     return {'mean_R0_vs_gen_core_ensemble': ensemble_R0}

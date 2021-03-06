@@ -6,7 +6,7 @@ from parameters_and_settings import Settings
 
 from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir
 from tree_epi_dispersal.execute import get_avg_R0
-from tree_epi_dispersal.ensemble_simulation import parameter_space_iterator
+from tree_epi_dispersal.ensemble_simulation import beta_rho_iterator
 from parameters_and_settings import ParamsAndSetup
 
 
@@ -40,11 +40,11 @@ def local_mode():
     mk_new_dir(ens_name)
 
     ParamsAndSetup['params'].rhos = [0.01, 0.005]
-    ParamsAndSetup['params'].betas = [0.001, 0.0005]
+    ParamsAndSetup['params'].betas = [0.00005]
     ParamsAndSetup['params'].ensemble_mode = True
     ParamsAndSetup['params'].ensemble_size = 2
 
-    parameter_space_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
+    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 
 
 if __name__ == '__main__':

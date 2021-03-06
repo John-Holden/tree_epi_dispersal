@@ -8,7 +8,7 @@ PATH_TO_DATA_STORE = f'{os.getcwd()}/temp_dat_store/'
 
 
 class ModelParamSet:  # Set model parameter and simulation fields
-    META_DATA = None
+    META_DATA = 'Exponentially distributed life-time dynamics : True'
     alpha = 5  # (m) lattice scale parameter
     L = 1000  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
     infected_lt = 50  # (steps) infectious life-time
@@ -22,34 +22,24 @@ class ModelParamSet:  # Set model parameter and simulation fields
     model = ['exponential', 'gaussian', 'power_law'][1]
 
 
-class Metrics:
-    endT = 0
+class Metrics:   # Define which metrics are recorded over the simulation
     max_gen = None
-
-    save_end_time = True
-    save_percolation = True
-    save_mortality_ratio = True
-
-    track_R0_history = True
-    track_time_series = True
-
-    # self._R0 = np.zeros(3000)
-    # self._R0_histories = {}
-    # self._maxD = np.zeros(3000)
-    # self._numI = np.zeros(3000)
-    # self._numS = np.zeros(3000)
-    # self._numR = np.zeros(3000)
+    save_end_time = False
+    save_percolation = False
+    save_mortality_ratio = False
+    track_R0_history = False
+    track_time_series = False
 
 
 class Settings:  # Simulation setup
     plot = False
-    show = False
-    anim = False
-    pltFreq = 2
-    verbose = 3  # verbosity
+    show = True
+    save = False
+    plt_freq = 2
+    verb = 2  # verbosity
     ext = '.png'
     percolation_bcd = False  # Terminate upon infection reaching the boundary
-    gen_limit = 1  # if no infected trees of order `gen-limit' are  left, end the simulation.
+    max_generation_bcd = False  # if no infected trees of order @ max_gen are  left, end the simulation.
 
 
 ParamsAndSetup = {'params': ModelParamSet, 'setup': Settings, 'metrics': Metrics}
