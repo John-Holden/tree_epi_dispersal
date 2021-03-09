@@ -1,4 +1,5 @@
 import os
+from typing import Union
 import numpy as np
 
 
@@ -50,6 +51,26 @@ def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
 
     print(f'Ensemble size {len(f_list) * len(core_means[box_size])}')
     return core_means
+
+
+def process_avg_R0_struct(R0_struct:dict, gen:Union[None, int] = None):
+    """"From the R0-history dictionary, process statistics of each infectious tree."""
+    R0_cumulative = np.zeros(1000)
+    counts = np.zeros(1000)
+    max_gen = 0
+    for site, R0_statistics in R0_struct.items():
+        R0_cumulative[R0_statistics[1]] += R0_statistics[0]
+        counts[R0_statistics[1]] += 1
+        max_gen = R0_statistics[1] if R0_statistics[1] > max_gen else max_gen
+
+    R0_cumulative = R0_cumulative[:max_gen]
+    counts = counts[:max_gen]
+    if gen is None:
+        return R0_cumulative / counts
+
+    return R0_cumulative[gen-1] / counts[gen-1]
+
+
 
 
 def process_avg_R0(R0_struct:list) -> float:

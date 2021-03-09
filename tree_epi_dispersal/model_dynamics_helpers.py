@@ -43,14 +43,14 @@ def model_selector() -> Callable:
 
     if ModelParamSet.model == 'gaussian':
         def model(dist, beta, ell):
-            return np.exp(- (dist / ell) ** 2) * beta
+            return beta * np.exp(-0.5*(dist/ell) ** 2)
     elif ModelParamSet.model == 'exponential':
         def model(dist, beta, ell):
-            return np.exp(-(dist / ell)) * beta
+            return beta * np.exp(-(dist/ell))
     elif ModelParamSet.model == 'power_law':
         def model(dist, beta, ell):
             a, b = ell
-            return (1 + dist / a) ** (-b) * beta
+            return beta * (1 + dist/a)**(-b)
 
     return model
 
@@ -94,16 +94,20 @@ def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
     return S, I, R
 
 
-def set_R0trace(I: np.array, R0_hist: dict) -> dict:
+def set_R0trace(I: np.array, R0_hist: dict, test_mode:bool) -> dict:
+    """
+    Initialise the R0-history dictionary -- record the generation of infect along with infection statistics
+        - site_ij : [generation_infected, infectious_count, [distance_of_infected_trees, `optional`]]
+    """
     I_ind = np.where(I)
     for i in range(len(I_ind[0])):
         site = str(I_ind[0][i]) + str(I_ind[1][i])
-        R0_hist[site] = [0, 0]
+        R0_hist[site] = [0, 0, []] if test_mode else [0, 0]
 
     return R0_hist
 
 
-def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple) -> int:
+def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: bool) -> int:
     """
     Update the record of secondary infections, i.e:
         - site_i_j : [R0, generation]
@@ -116,12 +120,21 @@ def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple) -> int:
     :param site: coordinates (i, j) of source-infection
     :return:
     """
+
     source_infection = str(site[0]) + str(site[1])
     R0_hist[source_infection][0] += len(new_infected[0])  # update the source infected R0 count
+    if test_mode:
+        # append extra information about the dispersal
+        R0_hist[source_infection][2].extend(ij_distance(site, new_infected)* ModelParamSet.alpha)
+
     generation_of_new_infection = R0_hist[source_infection][1] + 1
     for i in range(len(new_infected[0])):
         # initialise new, n^th order, infection into the record
         R0_hist[str(new_infected[0][i]) + str(new_infected[1][i])] = [0, generation_of_new_infection]
+
+
+
+
     return generation_of_new_infection
 
 

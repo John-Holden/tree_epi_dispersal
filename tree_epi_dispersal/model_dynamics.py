@@ -9,7 +9,7 @@ printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % fre
 
 
 def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_histories: dict,
-              dispersal_model: Callable) -> tuple:
+              dispersal_model: Callable, test_mode:bool) -> tuple:
     """
     Return a list of indices of all the newly infected trees, along with the max infectious order
     """
@@ -26,7 +26,7 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
         newI_ind[1].extend(S_ind[1][new_I])
         if R0_histories:
             S_trans_I = (S_ind[0][new_I], S_ind[1][new_I])  # sites S that will transition to the infected-state
-            generation_of_infected_site = update_R0trace(R0_histories, S_trans_I, infected_site)
+            generation_of_infected_site = update_R0trace(R0_histories, S_trans_I, infected_site, test_mode)
             # if no trees of `max_Gen` are left, terminate simulation
             if Settings.max_generation_bcd and generation_of_infected_site <= Settings.max_generation_bcd:
                 max_gen_exceeded = False
@@ -39,18 +39,19 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
     return tuple(newI_ind), max_gen_exceeded
 
 
-def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple]) -> dict:
+def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple],
+                   test_mode: bool=False) -> dict:
     """
 
     :param rho: tree density
-    :param beta: pathogen infectiviy
+    :param beta: a compound parameter representing pathogen infectiousness
     :param ell: pathogen dispersal parameter(s)
+    :param test_mode : if true, limit the dynamics so only the initially infected infect neighbours
     :return: sim_result, a dictionary of required fields.
     """
 
     S, I, R = setFields(rho)
-    R0_history = set_R0trace(I, {}) if Metrics.save_R0_history else None
-
+    R0_history = set_R0trace(I, {}, test_mode) if Metrics.save_R0_history else None
     t = None
     percolation_event = True
     all_infected_trees_died = False
@@ -75,7 +76,6 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple]) -> di
         R_ = np.where(R)
 
         num_infected = len(I_[0])
-
         # BCD 1, all infected trees dies/removed
         if not num_infected:
             all_infected_trees_died = True
@@ -95,7 +95,8 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple]) -> di
             break
 
         # update fields S, I, R
-        newI_ind, max_gen_exceeded = get_new_I(S_, I_, beta, ell, R0_history, model)
+        newI_ind, max_gen_exceeded = get_new_I(S_, I_, beta, ell, R0_history, model, test_mode)
+        newI_ind = ([], []) if test_mode else newI_ind
 
         if Settings.max_generation_bcd and max_gen_exceeded:
             # if no remaining infected trees of order `gen-limit', terminate simulation
@@ -114,6 +115,8 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple]) -> di
         if Settings.plot and t % Settings.plot_freq == 0:
             plt_sim_frame(S, I, R, t+1, Settings.save, Settings.show)
 
+
+    break_condition = 'bcd0: complete simulation time elapsed' if break_condition is None else break_condition
     # save required fields
     sim_result = {"termination": break_condition}
 
@@ -134,7 +137,7 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple]) -> di
         sim_result['mortality_ratio'] = (R_ts[-1] + I_ts[-1]) / (rho * ModelParamSet.L**2) if rho > 0 else 0
 
     if Settings.plot:
-        plt_sim_frame(S, I, R, t, Settings.save, Settings.show)
+        plt_sim_frame(S, I, R, t, Settings.save, Settings.show, msg=' : Out')
 
     if Metrics.save_percolation:
         sim_result['percolation'] = percolation_event

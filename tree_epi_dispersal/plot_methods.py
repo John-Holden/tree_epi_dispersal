@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from parameters_and_settings import PATH_TO_DATA_STORE
+from typing import Union, Iterable
+from parameters_and_settings import PATH_TO_DATA_STORE, ParamsAndSetup
 
 pltParams = {'figure.figsize': (7.5, 5.5),
              'axes.labelsize': 15,
@@ -61,13 +62,16 @@ def pltMaxD(maxD, dt):
     plt.show()
 
 
-def plt_sim_frame(S, I, R, t, save, show):  # plot simulation time-steps
-    pixSz = 15
+def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-steps
+    pixSz = 8
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.scatter(np.where(I)[1], np.where(I)[0], s=pixSz, c='red')
     ax.scatter(np.where(S)[1], np.where(S)[0], s=pixSz, c='green')
     ax.scatter(np.where(R)[1], np.where(R)[0], s=pixSz, c='lightgray')
-    ax.set_title( r'$t \approx ${} Days'.format(round(t, 3)), size=20)
+
+    title = r'$t \approx ${} Days '.format(round(t, 3))
+    title = title + msg if msg else title
+    ax.set_title(title, size=20)
     if save: # save to animations folder
         plt.savefig('./anim_dat/temp_frames/%s'%(frameLabel(step=t)))
     if show:
@@ -157,6 +161,35 @@ def plot_R0_ens_vs_L(save=False):
     plt.show()
 
 
+def plot_test_dispersal(test_scenario:dict, actual_dispersal:Iterable):
+    """
+    Plot the expected kernel against the observed kernel.
+    :param model:
+    :param ell:
+    :param actual_dispersal:
+    :return:
+    """
+    import numpy as np
+    import seaborn
+    from tree_epi_dispersal.model_dynamics_helpers import model_selector
+
+    # plt.hist(actual_dispersal)
+    seaborn.displot(actual_dispersal)
+    plt.ylabel('count')
+    plt.xlabel('dist')
+    plt.show()
+
+    beta = test_scenario['beta']
+    ell = test_scenario['ell']
+    L = test_scenario['L']
+
+    analytic_model = model_selector()
+    dist = np.linspace(-L/2, L/2, 100) * ParamsAndSetup['params'].alpha
+    center = test_scenario['epi_c'] * ParamsAndSetup['params'].alpha
+    plt.plot(dist, analytic_model(dist, beta, ell))
+    plt.ylabel('pr')
+    plt.xlabel('dist')
+    plt.show()
 
 
 

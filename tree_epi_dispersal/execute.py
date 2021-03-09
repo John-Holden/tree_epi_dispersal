@@ -27,7 +27,7 @@ def get_avg_R0(rho: float, beta: float) -> list:
     return ensemble_R0
 
 
-def single_sim(rho: float, beta: float, ell: Union[int, float, tuple] = 1000, model: str = 'gaussian',
+def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: str = 'gaussian',
                plot_show: bool = False, plot_freq: int = 10):
     """
     Run a single instance of the model."""
@@ -44,7 +44,20 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple] = 1000, mo
     start = datetime.datetime.now()
     print('\n Running @ singleSim...')
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
+    if ParamsAndSetup['setup'].verb:
+        print(f'\t Model : {ParamsAndSetup["params"].model}')
     out = run_simulation(rho, beta, ell)
+
+    if 'mortality_ratio' in out:
+        print(f'\t Mortality ratio : {out["mortality_ratio"]}')
+    if 'R0_hist' in out:
+        from tree_epi_dispersal.ensemble_analysis import process_avg_R0_struct
+        import matplotlib.pyplot as plt
+        R0_data = process_avg_R0_struct(out['R0_hist'])
+        plt.plot(R0_data)
+        plt.show()
+        print('\t mean R0 vs gen ', R0_data)
+
     elapsed = datetime.datetime.now() - start
     print(out['termination'])
     time_print(elapsed.seconds, msg='@ singleSim Done')
