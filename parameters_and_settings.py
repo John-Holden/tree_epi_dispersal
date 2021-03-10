@@ -80,7 +80,7 @@ class Settings:  # Simulation setup
 class EnsembleConfig:
     def __init__(self, config:str):
         if config == 'test':
-            self.betas = [0.0001, 0.0010]
+            self.betas = [0.0001, 0.0005]
             self.rhos = [0.01, 0.02]
 
         elif config == 'full':

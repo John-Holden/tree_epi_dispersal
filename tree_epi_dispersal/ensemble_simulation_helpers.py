@@ -30,17 +30,9 @@ def mk_new_dir(name: str, job_id:str):
     Save new directory to file.
     """
     if job_id == '1' or job_id is None:
-        dir1 = f'{os.getcwd()}/temp_dat_store/{name}'
-        sub_dir1 = f'{os.getcwd()}/temp_dat_store/{name}/info/'
-        sub_dir2 = f'{os.getcwd()}/temp_dat_store/{name}/core_output'
-
-        if os.path.exists(dir1):
-            msg = f'FileExistsWarn: {os.getcwd()}/temp_dat_store/{name}'
-            # raise FileExistsError(F'{os.getcwd()}/temp_dat_store/{name}')
-            warn(msg)
-            assert os.path.exists(sub_dir1)
-            assert os.path.exists(sub_dir2)
-            return
+        if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
+            raise FileExistsError(f'\n\t{os.getcwd()}/temp_dat_store/{name} \n'
+                                  f'\tClear ensemble cache dumbass!!')
 
         os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}')
         os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/info/')

@@ -59,7 +59,7 @@ def local_mode():
 if __name__ == '__main__':
     hpc_mode_ = len(sys.argv) > 1
     if 'HPC_MODE' in os.environ:
-        assert len(sys.argv)>1
+        assert len(sys.argv) > 1
         hpc_mode()
     else:
         local_mode()
