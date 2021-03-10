@@ -3,7 +3,6 @@ Run ensembles averaging methods on HPC or local machine.
 """
 import datetime
 from typing import Union
-from tree_epi_dispersal.model_dynamics_helpers import assert_correct_dispersal
 from tree_epi_dispersal.model_dynamics import run_simulation
 from tree_epi_dispersal.ensemble_simulation_helpers import time_print
 from parameters_and_settings import ParamsAndSetup
@@ -15,10 +14,11 @@ def get_avg_R0(rho: float, beta: float) -> list:
     """
     from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
     ensemble_R0 = []
+    assert ParamsAndSetup['params'].ensemble_size, 'Error, did not set ensemble-size!'
     ensemble_size = ParamsAndSetup['params'].ensemble_size
     ell = ParamsAndSetup['params'].ell
     for repeat in range(ensemble_size):
-        if ParamsAndSetup['setup'].verb >= 1:
+        if ParamsAndSetup['setup'].verb == 2:
             print('Repeat : {}'.format(repeat))
         sim_result = run_simulation(rho, beta, ell)
         mean_R0_per_gen = R0_generation_mean(sim_result['R0_hist'])
@@ -34,12 +34,12 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: st
 
     ParamsAndSetup['params'].ell = ell
     ParamsAndSetup['params'].model = model
+    ParamsAndSetup['params'].assert_correct_dispersal()
+
     if plot_show:
         ParamsAndSetup['setup'].plot = True
         ParamsAndSetup['setup'].show = True
         ParamsAndSetup['setup'].plot_freq = plot_freq
-
-    assert_correct_dispersal()
 
     start = datetime.datetime.now()
     print('\n Running @ singleSim...')

@@ -3,26 +3,25 @@ Methods used in the model and ensemble-averaging.
 """
 
 import numpy as np
-from tree_epi_dispersal.exceptions import InvalidDispersalSetup
-from typing import Union, Callable
+from typing import Callable
 from parameters_and_settings import ModelParamSet
 
 
-def assert_correct_dispersal():
-    """
-        Check dispersal configurations are correct
-        """
-    is_int_or_float = isinstance(ModelParamSet.ell, int) or isinstance(ModelParamSet.ell, float)
-    is_gauss = ModelParamSet.model == 'gaussian' and is_int_or_float
-    is_exp = ModelParamSet == 'exponential' and is_int_or_float
-    is_power_law = ModelParamSet.model == 'power_law' and isinstance(ModelParamSet.ell, tuple) and len(
-        ModelParamSet.ell) == 2
-
-    valid = is_exp or is_gauss or is_power_law
-    if not valid:
-        raise InvalidDispersalSetup(ModelParamSet.model, ModelParamSet.ell)
-
-    return True
+# def assert_correct_dispersal():
+#     """
+#         Check dispersal configurations are correct
+#         """
+#     is_int_or_float = isinstance(ModelParamSet.ell, int) or isinstance(ModelParamSet.ell, float)
+#     is_gauss = ModelParamSet.model == 'gaussian' and is_int_or_float
+#     is_exp = ModelParamSet == 'exponential' and is_int_or_float
+#     is_power_law = ModelParamSet.model == 'power_law' and isinstance(ModelParamSet.ell, tuple) and len(
+#         ModelParamSet.ell) == 2
+#
+#     valid = is_exp or is_gauss or is_power_law
+#     if not valid:
+#         raise InvalidDispersalSetup(ModelParamSet.model, ModelParamSet.ell)
+#
+#     return True
 
 
 def ij_distance(i: tuple, j: tuple) -> np.ndarray:
@@ -39,7 +38,7 @@ def model_selector() -> Callable:
     """
     model = None
 
-    assert_correct_dispersal()
+    ModelParamSet.assert_config()
 
     if ModelParamSet.model == 'gaussian':
         def model(dist, beta, ell):

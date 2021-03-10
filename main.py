@@ -1,8 +1,6 @@
 import os
 import sys
 import datetime
-import numpy as np
-from parameters_and_settings import Settings
 
 from tree_epi_dispersal.ensemble_simulation_helpers import mk_new_dir
 from tree_epi_dispersal.execute import get_avg_R0
@@ -16,19 +14,26 @@ def hpc_mode():
     """
     job_id = sys.argv[1:][0]
     date = datetime.datetime.today().strftime('%Y-%m-%d')
-    ensemble_name = date + '-hpc-R0-vs-rho'
-    if job_id == '1':
-        mk_new_dir(ensemble_name)
+    ens_name = date + '-hpc-R0-vs-rho'
+    mk_new_dir(ens_name, job_id)
 
-    assert Settings().plot == False
+    ParamsAndSetup['setup'].plot = False
+    ParamsAndSetup['setup'].verb = 0
+    ParamsAndSetup['setup'].max_generation_bcd = 3
 
-    rho_small = np.arange(0.0, 0.031, 0.0025)
-    rho_large = np.arange(0.04, 0.101, 0.01)
-    rhos = np.hstack([rho_small, rho_large])  # len 20
-    betas = np.arange(0.00000, 0.00032, 0.00002)  # len 16
+    Ensemble = ParamsAndSetup['ensemble']
+    ens_conf = Ensemble('test')
+    ParamsAndSetup['params'].rhos = ens_conf.rhos
+    ParamsAndSetup['params'].betas = ens_conf.betas
 
-    # parameter_space_iterator(method=g, ensemble_name=ensemble_name, jobId=job_id,
-    #                          number_samples=2, rhos=rhos, betas=betas)
+    ParamsAndSetup['params'].L = 1000
+    ParamsAndSetup['params'].ell = 195
+    ParamsAndSetup['params'].model = 'gaussian'
+    ParamsAndSetup['params'].ensemble_size = 1
+    ParamsAndSetup['params'].update_epi_c()
+    ParamsAndSetup['params'].assert_config()
+
+    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 
 
 def local_mode():
@@ -39,7 +44,11 @@ def local_mode():
     ens_name = date + '-local-ensemble'
     mk_new_dir(ens_name)
 
-    ParamsAndSetup['params'].rhos = [0.99, 0.005]
+    ParamsAndSetup['setup'].max_generation_bcd = 3
+    ParamsAndSetup['setup'].plot = False
+    ParamsAndSetup['setup'].verb = 1
+
+    ParamsAndSetup['params'].rhos = [0.01, 0.005]
     ParamsAndSetup['params'].betas = [0.05]
     ParamsAndSetup['params'].ensemble_mode = True
     ParamsAndSetup['params'].ensemble_size = 2
