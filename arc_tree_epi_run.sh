@@ -8,4 +8,4 @@ module load python-libs/3.1.0
 #$ -t 1-2
 export HPC_MODE=TRUE
 
-python3 run_HPC.py $SGE_TASK_ID
+python3 main.py $SGE_TASK_ID
