@@ -10,8 +10,8 @@ PATH_TO_DATA_STORE = f'{os.getcwd()}/temp_dat_store/'
 class ModelParamSet:  # Set model parameter and simulation fields
     META_DATA = 'Exponentially distributed life-time dynamics : True'
     alpha = 5  # (m) lattice scale parameter
-    L = 1000  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
-    infected_lt = 10000  # (steps) infectious life-time -- exponentially-distributed mean = 1/T
+    L = 500  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
+    infected_lt = 500  # (steps) infectious life-time -- exponentially-distributed mean = 1/T
     tend = 500  # (steps) final end time
     betas = [0.0005]  # (step^-1) infectivity-parameter
     rhos = [0.01]   # tree density

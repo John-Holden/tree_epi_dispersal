@@ -39,7 +39,7 @@ def local_mode():
     ens_name = date + '-local-ensemble'
     mk_new_dir(ens_name)
 
-    ParamsAndSetup['params'].rhos = [0.01, 0.005]
+    ParamsAndSetup['params'].rhos = [0.99, 0.005]
     ParamsAndSetup['params'].betas = [0.05]
     ParamsAndSetup['params'].ensemble_mode = True
     ParamsAndSetup['params'].ensemble_size = 2

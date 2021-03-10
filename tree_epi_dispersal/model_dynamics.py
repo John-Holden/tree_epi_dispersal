@@ -96,7 +96,7 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple],
 
         # update fields S, I, R
         newI_ind, max_gen_exceeded = get_new_I(S_, I_, beta, ell, R0_history, model, test_mode)
-        newI_ind = ([], []) if test_mode else newI_ind
+        newI_ind = ([], []) if test_mode else newI_ind  # if test mode prevent secondary infections from infecting
 
         if Settings.max_generation_bcd and max_gen_exceeded:
             # if no remaining infected trees of order `gen-limit', terminate simulation
@@ -114,7 +114,6 @@ def run_simulation(rho: float, beta: float, ell: Union[int, float, tuple],
 
         if Settings.plot and t % Settings.plot_freq == 0:
             plt_sim_frame(S, I, R, t+1, Settings.save, Settings.show)
-
 
     break_condition = 'bcd0: complete simulation time elapsed' if break_condition is None else break_condition
     # save required fields

@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/tree_epi_dispersal/execute.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/tree_epi_dispersal/model_dynamics.py">
           <value>
             <Attribute>

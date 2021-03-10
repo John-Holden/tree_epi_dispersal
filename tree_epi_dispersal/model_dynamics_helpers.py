@@ -65,8 +65,8 @@ def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
     tree = 0
 
     while tree < S_tree_number:  # seed exact number in random locations
-        rand_row = np.random.randint(0, ModelParamSet.L - 1)
-        rand_col = np.random.randint(0, ModelParamSet.L - 1)
+        rand_row = np.random.randint(0, ModelParamSet.L)
+        rand_col = np.random.randint(0, ModelParamSet.L)
 
         if not S[rand_row, rand_col]:
             S[rand_row, rand_col] = 1
@@ -125,15 +125,12 @@ def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: b
     R0_hist[source_infection][0] += len(new_infected[0])  # update the source infected R0 count
     if test_mode:
         # append extra information about the dispersal
-        R0_hist[source_infection][2].extend(ij_distance(site, new_infected)* ModelParamSet.alpha)
+        R0_hist[source_infection][2].extend(ij_distance(site, new_infected) * ModelParamSet.alpha)
 
     generation_of_new_infection = R0_hist[source_infection][1] + 1
     for i in range(len(new_infected[0])):
         # initialise new, n^th order, infection into the record
         R0_hist[str(new_infected[0][i]) + str(new_infected[1][i])] = [0, generation_of_new_infection]
-
-
-
 
     return generation_of_new_infection
 
