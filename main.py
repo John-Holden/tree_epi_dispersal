@@ -22,10 +22,9 @@ def hpc_mode():
     ParamsAndSetup['setup'].max_generation_bcd = 3
 
     Ensemble = ParamsAndSetup['ensemble']
-    ens_conf = Ensemble('test')
+    ens_conf = Ensemble('part')
     ParamsAndSetup['params'].rhos = ens_conf.rhos
     ParamsAndSetup['params'].betas = ens_conf.betas
-
     ParamsAndSetup['params'].L = 1000
     ParamsAndSetup['params'].ell = 195
     ParamsAndSetup['params'].model = 'gaussian'

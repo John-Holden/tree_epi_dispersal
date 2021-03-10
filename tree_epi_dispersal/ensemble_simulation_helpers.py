@@ -115,5 +115,5 @@ def write_time(path_to_ensemble: str, time_elapsed: str, job_id:str):
             info_file.write(f"\n {time_elapsed}\n")
             return
 
-        info_file.write(f"\n core {job_id} | {time_elapsed}\n")
+        info_file.write(f"core {job_id} | {time_elapsed}\n")
 

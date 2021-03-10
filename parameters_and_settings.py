@@ -89,6 +89,15 @@ class EnsembleConfig:
             self.rhos = np.hstack([rho_small, rho_large])  # len 20
             self.betas = np.arange(0.00000, 0.00032, 0.00002)  # len 16
 
+        elif config == 'part':
+            self.betas = [0.0001, 0.001]
+            rho_small = np.arange(0.0, 0.031, 0.0025)  # low-density trees
+            rho_large = np.arange(0.04, 0.101, 0.01)
+            self.rhos = np.hstack([rho_small, rho_large])  # len 20
+
+        else:
+            raise TypeError
+
 
 ParamsAndSetup = {'params': ModelParamSet, 'setup': Settings, 'metrics': Metrics, 'ensemble':EnsembleConfig}
 
