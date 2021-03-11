@@ -30,7 +30,7 @@ def mk_new_dir(name: str, job_id:str):
     """
     Save new directory to file.
     """
-    if job_id == '1' or job_id is None:
+    if job_id in ['1', 'local']:
         if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
             raise FileExistsError(f'\n\t{os.getcwd()}/temp_dat_store/{name} \n'
                                   f'\tClear ensemble cache dumbass!!')
@@ -126,5 +126,5 @@ def write_time(path_to_ensemble: str, time_elapsed: str, job_id:str):
             info_file.write(f"\n {time_elapsed}\n")
             return
 
-        info_file.write(f"\n core {job_id} | {time_elapsed}\n")
+        info_file.write(f"core {job_id} | {time_elapsed}\n")
 

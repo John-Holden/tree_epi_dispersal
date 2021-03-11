@@ -22,18 +22,17 @@ def hpc_mode():
     ParamsAndSetup['setup'].max_generation_bcd = 3
 
     Ensemble = ParamsAndSetup['ensemble']
-    ens_conf = Ensemble('test')
+    ens_conf = Ensemble('part')
     ParamsAndSetup['params'].rhos = ens_conf.rhos
     ParamsAndSetup['params'].betas = ens_conf.betas
-
     ParamsAndSetup['params'].L = 1000
     ParamsAndSetup['params'].ell = 195
     ParamsAndSetup['params'].model = 'gaussian'
-    ParamsAndSetup['params'].ensemble_size = 1
+    ParamsAndSetup['params'].ensemble_size = 5
     ParamsAndSetup['params'].update_epi_c()
     ParamsAndSetup['params'].assert_config()
 
-    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
+    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name, job_id=job_id)
 
 
 def local_mode():
@@ -42,7 +41,8 @@ def local_mode():
     """
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
-    mk_new_dir(ens_name)
+
+    mk_new_dir(ens_name, job_id='local')
 
     ParamsAndSetup['setup'].max_generation_bcd = 3
     ParamsAndSetup['setup'].plot = False
@@ -51,7 +51,7 @@ def local_mode():
     ParamsAndSetup['params'].rhos = [0.01, 0.005]
     ParamsAndSetup['params'].betas = [0.05]
     ParamsAndSetup['params'].ensemble_mode = True
-    ParamsAndSetup['params'].ensemble_size = 2
+    ParamsAndSetup['params'].ensemble_size = 1
 
     beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 
