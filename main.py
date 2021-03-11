@@ -32,7 +32,7 @@ def hpc_mode():
     ParamsAndSetup['params'].update_epi_c()
     ParamsAndSetup['params'].assert_config()
 
-    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
+    beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name, job_id=job_id)
 
 
 def local_mode():

@@ -11,23 +11,21 @@ def save_output(ensemble_averager: Callable):
     """
     for a given ensemble averaging method, save results and log executed time.
     """
-    def wrapper(execute_model: Callable, ensemble_name: str, jobId: Union[None, str] = None):
+   
+    def wrapper(execute_model: Callable, ensemble_name: str, job_id: Union[None, str] = None):
         """
          Wrapper to save output and display time taken.
         """
-
         start = datetime.datetime.now()
         path_to_ensemble = f'{PATH_TO_DATA_STORE}{ensemble_name}'
-        save_name = f"core_{jobId}" if jobId else f"/local.json"
+        save_name = f"core_{job_id}.json" if job_id else f"/local.json"
 
-        save_meta_data(path_to_ensemble, jobId)
-
+        save_meta_data(path_to_ensemble, job_id)
         ensemble_output = ensemble_averager(execute_model)
-
         end = datetime.datetime.now() - start
         elapsed = time_print(end.seconds)
 
-        write_time(path_to_ensemble, elapsed, jobId)
+        write_time(path_to_ensemble, elapsed, job_id)
 
         with open(f"{path_to_ensemble}/core_output/{save_name}",
                   'w') as json_file:  # save ensemble in json struct
