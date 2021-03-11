@@ -28,7 +28,7 @@ def hpc_mode():
     ParamsAndSetup['params'].L = 1000
     ParamsAndSetup['params'].ell = 195
     ParamsAndSetup['params'].model = 'gaussian'
-    ParamsAndSetup['params'].ensemble_size = 1
+    ParamsAndSetup['params'].ensemble_size = 5
     ParamsAndSetup['params'].update_epi_c()
     ParamsAndSetup['params'].assert_config()
 
