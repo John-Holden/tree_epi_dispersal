@@ -41,7 +41,8 @@ def local_mode():
     """
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = date + '-local-ensemble'
-    mk_new_dir(ens_name)
+
+    mk_new_dir(ens_name, job_id='local')
 
     ParamsAndSetup['setup'].max_generation_bcd = 3
     ParamsAndSetup['setup'].plot = False
@@ -50,7 +51,7 @@ def local_mode():
     ParamsAndSetup['params'].rhos = [0.01, 0.005]
     ParamsAndSetup['params'].betas = [0.05]
     ParamsAndSetup['params'].ensemble_mode = True
-    ParamsAndSetup['params'].ensemble_size = 2
+    ParamsAndSetup['params'].ensemble_size = 1
 
     beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 

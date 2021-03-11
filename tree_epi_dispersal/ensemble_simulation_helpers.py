@@ -29,7 +29,7 @@ def mk_new_dir(name: str, job_id:str):
     """
     Save new directory to file.
     """
-    if job_id == '1' or job_id is None:
+    if job_id in ['1', 'local']:
         if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
             raise FileExistsError(f'\n\t{os.getcwd()}/temp_dat_store/{name} \n'
                                   f'\tClear ensemble cache dumbass!!')
