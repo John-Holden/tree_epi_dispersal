@@ -1,0 +1,11 @@
+## Running job 3170414.24 on host dc1s8b1b.arc3.leeds.ac.uk
+##
+## Resources granted:
+##
+## h_vmem = 1G
+## h_rt   = 48:00:00
+## disk   = 1G
+
+Running @Get Parameter Space...
+
+@ Ensemble Run DONE | 15 (Hrs): 8 (mins): 20 (s)

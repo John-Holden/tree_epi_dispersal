@@ -1,5 +1,6 @@
 import os
 import math
+import datetime
 
 from warnings import warn
 
@@ -39,6 +40,16 @@ def mk_new_dir(name: str, job_id:str):
         os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/core_output')
 
     return
+
+
+# def timer_save(data, start_time):
+#     import datetime
+#     elapsed = datetime.datetime.now() - start_time
+#     assert elapsed.seconds
+#     if elapsed.seconds % 3600 == 0:
+#         print('saving, more than an hour...')
+#
+#     print(elapsed.seconds)
 
 
 def save_meta_data(path_to_ensemble: str, job_id:str):

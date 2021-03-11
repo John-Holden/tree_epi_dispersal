@@ -1,0 +1,12 @@
+______Simulation Parameters_______
+model : exp
+alpha : 5(m)
+ell : 25(m)
+L : 400X400
+rhos : [0.0, 0.10000000000000001] | 51
+betas : [0.0, 0.02] | 11
+core repeats : 4
+percolation boundary : True
+Notes : '~ double the gaussian. at this point i don't have an answer as to why the r0 for the exp model is ~2 x r0 for
+           the gaussian, given that the analytical r0 should integrate to the same ? anyway there you have it.
+           Exp roughly 2 \times faster'
