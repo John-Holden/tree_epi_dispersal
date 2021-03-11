@@ -51,6 +51,8 @@ def save_meta_data(path_to_ensemble: str, job_id:str):
             info_file.write("\nNotes : '...' \n ")  # Note section to document results
             info_file.write("\n___Model parameters___\n")
             for param, value in vars(ModelParamSet).items():
+                if param[0] == '_':
+                    continue
                 if param == 'alpha':
                     param, value = f'scale constant /{param}', f'{value} (m)'
                 elif param == 'ell':
