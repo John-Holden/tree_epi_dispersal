@@ -1,0 +1,13 @@
+______Simulation Parameters_______
+Ensemble averaged metrics:  : ['R0_trace', 'extinction_time', 'mortality_ratio']
+Time stamp : 2020-11-25 20:05:47.837433
+model : gaussian
+alpha : 5(m)
+ell : 1000(m)
+L : 1000 X 1000
+rhos : [0.0, 0.10000000000000001] | 11
+betas : [3.0000000000000001e-05, 6.0000000000000002e-05] | 2
+core repeats : 3
+initial epicenter radius  : 0
+percolation boundary : False
+Notes : '...' 
