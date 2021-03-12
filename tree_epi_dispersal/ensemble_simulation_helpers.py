@@ -1,5 +1,6 @@
 import os
 import math
+import datetime
 
 from warnings import warn
 
@@ -41,6 +42,16 @@ def mk_new_dir(name: str, job_id:str):
     return
 
 
+# def timer_save(data, start_time):
+#     import datetime
+#     elapsed = datetime.datetime.now() - start_time
+#     assert elapsed.seconds
+#     if elapsed.seconds % 3600 == 0:
+#         print('saving, more than an hour...')
+#
+#     print(elapsed.seconds)
+
+
 def save_meta_data(path_to_ensemble: str, job_id:str):
     """
     Save model parameters, settings and metrics used in ensemble to file.
@@ -51,6 +62,8 @@ def save_meta_data(path_to_ensemble: str, job_id:str):
             info_file.write("\nNotes : '...' \n ")  # Note section to document results
             info_file.write("\n___Model parameters___\n")
             for param, value in vars(ModelParamSet).items():
+                if param[0] == '_':
+                    continue
                 if param == 'alpha':
                     param, value = f'scale constant /{param}', f'{value} (m)'
                 elif param == 'ell':

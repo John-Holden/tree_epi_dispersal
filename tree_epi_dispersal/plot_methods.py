@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Union, Iterable
-from parameters_and_settings import PATH_TO_DATA_STORE, ParamsAndSetup
+from parameters_and_settings import PATH_TO_TEMP_STORE, ParamsAndSetup
 
 pltParams = {'figure.figsize': (7.5, 5.5),
              'axes.labelsize': 15,
@@ -149,8 +149,8 @@ def plot_R0_ens_vs_L(save=False):
 
     fig, ax = plt.subplots(figsize=(7.5, 5.5))
     for data_set in data_sets:
-        box_sizes = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/info/box_sizes.npy')[::-1]
-        alpha_5 = np.load(f'{PATH_TO_DATA_STORE}/{data_set}/R0_vs_L_alpha_{data_sets[data_set]}m.npy')
+        box_sizes = np.load(f'{PATH_TO_TEMP_STORE}/{data_set}/info/box_sizes.npy')[::-1]
+        alpha_5 = np.load(f'{PATH_TO_TEMP_STORE}/{data_set}/R0_vs_L_alpha_{data_sets[data_set]}m.npy')
         ax.plot(box_sizes, alpha_5, label=rf'$\alpha = $ {data_sets[data_set].replace("_", ".")}')
         ax.scatter(box_sizes, alpha_5)
 

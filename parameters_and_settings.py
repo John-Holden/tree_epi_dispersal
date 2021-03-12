@@ -5,7 +5,8 @@ import os
 import numpy as np
 from tree_epi_dispersal.exceptions import InvalidDispersalSetup
 
-PATH_TO_DATA_STORE = f'{os.getcwd()}/temp_dat_store/'
+PATH_TO_TEMP_STORE = f'{os.getcwd()}/temp_dat_store/'
+PATH_TO_DATA_STORE = f'{os.getcwd()}/data_store/'
 
 
 class ModelParamSet:  # Set model parameter and simulation fields

@@ -3,7 +3,7 @@ import datetime
 from typing import Callable, Union
 
 from collections import defaultdict
-from parameters_and_settings import ParamsAndSetup, PATH_TO_DATA_STORE
+from parameters_and_settings import ParamsAndSetup, PATH_TO_TEMP_STORE
 from tree_epi_dispersal.ensemble_simulation_helpers import save_meta_data, time_print, write_time
 
 
@@ -17,7 +17,7 @@ def save_output(ensemble_averager: Callable):
          Wrapper to save output and display time taken.
         """
         start = datetime.datetime.now()
-        path_to_ensemble = f'{PATH_TO_DATA_STORE}{ensemble_name}'
+        path_to_ensemble = f'{PATH_TO_TEMP_STORE}{ensemble_name}'
         save_name = f"core_{job_id}.json" if job_id else f"/local.json"
 
         save_meta_data(path_to_ensemble, job_id)

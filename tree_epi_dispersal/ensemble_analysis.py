@@ -1,6 +1,7 @@
 import os
-from typing import Union
+import json
 import numpy as np
+from typing import Union
 
 
 def collect_data(name: str, field: str) -> 'np.ndarray | ensemble average of field f':
@@ -71,22 +72,31 @@ def process_avg_R0_struct(R0_struct:dict, gen:Union[None, int] = None):
     return R0_cumulative[gen-1] / counts[gen-1]
 
 
+def R0_statistics_selector(R0_gens: list, nth_gen: int = 1):
+    """
+    Return the desired statistics from the R0_vs_gen data.
+    :param R0_gens: [ avg(R0_1), avg(R0_2),...,avg(R0_N)]
+    :param nth_gen: the type of stats we desire from the processed ensemble
+    :return:
+    """
+    return sum(R0_gens[:nth_gen]) / len(R0_gens[:nth_gen])
 
 
-def process_avg_R0(R0_struct:list) -> float:
+def process_avg_R0(R0_struct: list, process_nth_gen: int) -> float:
     R0_av = 0
     for R0_vs_gen in R0_struct:
         if len(R0_vs_gen):  # zero-length
-            R0_av += R0_vs_gen[0]  # sum first-generation R0
+            R0_av += R0_statistics_selector(R0_vs_gen, process_nth_gen)  # sum upto n^th-generation R0
 
     return R0_av/len(R0_struct)
 
-def write_package(ensemble: np.ndarray, path_to_ens:str):
+
+def write_package(ensemble: np.ndarray, path_to_ens: str):
     """
     Create folder to be used for land-scape control code-base.
     """
     path_to_save = f'{path_to_ens}/landscape_control_package'
-    if os.path.exists(f'{path_to_ens}/landscape_control_input'):
+    if os.path.exists(f'{path_to_ens}/landscape_control_package'):
         print(f'Warning, folder {path_to_ens}/landscape_control_input already exists!')
         return
     else:
@@ -98,22 +108,22 @@ def write_package(ensemble: np.ndarray, path_to_ens:str):
         shutil.copy(f'{path_to_ens}/info/betas.npy', f'{path_to_save}/betas.npy')
 
 
-def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
-                        produce_landscape_control_package:bool) -> np.ndarray:
+def process_R0_ensemble(path_to_ensemble: str, produce_landscape_control_package: bool,
+                        process_nth_gen: int = 1) -> np.ndarray:
     """Load json, for each rho-beta key find R0, then average over of all core results. """
-    import json
     rhos = np.load(f'{path_to_ensemble}/info/rhos.npy')
     betas = np.load(f'{path_to_ensemble}/info/betas.npy')
 
-    if os.path.exists(f'{path_to_ensemble}/R0-vs-rho.npy'): # File already processed.
+    if os.path.exists(f'{path_to_ensemble}/R0-vs-rho.npy'):  # File already processed.
         ensemble = np.load(f'{path_to_ensemble}/R0-vs-rho.npy')
 
     else:  # Iterate through all core output, collect and average.
         f_list = sorted(os.listdir(f'{path_to_ensemble}/core_output/'))
         with open(f'{path_to_ensemble}/info/ensemble_info.txt') as ens_info:
             for line in ens_info.readlines():
-                if 'core repeats' in line:
-                    number_of_core_repeats = int(line.split()[-1])
+                if 'ensemble_size' in line:
+                    number_of_core_repeats = int(line.split(' ')[-1])
+
         ensemble_size = len(f_list) * number_of_core_repeats
 
         print(f'Ensemble size = {ensemble_size}')
@@ -127,12 +137,13 @@ def process_R0_ensemble(path_to_ensemble:str, field_of_interest:str,
                 core_result = json.load(f)
                 for i, beta in enumerate(betas):
                     for j, rho in enumerate(rhos):
-                        R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}'][field_of_interest]   # list of lists
-                        ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens)  # find avg R0 for (rho, beta)
+                        R0_vs_gen_v_ens = core_result[f'rho_{rho}_beta_{beta}']
+                        ensemble[i, j] += process_avg_R0(R0_vs_gen_v_ens, process_nth_gen)  # find avg R0 for (rho, beta)
 
         ensemble = ensemble/len(f_list)
 
     if produce_landscape_control_package:
+
         write_package(ensemble, path_to_ensemble)
 
     return ensemble, rhos, betas
