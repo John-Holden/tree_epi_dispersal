@@ -3,7 +3,7 @@ Run ensembles averaging methods on HPC or local machine.
 """
 import datetime
 from typing import Union
-from tree_epi_dispersal.model_dynamics import run_simulation
+from tree_epi_dispersal.model_dynamics import run_SIR
 from tree_epi_dispersal.ensemble_simulation_helpers import time_print
 from parameters_and_settings import ParamsAndSetup
 
@@ -20,7 +20,7 @@ def get_avg_R0(rho: float, beta: float) -> list:
     for repeat in range(ensemble_size):
         if ParamsAndSetup['setup'].verb == 2:
             print('Repeat : {}'.format(repeat))
-        sim_result = run_simulation(rho, beta, ell)
+        sim_result = run_SIR(rho, beta, ell)
         mean_R0_per_gen = R0_generation_mean(sim_result['R0_hist'])
         ensemble_R0.append(mean_R0_per_gen)  # the number of gen-0 secondary infections
 
@@ -46,7 +46,7 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: st
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
     if ParamsAndSetup['setup'].verb:
         print(f'\t Model : {ParamsAndSetup["params"].model}')
-    out = run_simulation(rho, beta, ell)
+    out = run_SIR(rho, beta, ell)
 
     if 'mortality_ratio' in out:
         print(f'\t Mortality ratio : {out["mortality_ratio"]}')
