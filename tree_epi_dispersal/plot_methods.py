@@ -10,7 +10,8 @@ pltParams = {'figure.figsize': (7.5, 5.5),
              'legend.fontsize': 'x-large'}
 plt.rcParams.update(pltParams)
 
-#-------------------Simulation plotting methods-------------------#
+
+# -------------------Simulation plotting methods-------------------#
 def frameLabel(step):
     if step < 10:
         return '000' + str(step)
@@ -20,6 +21,7 @@ def frameLabel(step):
         return '0' + str(step)
     if step < 10000:
         return str(step)
+
 
 def pltSIR(S, I, R, dt):
     t = np.arange(0, len(S)) * dt
@@ -32,9 +34,9 @@ def pltSIR(S, I, R, dt):
 
 def pltR0(R0_v_gen, save=False, print_out=True):
     if len(R0_v_gen) == 0:
-        plt.plot([0, 1],  [0, 0], c='r', ls='--', label='Below threshold')
+        plt.plot([0, 1], [0, 0], c='r', ls='--', label='Below threshold')
     else:
-        t = np.arange(1, len(R0_v_gen)+1, 1)
+        t = np.arange(1, len(R0_v_gen) + 1, 1)
         plt.plot(t, R0_v_gen)
         plt.scatter(t, R0_v_gen)
         plt.plot([1, t[-1]], [1, 1], c='r', ls='--')
@@ -51,7 +53,7 @@ def pltR0(R0_v_gen, save=False, print_out=True):
 def pltLG(S, I, R, dt):
     t = np.arange(0, len(S)) * dt
     plt.plot(t, S, c='green', label='S')
-    plt.plot(t, I+R, c='red', label='I+R')
+    plt.plot(t, I + R, c='red', label='I+R')
     plt.legend()
     plt.show()
 
@@ -72,16 +74,16 @@ def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-ste
     title = r'$t \approx ${} Days '.format(round(t, 3))
     title = title + msg if msg else title
     ax.set_title(title, size=20)
-    if save: # save to animations folder
-        plt.savefig('./anim_dat/temp_frames/%s'%(frameLabel(step=t)))
+    if save:  # save to animations folder
+        plt.savefig('./anim_dat/temp_frames/%s' % (frameLabel(step=t)))
     if show:
         plt.show()
     elif not show:
         plt.close()
 
 
-#-------------------Ensemble plotting-------------------#
-def plot_rho_beta_ensemble_1D(ensemble:np.ndarray, rhos:np.ndarray, betas:np.ndarray):
+# ------------------- Ensemble plotting -------------------#
+def plot_rho_beta_ensemble_1D(ensemble: np.ndarray, rhos: np.ndarray, betas: np.ndarray):
     """
     For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
     """
@@ -109,7 +111,7 @@ def plot1D_mean(rhos, betas, ens_mean, save=False):
     plt.show()
 
 
-def plot_R0_ens_vs_gen(path_to_ensemble:str, ensemble_mean:dict, save=False):
+def plot_R0_ens_vs_gen(path_to_ensemble: str, ensemble_mean: dict, save=False):
     """
     Process ensemble_core_averaged R0 history and plot generational mean R0
     """
@@ -126,7 +128,7 @@ def plot_R0_ens_vs_gen(path_to_ensemble:str, ensemble_mean:dict, save=False):
     for i, box_size in enumerate(box_sizes):
         R0_vs_gen = avg_multi_dim(ensemble_mean[str(box_size)])[:21]
         R0_v_L[i] = R0_vs_gen[0]
-        gen = np.arange(1, len(R0_vs_gen)+1)
+        gen = np.arange(1, len(R0_vs_gen) + 1)
         ax.plot(gen, R0_vs_gen, label=f'{box_size}  {box_size}')
         ax.scatter(gen, R0_vs_gen)
 
@@ -161,7 +163,7 @@ def plot_R0_ens_vs_L(save=False):
     plt.show()
 
 
-def plot_test_dispersal(test_scenario:dict, actual_dispersal:Iterable):
+def plot_test_dispersal(test_scenario: dict, actual_dispersal: Iterable):
     """
     Plot the expected kernel against the observed kernel.
     :param model:
@@ -184,12 +186,9 @@ def plot_test_dispersal(test_scenario:dict, actual_dispersal:Iterable):
     L = test_scenario['L']
 
     analytic_model = model_selector()
-    dist = np.linspace(-L/2, L/2, 100) * ParamsAndSetup['params'].alpha
+    dist = np.linspace(-L / 2, L / 2, 100) * ParamsAndSetup['params'].alpha
     center = test_scenario['epi_c'] * ParamsAndSetup['params'].alpha
     plt.plot(dist, analytic_model(dist, beta, ell))
     plt.ylabel('pr')
     plt.xlabel('dist')
     plt.show()
-
-
-

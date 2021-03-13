@@ -52,11 +52,10 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: st
         print(f'\t Mortality ratio : {out["mortality_ratio"]}')
     if 'R0_hist' in out:
         from tree_epi_dispersal.ensemble_analysis import process_avg_R0_struct
-        import matplotlib.pyplot as plt
+        from tree_epi_dispersal.plot_methods import pltR0
+
         R0_data = process_avg_R0_struct(out['R0_hist'])
-        plt.plot(R0_data)
-        plt.show()
-        print('\t mean R0 vs gen ', R0_data)
+        pltR0(R0_data)
 
     elapsed = datetime.datetime.now() - start
     print(out['termination'])
