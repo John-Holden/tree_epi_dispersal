@@ -3,7 +3,7 @@ Run ensembles averaging methods on HPC or local machine.
 """
 import datetime
 from typing import Union
-from tree_epi_dispersal.model_dynamics import run_SIR
+from tree_epi_dispersal.model_dynamics import run_SIR, run_ADB
 from tree_epi_dispersal.ensemble_simulation_helpers import time_print
 from parameters_and_settings import ParamsAndSetup
 
@@ -27,13 +27,13 @@ def get_avg_R0(rho: float, beta: float) -> list:
     return ensemble_R0
 
 
-def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: str = 'gaussian',
-               plot_show: bool = False, plot_freq: int = 10):
+def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], dispersal: str = 'gaussian',
+               model: str = 'SIR', plot_show: bool = False, plot_freq: int = 10):
     """
     Run a single instance of the model."""
 
     ParamsAndSetup['params'].ell = ell
-    ParamsAndSetup['params'].model = model
+    ParamsAndSetup['params'].model = dispersal
     ParamsAndSetup['params'].assert_correct_dispersal()
 
     if plot_show:
@@ -42,11 +42,19 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], model: st
         ParamsAndSetup['setup'].plot_freq = plot_freq
 
     start = datetime.datetime.now()
-    print('\n Running @ singleSim...')
+    print(f'\n Running {model} | {dispersal} @ single_sim')
     print(f'\t beta = {round(beta, 3)}, rho = {round(rho, 3)}')
     if ParamsAndSetup['setup'].verb:
         print(f'\t Model : {ParamsAndSetup["params"].model}')
-    out = run_SIR(rho, beta, ell)
+
+    # run simulation
+    if model == 'SIR':
+        out = run_SIR(rho, beta, ell)
+    elif model == 'ADB':
+        print('here')
+        out = run_ADB(rho, beta, ell)
+    else:
+        raise ValueError('Wrong model input: Implement [SIR, ADB]')
 
     if 'mortality_ratio' in out:
         print(f'\t Mortality ratio : {out["mortality_ratio"]}')

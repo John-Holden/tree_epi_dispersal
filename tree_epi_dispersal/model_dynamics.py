@@ -39,12 +39,13 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
     return tuple(newI_ind), max_gen_exceeded
 
 
-def run_ADB():
-    ''
+def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
+
+    assert 0
 
 
 def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],
-            test_mode: bool=False) -> dict:
+            test_mode: bool = False) -> dict:
     """
     Simulate a generic SIR-dispersal model
     :param rho: tree density
