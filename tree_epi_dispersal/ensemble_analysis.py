@@ -49,7 +49,6 @@ def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
             for box_size in core_R0_history:
                 core_means[box_size].append(avg_multi_dim(core_R0_history[box_size]))
 
-
     print(f'Ensemble size {len(f_list) * len(core_means[box_size])}')
     return core_means
 
@@ -64,8 +63,9 @@ def process_avg_R0_struct(R0_struct:dict, gen:Union[None, int] = None):
         counts[R0_statistics[1]] += 1
         max_gen = R0_statistics[1] if R0_statistics[1] > max_gen else max_gen
 
-    R0_cumulative = R0_cumulative[:max_gen]
-    counts = counts[:max_gen]
+    R0_cumulative = R0_cumulative[:max_gen + 1]
+    counts = counts[:max_gen + 1]
+
     if gen is None:
         return R0_cumulative / counts
 

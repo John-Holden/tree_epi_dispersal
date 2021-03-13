@@ -78,7 +78,7 @@ def set_SIR(S: np.ndarray, epicenter_init_cond: str):
     return S, I, R
 
 
-def set_ADB(S_tr: np.ndarray) -> 'tuple of np.array-fields':
+def set_ADB(S_tr: np.ndarray, max_epi: int = 10) -> 'tuple of np.array-fields':
     """
     Set the fields used for the ash dieback model.
     This includes a source-infected tree surrounded by a small number of infectious fruiting bodies.
@@ -91,7 +91,7 @@ def set_ADB(S_tr: np.ndarray) -> 'tuple of np.array-fields':
 
     epi_c = ModelParamSet.epi_center
     dist_pr = np.exp(-ij_arr_distance((epi_c, epi_c), S_tr) / ModelParamSet.alpha*2)
-    set_epi_c, epi_n = 0, np.random.randint(1, 6)
+    set_epi_c, epi_n = 0, np.random.randint(1, max_epi+1)
 
     potential_epi_c = dist_pr > np.random.uniform(low=0, high=1, size=S_tr.shape)
 
@@ -112,10 +112,14 @@ def set_ADB(S_tr: np.ndarray) -> 'tuple of np.array-fields':
     S_tr[epi_c, epi_c] = 0
     S_tr = np.where(S_tr)
     I_fb = np.where(I_fb)
-    I_fb = [I_fb[0], I_fb[1], np.zeros(len(I_fb[0]))]
+
+    # define life-times of fruiting bodies
+    I_fb_lf = np.random.normal(loc=ModelParamSet.fb_lt[0], scale=ModelParamSet.fb_lt[1], size=len(I_fb[0])).astype(int)
+
+    I_fb = [I_fb[0], I_fb[1], I_fb_lf]
     I_tr = ([epi_c], [epi_c])  # Infectious trees
     E_tr = ([], [])  # Exposed/latently infected hosts
-    R_fb = [[], []]  # Removed fruiting body sources
+    R_fb = [[], [], []]  # Removed fruiting body sources
 
     return S_tr, I_tr, E_tr, I_fb, R_fb
 

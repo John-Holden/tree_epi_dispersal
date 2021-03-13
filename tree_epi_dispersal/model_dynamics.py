@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 from typing import Union, Callable
 from tree_epi_dispersal.plot_methods import plt_sim_frame, plt_adb_frame
 from parameters_and_settings import ModelParamSet, Settings, Metrics
@@ -54,32 +55,41 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
     R0_history = set_R0trace(I_fb, {}, test_mode=False, adb_mode=True)
     dispersal_model = model_selector()  # get function for the current kernel for the configuration
     break_condition = None
+    print(I_fb[2], ' LT fo fb ')
+    start_date = datetime.datetime(2020, 6, 1)
+
     for t in range(ModelParamSet.tend):
+        current_date = start_date + datetime.timedelta(days=t)
         if Settings.verb == 2:
-            printStep(t, freq=1)
+            print('t : ', current_date.strftime("%b %d"))
 
         S_tr, new_E_tr, max_gen_exceeded = get_new_I(S_tr, I_fb, beta, ell, R0_history, dispersal_model,
                                                      test_mode=False, update_secondaries=False)
 
+        # S_tree -> E_tree
         E_tr[0].extend(new_E_tr[0]), E_tr[1].extend(new_E_tr[1])
-        I_fb[2] += 1
 
-        to_remove_fb = I_fb[2] > ModelParamSet.fb_lt
-        R_fb[0].extend([I_fb[0][ind] for ind, to_remove in enumerate(to_remove_fb) if to_remove])
-        R_fb[1].extend([I_fb[1][ind] for ind, to_remove in enumerate(to_remove_fb) if to_remove])
+        # I_fruiting_body -> R_fruiting_body
+        to_remove_fb = [index for index, to_rem in enumerate(I_fb[2] < t) if to_rem]
+        R_fb[0].extend([I_fb[0][ind] for ind in to_remove_fb])
+        R_fb[1].extend([I_fb[1][ind] for ind in to_remove_fb])
+        R_fb[2].extend([t - 1 for ind in to_remove_fb])
 
-        # todo
-        #  1: delete I fb index after to remove
-        #  2: update end conditions
-        #  3: put in stochastic fb removals
+        I_fb[0] = np.delete(I_fb[0], to_remove_fb)
+        I_fb[1] = np.delete(I_fb[1], to_remove_fb)
+        I_fb[2] = np.delete(I_fb[2], to_remove_fb)
 
-        print('to rem fb: ', to_remove_fb)
-        print('R fb: ', R_fb)
-        print('S tr: ', S_tr,)
+        if not len(I_fb[0]):
+            break_condition = 'fruiting body extinction'
+            break
 
-        plt_adb_frame(S_tr, E_tr, I_fb)
-        assert t < 5
+        if Settings.plot and t % Settings.plot_freq == 0:
+            plt_adb_frame(S_tr, E_tr, I_fb, R_fb, current_date.strftime("%b %d"))
 
+    sim_result = {"termination": break_condition,
+                  'R0_hist': R0_history}
+
+    return sim_result
 
 
 def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],

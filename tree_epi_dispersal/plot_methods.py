@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Union, Iterable
+from typing import Union, Iterable, Any
 from parameters_and_settings import PATH_TO_TEMP_STORE, ParamsAndSetup
 
 pltParams = {'figure.figsize': (7.5, 5.5),
@@ -82,14 +82,13 @@ def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-ste
         plt.close()
 
 
-def plt_adb_frame(S: tuple, E: tuple, I_fb:tuple,):
-    L = ParamsAndSetup['params'].L
-    # S_arr = np.zeros(shape=(L, L))
-    # E_arr = np.zeros_like(S_arr)
-    # I_fb_arr = np.zeros_like(S_arr)
-    pixSz = 8
+def plt_adb_frame(S: tuple, E: tuple, I_fb: list, R_fb: list, t: Any):
+
+    pixSz = 12.5
     fig, ax = plt.subplots(figsize=(7, 7))
+    plt.title(f'T : {t}')
     ax.scatter(I_fb[1], I_fb[0], s=pixSz, c='red')
+    ax.scatter(R_fb[1], R_fb[0], s=pixSz, c='grey')
     ax.scatter(S[1], S[0], s=pixSz, c='green')
     ax.scatter(E[1], E[0], s=pixSz, c='orange')
     plt.show()

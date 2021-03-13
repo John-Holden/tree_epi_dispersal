@@ -58,7 +58,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
     @staticmethod
     def adb_config():
         # set default ash dieback configuration
-        ModelParamSet.fb_lt = 2  # fruiting body life-time
+        ModelParamSet.fb_lt = [60, 21]  # mean and standard deviations for fruiting body life-time,
         ModelParamSet.I_tr_lt = 365 * 7
 
 
@@ -74,7 +74,7 @@ class Settings:  # Simulation setup
     plot = True
     show = True
     save = False
-    plot_freq = 50
+    plot_freq = 10
     verb = 2  # verbosity
     ext = '.png'
     percolation_bcd = False  # Terminate upon infection reaching the boundary
@@ -109,7 +109,7 @@ class EnsembleConfig:
             raise TypeError
 
 
-ParamsAndSetup = {'params': ModelParamSet, 'setup': Settings, 'metrics': Metrics, 'ensemble':EnsembleConfig}
+ParamsAndSetup = {'params': ModelParamSet, 'setup': Settings, 'metrics': Metrics, 'ensemble': EnsembleConfig}
 
 
 

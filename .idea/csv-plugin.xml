@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/run_scripts/run_simulation.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/tree_epi_dispersal/ensemble_simulation.py">
           <value>
             <Attribute>

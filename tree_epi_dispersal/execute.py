@@ -61,9 +61,11 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], dispersal
     if 'R0_hist' in out:
         from tree_epi_dispersal.ensemble_analysis import process_avg_R0_struct
         from tree_epi_dispersal.plot_methods import pltR0
-
         R0_data = process_avg_R0_struct(out['R0_hist'])
-        pltR0(R0_data)
+        if len(R0_data) > 1:
+            pltR0(R0_data)
+        else:
+            print(f'mean R0 = {R0_data}')
 
     elapsed = datetime.datetime.now() - start
     print(out['termination'])
