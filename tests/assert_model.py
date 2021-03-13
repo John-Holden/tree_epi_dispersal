@@ -2,7 +2,7 @@ import unittest
 
 
 from tree_epi_dispersal.model_dynamics_helpers import assert_correct_dispersal
-from tree_epi_dispersal.model_dynamics import run_simulation
+from tree_epi_dispersal.model_dynamics import run_SIR
 from tree_epi_dispersal.plot_methods import plot_test_dispersal
 
 from parameters_and_settings import ParamsAndSetup
@@ -35,7 +35,7 @@ from parameters_and_settings import ParamsAndSetup
     #
     #     observed_dispersal = []
     #     for i in range(1):
-    #         sim_result = run_simulation(rho=test_scenario['rho'], beta=test_scenario['beta'], ell=test_scenario['ell'],
+    #         sim_result = run_SIR(rho=test_scenario['rho'], beta=test_scenario['beta'], ell=test_scenario['ell'],
     #                                     test_mode=True)
     #
     #         R0_hist = sim_result['R0_hist']
@@ -72,8 +72,8 @@ class ExpectedGaussianl(unittest.TestCase):
 
         observed_dispersal = []
         for i in range(10):
-            sim_result = run_simulation(rho=test_scenario['rho'], beta=test_scenario['beta'], ell=test_scenario['ell'],
-                                        test_mode=True)
+            sim_result = run_SIR(rho=test_scenario['rho'], beta=test_scenario['beta'], ell=test_scenario['ell'],
+                                 test_mode=True)
 
             R0_hist = sim_result['R0_hist']
             if i %10 == 0:

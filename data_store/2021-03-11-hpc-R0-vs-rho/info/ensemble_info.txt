@@ -66,4 +66,4 @@ core 13 | Simulation done in:  12 (Hrs): 54 (mins): 21 (s)
 core 10 | Simulation done in:  12 (Hrs): 58 (mins): 34 (s)
 core 18 | Simulation done in:  13 (Hrs): 41 (mins): 37 (s)
 core 17 | Simulation done in:  13 (Hrs): 43 (mins): 41 (s)
-Ensemble size : 100Ensemble size : 100Ensemble size : 100Ensemble size : 100
+Ensemble size : 100Ensemble size : 100Ensemble size : 100Ensemble size : 100Ensemble size : 100
