@@ -14,6 +14,18 @@ def ij_distance(i: tuple, j: tuple) -> np.ndarray:
     return np.sqrt((i[0] - j[0]) ** 2 + (i[1] - j[1]) ** 2)
 
 
+def ij_arr_distance(xy: tuple, arr: np.ndarray) -> np.ndarray:
+    """
+    Compute the distance of points p in an array to the origin xy
+    :param xy: position from which distance matrix will be calculated
+    :param arr: any array
+    :return:
+    """
+    xarr, yarr = np.meshgrid(np.arange(0, arr.shape[0], 1),
+                             np.arange(0, arr.shape[1], 1))
+    return np.sqrt((xarr - xy[0])**2 + (yarr - xy[1])**2)
+
+
 def model_selector() -> Callable:
     """
     Define the current dispersal model
@@ -37,23 +49,13 @@ def model_selector() -> Callable:
     return model
 
 
-def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
+def set_SIR(S: np.ndarray, epicenter_init_cond: str):
     """
-    Initialise the domain in terms of three fields, S,I and R.
+    Set the fields used for the SIR model
+    :param S: susceptible tree's
+    :param epicenter_init_cond: initial conditions of epicenters
+    :return:
     """
-
-    S = np.zeros(shape=[ModelParamSet.L, ModelParamSet.L])  # init susceptible domain with density rho
-    S_tree_number = rho * ModelParamSet.L ** 2
-    tree = 0
-
-    while tree < S_tree_number:  # seed exact number in random locations
-        rand_row = np.random.randint(0, ModelParamSet.L)
-        rand_col = np.random.randint(0, ModelParamSet.L)
-
-        if not S[rand_row, rand_col]:
-            S[rand_row, rand_col] = 1
-            tree += 1
-
     I = np.zeros_like(S)  # Infected field
     r = ModelParamSet.r
     if epicenter_init_cond == 'centralised':
@@ -76,12 +78,80 @@ def setFields(rho: float, epicenter_init_cond='centralised') -> tuple:
     return S, I, R
 
 
-def set_R0trace(I: np.array, R0_hist: dict, test_mode:bool) -> dict:
+def set_ADB(S_tr: np.ndarray) -> 'tuple of np.array-fields':
+    """
+    Set the fields used for the ash dieback model.
+    This includes a source-infected tree surrounded by a small number of infectious fruiting bodies.
+    A random number of fruiting body-sources, between 1-N, is sampled from a uniform distribution and
+    placed in the neighbourhood of the infectious tree.
+    :param S_tr: susceptible tree's
+    :return:
+    """
+    I_fb = np.zeros_like(S_tr)  # Infectious fruiting bodies
+
+    epi_c = ModelParamSet.epi_center
+    dist_pr = np.exp(-ij_arr_distance((epi_c, epi_c), S_tr) / ModelParamSet.alpha*2)
+    set_epi_c, epi_n = 0, np.random.randint(1, 6)
+
+    potential_epi_c = dist_pr > np.random.uniform(low=0, high=1, size=S_tr.shape)
+
+    potential_epi_c = np.where(potential_epi_c)
+    num_potential = len(potential_epi_c[0])
+    assert num_potential > epi_n, f'Error, potential epicenter number {len(potential_epi_c[0])} < {epi_n}'
+
+    while set_epi_c < epi_n:
+        row, col = np.random.randint(0, num_potential), np.random.randint(0, num_potential)
+        row, col = potential_epi_c[0][row], potential_epi_c[1][col]
+
+        if I_fb[row, col]:
+            continue
+
+        I_fb[row, col] = 1
+        set_epi_c += 1
+
+    S_tr[epi_c, epi_c] = 0
+    S_tr = np.where(S_tr)
+    I_fb = np.where(I_fb)
+    I_fb = [I_fb[0], I_fb[1], np.zeros(len(I_fb[0]))]
+    I_tr = ([epi_c], [epi_c])  # Infectious trees
+    E_tr = ([], [])  # Exposed/latently infected hosts
+    R_fb = [[], []]  # Removed fruiting body sources
+
+    return S_tr, I_tr, E_tr, I_fb, R_fb
+
+
+def setFields(rho: float, model: str, epi_IC='centralised') -> tuple:
+    """
+    Initialise the domain-fields
+    """
+    S = np.zeros(shape=[ModelParamSet.L, ModelParamSet.L])  # init susceptible domain with density rho
+    S_tree_number = rho * ModelParamSet.L ** 2
+    tree = 0
+
+    while tree < S_tree_number:  # seed exact number in random locations
+        rand_row = np.random.randint(0, ModelParamSet.L)
+        rand_col = np.random.randint(0, ModelParamSet.L)
+
+        if not S[rand_row, rand_col]:
+            S[rand_row, rand_col] = 1
+            tree += 1
+
+    if model == 'SIR':
+        return set_SIR(S, epi_IC)
+
+    elif model == 'ADB':
+        return set_ADB(S)
+
+    else:
+        raise ValueError('Error, wrong input')
+
+
+def set_R0trace(I: np.array, R0_hist: dict, test_mode: bool, adb_mode: bool = False) -> dict:
     """
     Initialise the R0-history dictionary -- record the generation of infect along with infection statistics
         - site_ij : [generation_infected, infectious_count, [distance_of_infected_trees, `optional`]]
     """
-    I_ind = np.where(I)
+    I_ind = np.where(I) if not adb_mode else I
     for i in range(len(I_ind[0])):
         site = str(I_ind[0][i]) + str(I_ind[1][i])
         R0_hist[site] = [0, 0, []] if test_mode else [0, 0]
@@ -89,7 +159,8 @@ def set_R0trace(I: np.array, R0_hist: dict, test_mode:bool) -> dict:
     return R0_hist
 
 
-def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: bool) -> int:
+def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: bool,
+                   update_secondaries: bool = True) -> int:
     """
     Update the record of secondary infections, i.e:
         - site_i_j : [R0, generation]
@@ -100,6 +171,7 @@ def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: b
     :param R0_hist: store infection counts due to each infected, along with generation became infected
     :param new_infected: indices of newly infected trees
     :param site: coordinates (i, j) of source-infection
+    :param update_secondaries: if true, update initialise new secondary infections
     :return:
     """
 
@@ -110,9 +182,10 @@ def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: b
         R0_hist[source_infection][2].extend(ij_distance(site, new_infected) * ModelParamSet.alpha)
 
     generation_of_new_infection = R0_hist[source_infection][1] + 1
-    for i in range(len(new_infected[0])):
-        # initialise new, n^th order, infection into the record
-        R0_hist[str(new_infected[0][i]) + str(new_infected[1][i])] = [0, generation_of_new_infection]
+    if update_secondaries:
+        for i in range(len(new_infected[0])):
+            # initialise new, n^th order, infection into the record
+            R0_hist[str(new_infected[0][i]) + str(new_infected[1][i])] = [0, generation_of_new_infection]
 
     return generation_of_new_infection
 

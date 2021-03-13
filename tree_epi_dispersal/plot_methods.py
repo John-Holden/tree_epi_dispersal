@@ -82,6 +82,20 @@ def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-ste
         plt.close()
 
 
+def plt_adb_frame(S: tuple, E: tuple, I_fb:tuple,):
+    L = ParamsAndSetup['params'].L
+    # S_arr = np.zeros(shape=(L, L))
+    # E_arr = np.zeros_like(S_arr)
+    # I_fb_arr = np.zeros_like(S_arr)
+    pixSz = 8
+    fig, ax = plt.subplots(figsize=(7, 7))
+    ax.scatter(I_fb[1], I_fb[0], s=pixSz, c='red')
+    ax.scatter(S[1], S[0], s=pixSz, c='green')
+    ax.scatter(E[1], E[0], s=pixSz, c='orange')
+    plt.show()
+    plt.close()
+
+
 # ------------------- Ensemble plotting -------------------#
 def plot_rho_beta_ensemble_1D(ensemble: np.ndarray, rhos: np.ndarray, betas: np.ndarray):
     """

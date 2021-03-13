@@ -11,8 +11,11 @@ PATH_TO_DATA_STORE = f'{os.getcwd()}/data_store/'
 
 class ModelParamSet:  # Set model parameter and simulation fields
     META_DATA = 'Exponentially distributed life-time dynamics : True'
+
+    """ ________Default parameters________"""
+
     alpha = 5  # (m) lattice scale parameter
-    L = 500  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
+    L = 100  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
     infected_lt = 500  # (steps) infectious life-time -- exponentially-distributed mean = 1/T
     tend = 500  # (steps) final end time
     betas = [0.0005]  # (step^-1) infectivity-parameter
@@ -51,6 +54,12 @@ class ModelParamSet:  # Set model parameter and simulation fields
         assert int(2 * ModelParamSet.epi_center) == ModelParamSet.L, f'Incorrect epicenter {ModelParamSet.epi_center},' \
                                                                      f'L = {ModelParamSet.L}'
         assert ModelParamSet.assert_correct_dispersal()
+
+    @staticmethod
+    def adb_config():
+        # set default ash dieback configuration
+        ModelParamSet.fb_lt = 2  # fruiting body life-time
+        ModelParamSet.I_tr_lt = 365 * 7
 
 
 class Metrics:   # Define which metrics are recorded over the simulation

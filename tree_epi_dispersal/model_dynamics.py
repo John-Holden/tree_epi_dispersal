@@ -1,15 +1,15 @@
 import numpy as np
 from typing import Union, Callable
-from tree_epi_dispersal.plot_methods import plt_sim_frame
+from tree_epi_dispersal.plot_methods import plt_sim_frame, plt_adb_frame
 from parameters_and_settings import ModelParamSet, Settings, Metrics
 from tree_epi_dispersal.model_dynamics_helpers import set_R0trace, ij_distance, setFields, ith_new_infections, \
     update_R0trace, model_selector
 
-printStep = lambda t, freq : print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
+printStep = lambda t, freq: print('\t\t Time : {} (days)'.format(t)) if t % freq == 0 else None
 
 
 def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_histories: dict,
-              dispersal_model: Callable, test_mode:bool) -> tuple:
+              dispersal_model: Callable, test_mode: bool, update_secondaries: bool = True) -> tuple:
     """
     Return a list of indices of all the newly infected trees, along with the max infectious order
     """
@@ -26,7 +26,8 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
         newI_ind[1].extend(S_ind[1][new_I])
         if R0_histories:
             S_trans_I = (S_ind[0][new_I], S_ind[1][new_I])  # sites S that will transition to the infected-state
-            generation_of_infected_site = update_R0trace(R0_histories, S_trans_I, infected_site, test_mode)
+            generation_of_infected_site = update_R0trace(R0_histories, S_trans_I, infected_site,
+                                                         test_mode, update_secondaries)
             # if no trees of `max_Gen` are left, terminate simulation
             if Settings.max_generation_bcd and generation_of_infected_site <= Settings.max_generation_bcd:
                 max_gen_exceeded = False
@@ -36,12 +37,49 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
 
     assert R0_count == num_S - len(S_ind[0])
 
-    return tuple(newI_ind), max_gen_exceeded
+    return S_ind, tuple(newI_ind), max_gen_exceeded
 
 
 def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
+    """
+    Simulate a configured ash dieback model
+    :param rho: tree density
+    :param beta: a compound parameter representing pathogen infectiousness
+    :param ell: pathogen dispersal parameter(s)
+    :return: sim_result, a dictionary of required fields.
+    """
 
-    assert 0
+    S_tr, I_tr, E_tr, I_fb, R_fb = setFields(rho, model='ADB', epi_IC='distributed')
+    # track the number of infections due to the fruiting bodies
+    R0_history = set_R0trace(I_fb, {}, test_mode=False, adb_mode=True)
+    dispersal_model = model_selector()  # get function for the current kernel for the configuration
+    break_condition = None
+    for t in range(ModelParamSet.tend):
+        if Settings.verb == 2:
+            printStep(t, freq=1)
+
+        S_tr, new_E_tr, max_gen_exceeded = get_new_I(S_tr, I_fb, beta, ell, R0_history, dispersal_model,
+                                                     test_mode=False, update_secondaries=False)
+
+        E_tr[0].extend(new_E_tr[0]), E_tr[1].extend(new_E_tr[1])
+        I_fb[2] += 1
+
+        to_remove_fb = I_fb[2] > ModelParamSet.fb_lt
+        R_fb[0].extend([I_fb[0][ind] for ind, to_remove in enumerate(to_remove_fb) if to_remove])
+        R_fb[1].extend([I_fb[1][ind] for ind, to_remove in enumerate(to_remove_fb) if to_remove])
+
+        # todo
+        #  1: delete I fb index after to remove
+        #  2: update end conditions
+        #  3: put in stochastic fb removals
+
+        print('to rem fb: ', to_remove_fb)
+        print('R fb: ', R_fb)
+        print('S tr: ', S_tr,)
+
+        plt_adb_frame(S_tr, E_tr, I_fb)
+        assert t < 5
+
 
 
 def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],
@@ -55,7 +93,7 @@ def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],
     :return: sim_result, a dictionary of required fields.
     """
 
-    S, I, R = setFields(rho)
+    S, I, R = setFields(rho, model='SIR')
     R0_history = set_R0trace(I, {}, test_mode) if Metrics.save_R0_history else None
     t = None
     percolation_event = True
@@ -100,7 +138,7 @@ def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],
             break
 
         # update fields S, I, R
-        newI_ind, max_gen_exceeded = get_new_I(S_, I_, beta, ell, R0_history, model, test_mode)
+        _, newI_ind, max_gen_exceeded = get_new_I(S_, I_, beta, ell, R0_history, model, test_mode)
         newI_ind = ([], []) if test_mode else newI_ind  # if test mode prevent secondary infections from infecting
 
         if Settings.max_generation_bcd and max_gen_exceeded:

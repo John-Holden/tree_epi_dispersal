@@ -51,7 +51,7 @@ def single_sim(rho: float, beta: float, ell: Union[int, float, tuple], dispersal
     if model == 'SIR':
         out = run_SIR(rho, beta, ell)
     elif model == 'ADB':
-        print('here')
+        ParamsAndSetup['params'].adb_config()
         out = run_ADB(rho, beta, ell)
     else:
         raise ValueError('Wrong model input: Implement [SIR, ADB]')
