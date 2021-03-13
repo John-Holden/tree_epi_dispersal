@@ -54,7 +54,7 @@ def mk_new_dir(name: str, job_id:str):
 
 def save_meta_data(path_to_ensemble: str, job_id:str):
     """
-    Save model parameters, settings and metrics used in ensemble to file.
+    Save dispersal_model parameters, settings and metrics used in ensemble to file.
     """
     if job_id == '1' or job_id is None:  # write elapsed time to file
         with open(f'{path_to_ensemble}/info/ensemble_info.txt', 'w') as info_file:
@@ -62,16 +62,16 @@ def save_meta_data(path_to_ensemble: str, job_id:str):
             info_file.write("\nNotes : '...' \n ")  # Note section to document results
             info_file.write("\n___Model parameters___\n")
             for param, value in vars(ModelParamSet).items():
-                if param[0] == '_':
+                if param[0] == '_' or isinstance(value, staticmethod):
                     continue
                 if param == 'alpha':
                     param, value = f'scale constant /{param}', f'{value} (m)'
                 elif param == 'ell':
-                    param, value = f'dispersal constant /{param}', f'{value} (m)'
+                    param, value = f'dispersal_type constant /{param}', f'{value} (m)'
                 elif param == 'infLT':
                     param, value = f'infectious lifetime T', f'{value} (steps)'
-                elif param == 'model':
-                    param = 'dispersal model'
+                elif param == 'dispersal_model':
+                    param = 'dispersal_type dispersal_model'
                 elif param == 'r':
                     param = 'initial epicenter radius'
                 elif param == 'init_n_infected':
@@ -108,13 +108,13 @@ def save_meta_data(path_to_ensemble: str, job_id:str):
 
             info_file.write("\n___Settings___\n")
             for param, value in vars(Settings).items():
-                if param[0] == '_':
+                if param[0] == '_' or isinstance(value, staticmethod):
                     continue
                 info_file.write(f'\t - {param} : {value}\n')
 
             info_file.write("\n___Metrics___\n")
             for param, value in vars(Metrics).items():
-                if param[0] == '_':
+                if param[0] == '_' or isinstance(value, staticmethod):
                     continue
                 info_file.write(f'\t - {param} : {value}\n')
 

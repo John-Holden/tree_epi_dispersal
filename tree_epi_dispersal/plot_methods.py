@@ -179,7 +179,7 @@ def plot_R0_ens_vs_L(save=False):
 def plot_test_dispersal(test_scenario: dict, actual_dispersal: Iterable):
     """
     Plot the expected kernel against the observed kernel.
-    :param model:
+    :param dispersal_model:
     :param ell:
     :param actual_dispersal:
     :return:

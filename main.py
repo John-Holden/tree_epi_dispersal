@@ -27,7 +27,7 @@ def hpc_mode():
     ParamsAndSetup['params'].betas = ens_conf.betas
     ParamsAndSetup['params'].L = 1000
     ParamsAndSetup['params'].ell = 195
-    ParamsAndSetup['params'].model = 'gaussian'
+    ParamsAndSetup['params'].dispersal_model = 'gaussian'
     ParamsAndSetup['params'].ensemble_size = 5
     ParamsAndSetup['params'].update_epi_c()
     ParamsAndSetup['params'].assert_config()
@@ -39,19 +39,24 @@ def local_mode():
     """
     Run ensemble simulation on local machine
     """
-    date = datetime.datetime.today().strftime('%Y-%m-%d')
-    ens_name = date + '-local-ensemble'
-
-    mk_new_dir(ens_name, job_id='local')
 
     ParamsAndSetup['setup'].max_generation_bcd = 3
     ParamsAndSetup['setup'].plot = False
     ParamsAndSetup['setup'].verb = 1
 
-    ParamsAndSetup['params'].rhos = [0.01, 0.005]
-    ParamsAndSetup['params'].betas = [0.05]
+    Ensemble = ParamsAndSetup['ensemble']
+    ens_conf = Ensemble('part')
+
+    ParamsAndSetup['params'].rhos = ens_conf.rhos
+    ParamsAndSetup['params'].betas = [0.0001, 0.001]
     ParamsAndSetup['params'].ensemble_mode = True
     ParamsAndSetup['params'].ensemble_size = 1
+
+    ParamsAndSetup['params'].adb_config()  # update config to model ash dieback
+
+    date = datetime.datetime.today().strftime('%Y-%m-%d')
+    ens_name = f'{date}-local-ensemble-{ParamsAndSetup["params"].model}'
+    mk_new_dir(ens_name, job_id='local')
 
     beta_rho_iterator(execute_model=get_avg_R0, ensemble_name=ens_name)
 

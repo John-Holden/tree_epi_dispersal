@@ -12,7 +12,7 @@ from parameters_and_settings import ParamsAndSetup
     # def test_gaussian(self):
     #     print('TESTING GAUSSIAN')
     #
-    #     test_scenario = {'rho':0.10, 'beta':0.01, 'ell':195, 'L':250, 'model':'gaussian'}
+    #     test_scenario = {'rho':0.10, 'beta':0.01, 'ell':195, 'L':250, 'dispersal_model':'gaussian'}
     #
     #     test_scenario['epi_c'] = int(test_scenario['L']/2)
     #     test_key = f"{test_scenario['epi_c']}{test_scenario['epi_c']}"
@@ -21,7 +21,7 @@ from parameters_and_settings import ParamsAndSetup
     #     ParamsAndSetup['params'].L = test_scenario['L']
     #     ParamsAndSetup['params'].epi_center = test_scenario['epi_c']
     #
-    #     ParamsAndSetup['params'].model = test_scenario['model']
+    #     ParamsAndSetup['params'].dispersal_model = test_scenario['dispersal_model']
     #     ParamsAndSetup['params'].ell = test_scenario['ell']
     #     assert_correct_dispersal()
     #
@@ -49,7 +49,7 @@ from parameters_and_settings import ParamsAndSetup
 class ExpectedGaussianl(unittest.TestCase):
     def test_power_law(self):
         print('TESTING POWER-LAW')
-        test_scenario = {'rho':0.10, 'beta':1, 'ell':(200, 3.3), 'L':250, 'model':'power_law'}
+        test_scenario = {'rho':0.10, 'beta':1, 'ell':(200, 3.3), 'L':250, 'dispersal_model':'power_law'}
 
         test_scenario['epi_c'] = int(test_scenario['L']/2)
         test_key = f"{test_scenario['epi_c']}{test_scenario['epi_c']}"
@@ -58,7 +58,7 @@ class ExpectedGaussianl(unittest.TestCase):
         ParamsAndSetup['params'].L = test_scenario['L']
         ParamsAndSetup['params'].epi_center = test_scenario['epi_c']
 
-        ParamsAndSetup['params'].model = test_scenario['model']
+        ParamsAndSetup['params'].dispersal_model = test_scenario['dispersal_model']
         ParamsAndSetup['params'].ell = test_scenario['ell']
         assert_correct_dispersal()
 

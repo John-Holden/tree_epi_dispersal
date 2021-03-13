@@ -1,5 +1,5 @@
 """
-Define classes for model parameters, settings and metrics.
+Define classes for dispersal_model parameters, settings and metrics.
 """
 import os
 import numpy as np
@@ -9,7 +9,7 @@ PATH_TO_TEMP_STORE = f'{os.getcwd()}/temp_dat_store/'
 PATH_TO_DATA_STORE = f'{os.getcwd()}/data_store/'
 
 
-class ModelParamSet:  # Set model parameter and simulation fields
+class ModelParamSet:  # Set dispersal_model parameter and simulation fields
     META_DATA = 'Exponentially distributed life-time dynamics : True'
 
     """ ________Default parameters________"""
@@ -20,15 +20,16 @@ class ModelParamSet:  # Set model parameter and simulation fields
     tend = 500  # (steps) final end time
     betas = [0.0005]  # (step^-1) infectivity-parameter
     rhos = [0.01]   # tree density
-    # dispersal values from https://doi.org/10.1093/femsec/fiy049 are:
+    # dispersal_type values from https://doi.org/10.1093/femsec/fiy049 are:
     #   - gaussian = 195m
     #   - power-law : a = 206, b=3.3
-    # ell = (205, 3.3)  # (m) dispersal
+    # ell = (205, 3.3)  # (m) dispersal_type
     ell = 195
     epi_center = int(L/2)
     init_n_infected = 1  # control randomly distributed epicenters
     r = 0  # control centralised epicenter radius
-    model = ['exponential', 'gaussian', 'power_law'][1]
+    dispersal_model = ['exponential', 'gaussian', 'power_law'][1]
+    model = ['SIR', 'ADB'][0]
 
     @staticmethod
     def update_epi_c():
@@ -36,16 +37,16 @@ class ModelParamSet:  # Set model parameter and simulation fields
 
     @staticmethod
     def assert_correct_dispersal() -> bool:
-        """ check dispersal configurations are correct """
+        """ check dispersal_type configurations are correct """
         is_int_or_float = isinstance(ModelParamSet.ell, int) or isinstance(ModelParamSet.ell, float)
-        is_gauss = ModelParamSet.model == 'gaussian' and is_int_or_float
+        is_gauss = ModelParamSet.dispersal_model == 'gaussian' and is_int_or_float
         is_exp = ModelParamSet == 'exponential' and is_int_or_float
-        is_power_law = ModelParamSet.model == 'power_law' and isinstance(ModelParamSet.ell, tuple) and len(
+        is_power_law = ModelParamSet.dispersal_model == 'power_law' and isinstance(ModelParamSet.ell, tuple) and len(
             ModelParamSet.ell) == 2
 
         valid = is_exp or is_gauss or is_power_law
         if not valid:
-            raise InvalidDispersalSetup(ModelParamSet.model, ModelParamSet.ell)
+            raise InvalidDispersalSetup(ModelParamSet.dispersal_model, ModelParamSet.ell)
 
         return True
 
@@ -60,6 +61,7 @@ class ModelParamSet:  # Set model parameter and simulation fields
         # set default ash dieback configuration
         ModelParamSet.fb_lt = [60, 21]  # mean and standard deviations for fruiting body life-time,
         ModelParamSet.I_tr_lt = 365 * 7
+        ModelParamSet.model = 'ADB'
 
 
 class Metrics:   # Define which metrics are recorded over the simulation

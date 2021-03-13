@@ -37,7 +37,7 @@ def save_output(ensemble_averager: Callable):
 @save_output
 def beta_rho_iterator(execute_model: Callable):
     """
-    Get parameter space of model over rho/beta by ensemble-averaging simulations.
+    Get parameter space of dispersal_model over rho/beta by ensemble-averaging simulations.
     - ensemble_method is a Callable method of the type of ensemble we wish to run e.g. velocity/percolation/time-series
     """
     rhos = ParamsAndSetup['params'].rhos

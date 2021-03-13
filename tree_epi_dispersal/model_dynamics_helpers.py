@@ -1,5 +1,5 @@
 """
-Methods used in the model and ensemble-averaging.
+Methods used in the dispersal_model and ensemble-averaging.
 """
 
 import numpy as np
@@ -28,20 +28,20 @@ def ij_arr_distance(xy: tuple, arr: np.ndarray) -> np.ndarray:
 
 def model_selector() -> Callable:
     """
-    Define the current dispersal model
-    :return: dispersal function
+    Define the current dispersal_type dispersal_model
+    :return: dispersal_type function
     """
     model = None
 
     ModelParamSet.assert_config()
 
-    if ModelParamSet.model == 'gaussian':
+    if ModelParamSet.dispersal_model == 'gaussian':
         def model(dist, beta, ell):
             return beta * np.exp(-0.5*(dist/ell) ** 2)
-    elif ModelParamSet.model == 'exponential':
+    elif ModelParamSet.dispersal_model == 'exponential':
         def model(dist, beta, ell):
             return beta * np.exp(-(dist/ell))
-    elif ModelParamSet.model == 'power_law':
+    elif ModelParamSet.dispersal_model == 'power_law':
         def model(dist, beta, ell):
             a, b = ell
             return beta * (1 + dist/a)**(-b)
@@ -51,7 +51,7 @@ def model_selector() -> Callable:
 
 def set_SIR(S: np.ndarray, epicenter_init_cond: str):
     """
-    Set the fields used for the SIR model
+    Set the fields used for the SIR dispersal_model
     :param S: susceptible tree's
     :param epicenter_init_cond: initial conditions of epicenters
     :return:
@@ -80,7 +80,7 @@ def set_SIR(S: np.ndarray, epicenter_init_cond: str):
 
 def set_ADB(S_tr: np.ndarray, max_epi: int = 10) -> 'tuple of np.array-fields':
     """
-    Set the fields used for the ash dieback model.
+    Set the fields used for the ash dieback dispersal_model.
     This includes a source-infected tree surrounded by a small number of infectious fruiting bodies.
     A random number of fruiting body-sources, between 1-N, is sampled from a uniform distribution and
     placed in the neighbourhood of the infectious tree.
@@ -182,7 +182,7 @@ def update_R0trace(R0_hist: dict, new_infected: tuple, site: tuple, test_mode: b
     source_infection = str(site[0]) + str(site[1])
     R0_hist[source_infection][0] += len(new_infected[0])  # update the source infected R0 count
     if test_mode:
-        # append extra information about the dispersal
+        # append extra information about the dispersal_type
         R0_hist[source_infection][2].extend(ij_distance(site, new_infected) * ModelParamSet.alpha)
 
     generation_of_new_infection = R0_hist[source_infection][1] + 1
@@ -200,8 +200,8 @@ def ith_new_infections(infected_site: tuple, S_ind: np.array, ell: float, beta: 
     Get the new infections due to the ith infected tree
     :param infected_site: coordinates (i, j) of infected site
     :param S_ind: Susceptible tree indices
-    :param dispersal_model: type of dispersal
-    :param ell: dispersal constant(s)
+    :param dispersal_model: type of dispersal_type
+    :param ell: dispersal_type constant(s)
     :param beta: infectivity parameter
     :return: indices of newly infected trees
     """

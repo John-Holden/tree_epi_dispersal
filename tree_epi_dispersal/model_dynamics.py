@@ -43,10 +43,10 @@ def get_new_I(S_ind: np.array, I_ind: np.array, beta: float, ell: float, R0_hist
 
 def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
     """
-    Simulate a configured ash dieback model
+    Simulate a configured ash dieback dispersal_model
     :param rho: tree density
     :param beta: a compound parameter representing pathogen infectiousness
-    :param ell: pathogen dispersal parameter(s)
+    :param ell: pathogen dispersal_type parameter(s)
     :return: sim_result, a dictionary of required fields.
     """
 
@@ -55,7 +55,7 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
     R0_history = set_R0trace(I_fb, {}, test_mode=False, adb_mode=True)
     dispersal_model = model_selector()  # get function for the current kernel for the configuration
     break_condition = None
-    print(I_fb[2], ' LT fo fb ')
+    print('running ash dieback ')
     start_date = datetime.datetime(2020, 6, 1)
 
     for t in range(ModelParamSet.tend):
@@ -95,10 +95,10 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
 def run_SIR(rho: float, beta: float, ell: Union[int, float, tuple],
             test_mode: bool = False) -> dict:
     """
-    Simulate a generic SIR-dispersal model
+    Simulate a generic SIR-dispersal_type dispersal_model
     :param rho: tree density
     :param beta: a compound parameter representing pathogen infectiousness
-    :param ell: pathogen dispersal parameter(s)
+    :param ell: pathogen dispersal_type parameter(s)
     :param test_mode : if true, limit the dynamics so only the initially infected infect neighbours
     :return: sim_result, a dictionary of required fields.
     """

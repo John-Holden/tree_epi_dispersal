@@ -3,7 +3,7 @@ from typing import Union
 
 class InvalidDispersalSetup(Exception):
 
-    def __init__(self, model: str, ell:Union[list, float, int], msg='The form of dispersal entered is incorrect!'):
+    def __init__(self, model: str, ell:Union[list, float, int], msg='The form of dispersal_type entered is incorrect!'):
         self.model = model
         self.ell = ell
         self.msg = msg
