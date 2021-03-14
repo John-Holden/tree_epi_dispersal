@@ -50,7 +50,7 @@ def local_mode():
     ParamsAndSetup['params'].rhos = ens_conf.rhos
     ParamsAndSetup['params'].betas = [0.0001, 0.001]
     ParamsAndSetup['params'].ensemble_mode = True
-    ParamsAndSetup['params'].ensemble_size = 1
+    ParamsAndSetup['params'].ensemble_size = 5
 
     ParamsAndSetup['params'].adb_config()  # update config to model ash dieback
 

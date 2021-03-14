@@ -55,4 +55,5 @@ def beta_rho_iterator(execute_model: Callable):
             all_ens_fields = execute_model(rho, beta)
             ensemble_results[f'rho_{rho}_beta_{beta}'] = all_ens_fields
 
+
     return ensemble_results

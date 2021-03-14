@@ -19,7 +19,7 @@ ___Model parameters___
 	 - dispersal_type dispersal_model : gaussian
 	 - model : ADB
 	 - ensemble_mode : True
-	 - ensemble_size : 1
+	 - ensemble_size : 5
 	 - fb_lt : [60, 21]
 	 - I_tr_lt : 2555
 
@@ -42,4 +42,4 @@ ___Metrics___
 
 ______Time elapsed_______
 
- Simulation done in:  0 (Hrs): 0 (mins): 1 (s)
+ Simulation done in:  0 (Hrs): 0 (mins): 5 (s)

@@ -214,26 +214,6 @@ def ith_new_infections(infected_site: tuple, S_ind: np.array, ell: float, beta: 
     return np.where(ijInfected)
 
 
-def R0_generation_mean(R0_trace: dict) -> list:
-    """
-    From the infectious history of all infected trees, calculate the mean for each generation i.
-    """
-    R0_count = np.zeros(1000)
-    num_trees_in_gen = np.zeros(1000)
-    max_gen_in_sim = 0
-    for site in R0_trace:
-        # inf_hist[0]: the number of secondary infections, inf_hist[1]: the generation
-        inf_hist = R0_trace[site]
-        R0_count[inf_hist[1]] += inf_hist[0]
-        num_trees_in_gen[inf_hist[1]] += 1  # cumulatively add the number of trees in each infectious generation
-
-        max_gen_in_sim = inf_hist[1] if inf_hist[1] > max_gen_in_sim else max_gen_in_sim  # update the max generation
-
-    R0_count = R0_count[:max_gen_in_sim]
-    num_trees_in_gen = num_trees_in_gen[:max_gen_in_sim]
-    return [R0_c / num_trees for R0_c, num_trees in zip(R0_count, num_trees_in_gen)]  # Return mean infections / gen
-
-
 def avg_multi_dim(arrays: np.array) -> np.array:
     """
     Average arrays with variable entries.

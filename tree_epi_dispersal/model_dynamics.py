@@ -55,7 +55,6 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
     R0_history = set_R0trace(I_fb, {}, test_mode=False, adb_mode=True)
     dispersal_model = model_selector()  # get function for the current kernel for the configuration
     break_condition = None
-    print('running ash dieback ')
     start_date = datetime.datetime(2020, 6, 1)
 
     for t in range(ModelParamSet.tend):
