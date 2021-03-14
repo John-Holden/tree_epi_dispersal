@@ -96,7 +96,8 @@ def plt_adb_frame(S: tuple, E: tuple, I_fb: list, R_fb: list, t: Any):
 
 
 # ------------------- Ensemble plotting -------------------#
-def plot_rho_beta_ensemble_1D(ensemble: np.ndarray, rhos: np.ndarray, betas: np.ndarray):
+def plot_rho_beta_ensemble_1D(ensemble: np.ndarray, rhos: np.ndarray, betas: np.ndarray,
+                              save: bool, name: str = 'rho_v_beta'):
     """
     For an ensemble, plot a series of 1D lines, rho axis, for multiple beta values.
     """
@@ -108,6 +109,8 @@ def plot_rho_beta_ensemble_1D(ensemble: np.ndarray, rhos: np.ndarray, betas: np.
     print('BETAS: ', betas)
     ax.plot([0, rhos[-1]], [1, 1], color='r', ls='--')
     plt.legend()
+    if save:
+        plt.savefig(name)
     plt.show()
 
 

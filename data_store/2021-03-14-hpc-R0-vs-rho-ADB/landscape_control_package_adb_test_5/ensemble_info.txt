@@ -49,3 +49,4 @@ core 8 | Simulation done in:  0 (Hrs): 3 (mins): 15 (s)
 core 2 | Simulation done in:  0 (Hrs): 3 (mins): 13 (s)
 core 4 | Simulation done in:  0 (Hrs): 3 (mins): 14 (s)
 core 3 | Simulation done in:  0 (Hrs): 3 (mins): 20 (s)
+Ensemble size : 50

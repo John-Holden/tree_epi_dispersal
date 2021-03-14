@@ -11,4 +11,4 @@ if __name__ == '__main__':
     ensemble, rhos, betas = process_R0_ensemble(ens_name, produce_landscape_control_package=True,
                                                 process_nth_gen=3)
 
-    plot_rho_beta_ensemble_1D(ensemble, rhos, betas)
+    plot_rho_beta_ensemble_1D(ensemble, rhos, betas, save=True)
