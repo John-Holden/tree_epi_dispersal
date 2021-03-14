@@ -19,7 +19,7 @@ def get_avg_R0(rho: float, beta: float) -> list:
 
     ensemble_R0 = []
     for repeat in range(ensemble_size):
-        if ParamsAndSetup['setup'].verb == 2:
+        if ParamsAndSetup['setup'].verb >= 2:
             print('Repeat : {}'.format(repeat))
         if ParamsAndSetup['params'].model == 'SIR':
             sim_result = run_SIR(rho, beta, ell)

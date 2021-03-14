@@ -59,7 +59,7 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
 
     for t in range(ModelParamSet.tend):
         current_date = start_date + datetime.timedelta(days=t)
-        if Settings.verb == 2:
+        if Settings.verb == 3:
             print('t : ', current_date.strftime("%b %d"))
 
         S_tr, new_E_tr, max_gen_exceeded = get_new_I(S_tr, I_fb, beta, ell, R0_history, dispersal_model,

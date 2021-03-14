@@ -53,7 +53,7 @@ def ens_avg_dict_of_R0_arrays(path_to_ensemble:str, metric:str) -> dict:
     return core_means
 
 
-def process_avg_R0_struct(R0_struct: dict, gen: Union[None, int] = None) -> np.ndarray:
+def process_avg_R0_struct(R0_struct: dict, gen: Union[None, int] = None) -> list:
     """"From the R0-history dictionary, process statistics of each infectious tree."""
     R0_cumulative = np.zeros(1000)
     counts = np.zeros(1000)
@@ -65,11 +65,9 @@ def process_avg_R0_struct(R0_struct: dict, gen: Union[None, int] = None) -> np.n
 
     R0_cumulative = R0_cumulative[:max_gen + 1]
     counts = counts[:max_gen + 1]
-    mean_R0 = R0_cumulative / counts
+    mean_R0 = [R0 / count for R0, count in zip(R0_cumulative, counts)]
 
     if gen is None:
-        if len(mean_R0) == 1:
-            return mean_R0[0]
         return mean_R0
 
     return mean_R0[gen-1]

@@ -15,7 +15,7 @@ class ModelParamSet:  # Set dispersal_model parameter and simulation fields
     """ ________Default parameters________"""
 
     alpha = 5  # (m) lattice scale parameter
-    L = 100  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
+    L = 1000  # L x L = domain dim : modelled size = alpha^2 * L^2 (m^2)
     infected_lt = 500  # (steps) infectious life-time -- exponentially-distributed mean = 1/T
     tend = 500  # (steps) final end time
     betas = [0.0005]  # (step^-1) infectivity-parameter
@@ -62,14 +62,17 @@ class ModelParamSet:  # Set dispersal_model parameter and simulation fields
         ModelParamSet.fb_lt = [60, 21]  # mean and standard deviations for fruiting body life-time,
         ModelParamSet.I_tr_lt = 365 * 7
         ModelParamSet.model = 'ADB'
+        delattr(ModelParamSet, 'infected_lt')
+        delattr(ModelParamSet, 'r')
+        delattr(ModelParamSet, 'init_n_infected')
 
 
 class Metrics:   # Define which metrics are recorded over the simulation
-    save_end_time = True
-    save_percolation = False
-    save_mortality_ratio = True
+    save_end_time = False
     save_R0_history = True
+    save_percolation = False
     save_time_series = False
+    save_mortality_ratio = False
 
 
 class Settings:  # Simulation setup
@@ -85,8 +88,10 @@ class Settings:  # Simulation setup
     @staticmethod
     def ensemble_config():
         # Initialise to set default attributes when running hpc simulation
-        Settings.plot = False
         Settings.verb = 0
+        Settings.plot = False
+        Settings.show = False
+        Settings.plot_freq = None
 
 
 class EnsembleConfig:

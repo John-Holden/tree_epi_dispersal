@@ -1,8 +1,8 @@
 import os
 import math
-import datetime
+import warnings
+import numpy as np
 
-from warnings import warn
 
 from parameters_and_settings import ModelParamSet, Settings, Metrics
 
@@ -31,9 +31,14 @@ def mk_new_dir(name: str, job_id:str):
     Save new directory to file.
     """
     if job_id in ['1', 'local']:
-        if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}'):
+        if os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}') and 'HPC_MODE' in os.environ:
             raise FileExistsError(f'\n\t{os.getcwd()}/temp_dat_store/{name} \n'
                                   f'\tClear ensemble cache dumbass!!')
+
+        elif os.path.exists(f'{os.getcwd()}/temp_dat_store/{name}') and not 'HPC_MODE' in os.environ:
+            msg = f' \n\t Error, overwriting :{os.getcwd()}/temp_dat_store/{name} \n'
+            warnings.warn(msg)
+            return
 
         os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}')
         os.mkdir(f'{os.getcwd()}/temp_dat_store/{name}/info/')
@@ -42,21 +47,13 @@ def mk_new_dir(name: str, job_id:str):
     return
 
 
-# def timer_save(data, start_time):
-#     import datetime
-#     elapsed = datetime.datetime.now() - start_time
-#     assert elapsed.seconds
-#     if elapsed.seconds % 3600 == 0:
-#         print('saving, more than an hour...')
-#
-#     print(elapsed.seconds)
-
-
 def save_meta_data(path_to_ensemble: str, job_id:str):
     """
     Save dispersal_model parameters, settings and metrics used in ensemble to file.
     """
     if job_id == '1' or job_id is None:  # write elapsed time to file
+        np.save(f'{path_to_ensemble}/info/rhos', ModelParamSet.rhos)
+        np.save(f'{path_to_ensemble}/info/betas', ModelParamSet.betas)
         with open(f'{path_to_ensemble}/info/ensemble_info.txt', 'w') as info_file:
             info_file.write("\n______Ensemble_______\n")
             info_file.write("\nNotes : '...' \n ")  # Note section to document results

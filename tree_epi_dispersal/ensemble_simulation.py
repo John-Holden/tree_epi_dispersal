@@ -49,7 +49,7 @@ def beta_rho_iterator(execute_model: Callable):
     print('Running @Get Parameter Space...')
     for i, beta in enumerate(betas):
         for j, rho in enumerate(rhos):
-            if ParamsAndSetup['setup'].verb == 1 and c % freq == 0:
+            if ParamsAndSetup['setup'].verb >= 1 and c % freq == 0:
                 print(f'\t i : {i} / {len(betas)}, j : {j} / {len(rhos)}')
 
             all_ens_fields = execute_model(rho, beta)
