@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Union, Iterable, Any
-from parameters_and_settings import PATH_TO_TEMP_STORE, ParamsAndSetup
+from parameters_and_settings import PATH_TO_TEMP_STORE, PATH_TO_DATA_ANIM, ParamsAndSetup
 
 pltParams = {'figure.figsize': (7.5, 5.5),
              'axes.labelsize': 15,
@@ -82,16 +82,22 @@ def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-ste
         plt.close()
 
 
-def plt_adb_frame(S: tuple, E: tuple, I_fb: list, R_fb: list, t: Any):
+def plt_adb_frame(S: tuple, E: tuple, I_fb: list, R_fb: list, title: Any, t: int):
 
-    pixSz = 12.5
+    pixSz = 15
     fig, ax = plt.subplots(figsize=(7, 7))
-    plt.title(f'T : {t}')
+    plt.title(f'T : {title}')
     ax.scatter(I_fb[1], I_fb[0], s=pixSz, c='red')
     ax.scatter(R_fb[1], R_fb[0], s=pixSz, c='grey')
     ax.scatter(S[1], S[0], s=pixSz, c='green')
     ax.scatter(E[1], E[0], s=pixSz, c='orange')
-    plt.show()
+
+    if ParamsAndSetup['setup'].save_to_anim:
+        plt.savefig(f'{PATH_TO_DATA_ANIM}/{frameLabel(t)}')
+
+    if ParamsAndSetup['setup'].show:
+        plt.show()
+
     plt.close()
 
 

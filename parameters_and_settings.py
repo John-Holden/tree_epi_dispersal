@@ -7,6 +7,7 @@ from tree_epi_dispersal.exceptions import InvalidDispersalSetup
 
 PATH_TO_TEMP_STORE = f'{os.getcwd()}/temp_dat_store/'
 PATH_TO_DATA_STORE = f'{os.getcwd()}/data_store/'
+PATH_TO_DATA_ANIM = f'{os.getcwd()}/animation_data/'
 
 
 class ModelParamSet:  # Set dispersal_model parameter and simulation fields
@@ -78,7 +79,7 @@ class Metrics:   # Define which metrics are recorded over the simulation
 class Settings:  # Simulation setup
     plot = True
     show = True
-    save = False
+    save_to_anim = True
     plot_freq = 10
     verb = 2  # verbosity
     ext = '.png'
