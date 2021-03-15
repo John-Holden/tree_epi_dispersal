@@ -49,11 +49,9 @@ def local_mode():
     ParamsAndSetup['params'].ensemble_size = 10
 
     ParamsAndSetup['params'].adb_config()  # set config to model ash dieback
-<<<<<<< HEAD
-=======
+
     ParamsAndSetup['setup'].ensemble_config()  # set config to ensemble mode
     ParamsAndSetup['setup'].verb = 1
->>>>>>> 2cf8bf15fdb2c78054a4dd88c7b9e4287f414944
 
     date = datetime.datetime.today().strftime('%Y-%m-%d')
     ens_name = f'{date}-local-ensemble-{ParamsAndSetup["params"].model}'
