@@ -5,6 +5,7 @@ import datetime
 from typing import Union
 from tree_epi_dispersal.model_dynamics import run_SIR, run_ADB
 from tree_epi_dispersal.ensemble_simulation_helpers import time_print
+from tree_epi_dispersal.ensemble_analysis import process_avg_R0_struct
 from parameters_and_settings import ParamsAndSetup
 
 
@@ -12,21 +13,22 @@ def get_avg_R0(rho: float, beta: float) -> list:
     """
     Repeat R0 simulations over a number of `runs' for a given value of rho, beta.
     """
-    from tree_epi_dispersal.model_dynamics_helpers import R0_generation_mean
-    ensemble_R0 = []
     assert ParamsAndSetup['params'].ensemble_size, 'Error, did not set ensemble-size!'
     ensemble_size = ParamsAndSetup['params'].ensemble_size
     ell = ParamsAndSetup['params'].ell
+
+    ensemble_R0 = []
     for repeat in range(ensemble_size):
-        if ParamsAndSetup['setup'].verb == 2:
+        if ParamsAndSetup['setup'].verb >= 2:
             print('Repeat : {}'.format(repeat))
         if ParamsAndSetup['params'].model == 'SIR':
             sim_result = run_SIR(rho, beta, ell)
         elif ParamsAndSetup['params'].model == 'ADB':
             sim_result = run_ADB(rho, beta, ell)
-            print(sim_result, ' sim result ')
+        else:
+            raise ValueError(f'Expected model /in [SIR, ADB] found {ParamsAndSetup["params"].model}')
+        mean_R0_per_gen = process_avg_R0_struct(sim_result['R0_hist'])
 
-        mean_R0_per_gen = R0_generation_mean(sim_result['R0_hist'])
         ensemble_R0.append(mean_R0_per_gen)  # the number of gen-0 secondary infections
 
     return ensemble_R0

@@ -7,7 +7,7 @@ from tree_epi_dispersal.ensemble_analysis import process_R0_ensemble
 
 
 if __name__ == '__main__':
-    ens_name = f'{PATH_TO_DATA_STORE}2021-03-11-hpc-R0-vs-rho'
+    ens_name = f'{PATH_TO_DATA_STORE}2021-03-14-hpc-R0-vs-rho-ADB'
     ensemble, rhos, betas = process_R0_ensemble(ens_name, produce_landscape_control_package=True,
                                                 process_nth_gen=3)
 
