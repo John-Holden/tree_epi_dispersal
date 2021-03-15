@@ -7,7 +7,7 @@ from tree_epi_dispersal.exceptions import InvalidDispersalSetup
 
 PATH_TO_TEMP_STORE = f'{os.getcwd()}/temp_dat_store/'
 PATH_TO_DATA_STORE = f'{os.getcwd()}/data_store/'
-PATH_TO_DATA_ANIM = f'{os.getcwd()}/animation_data/'
+PATH_TO_DATA_ANIM = f'{os.getcwd()}/anim_data/temp_frames/'
 
 
 class ModelParamSet:  # Set dispersal_model parameter and simulation fields
