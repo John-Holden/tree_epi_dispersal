@@ -49,6 +49,7 @@ def local_mode():
     ParamsAndSetup['params'].ensemble_size = 10
 
     ParamsAndSetup['params'].adb_config()  # set config to model ash dieback
+
     ParamsAndSetup['setup'].ensemble_config()  # set config to ensemble mode
     ParamsAndSetup['setup'].verb = 1
 
