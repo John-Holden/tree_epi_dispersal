@@ -6,5 +6,7 @@ if __name__ == '__main__':
     ParamsAndSetup['params'].update_epi_c()
     ParamsAndSetup['setup'].plot_freq = 1
     ParamsAndSetup['setup'].show = False
+    ParamsAndSetup['setup'].verb = 3
+
 
     single_sim(rho=0.02, beta=0.00050, ell=195, model='ADB')

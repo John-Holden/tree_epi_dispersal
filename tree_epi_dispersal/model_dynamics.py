@@ -83,7 +83,7 @@ def run_ADB(rho: float, beta: float, ell: Union[int, float, tuple]):
             break
 
         if Settings.plot and t % Settings.plot_freq == 0:
-            plt_adb_frame(S_tr, E_tr, I_fb, R_fb, current_date.strftime("%b %d"), t)
+            plt_adb_frame(S_tr, I_tr,  E_tr, I_fb, R_fb, current_date.strftime("%b %d"), t)
 
     sim_result = {"termination": break_condition,
                   'R0_hist': R0_history}

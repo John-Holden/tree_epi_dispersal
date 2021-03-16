@@ -82,15 +82,20 @@ def plt_sim_frame(S, I, R, t, save, show, msg=None):  # plot simulation time-ste
         plt.close()
 
 
-def plt_adb_frame(S: tuple, E: tuple, I_fb: list, R_fb: list, title: Any, t: int):
+def plt_adb_frame(S_tr: tuple, I_tr, E: tuple, I_fb: list, R_fb: list, title: Any, t: int):
 
-    pixSz = 15
+    pixSz = 25
     fig, ax = plt.subplots(figsize=(7, 7))
-    plt.title(f'T : {title}')
-    ax.scatter(I_fb[1], I_fb[0], s=pixSz, c='red')
-    ax.scatter(R_fb[1], R_fb[0], s=pixSz, c='grey')
-    ax.scatter(S[1], S[0], s=pixSz, c='green')
-    ax.scatter(E[1], E[0], s=pixSz, c='orange')
+    rho = ParamsAndSetup['params'].rhos[0]
+    alpha = ParamsAndSetup['params'].alpha
+
+    plt.title(rf'T : {title} | $\rho$ = {rho}, $\alpha$ = {alpha}$m^2$')
+    ax.scatter(I_fb[1], I_fb[0], s=pixSz, c='red', label=r'$I_{fb}$', marker='x')
+    ax.scatter(R_fb[1], R_fb[0], s=pixSz, c='grey', label=r'$R_{fb}$')
+    ax.scatter(S_tr[1], S_tr[0], s=pixSz, c='green', label=r'$S_{tr}$')
+    ax.scatter(I_tr[1], I_tr[0], s=pixSz, c='black', label=r'$I_{tr}$', marker='x')
+    ax.scatter(E[1], E[0], s=pixSz, c='orange', label=r'$E_{tr}$', marker='x')
+    plt.legend()
 
     if ParamsAndSetup['setup'].save_to_anim:
         plt.savefig(f'{PATH_TO_DATA_ANIM}/{frameLabel(t)}')
